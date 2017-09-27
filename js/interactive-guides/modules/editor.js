@@ -72,7 +72,7 @@ var editor = (function() {
             console.log("using ajax to load editor.html", container);
             $.ajax({
                 context: thisEditor,
-                url: "/guides/iguide-common/html/interactive-guides/editor.html",
+                url: "/guides/iguides-common/html/interactive-guides/editor.html",
                 async: false,
                 success: function (result) {
                     container.append($(result));
