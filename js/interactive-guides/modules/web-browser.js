@@ -102,6 +102,14 @@ var webBrowser = (function(){
 
     setURLFocus: function() {
       this.contentRootElement.find('.wbNavURL').focus();
+    },
+
+    enableRefreshButton: function(enable) {
+      if (enable === true) {
+          this.contentRootElement.find('.wbRefreshButton').removeClass("disabled");
+      } else {
+          this.contentRootElement.find('.wbRefreshButton').addClass("disabled");
+      } 
     }
 
   };
@@ -110,7 +118,7 @@ var webBrowser = (function(){
   var __loadAndCreate = function(thisWebBrowser, container, stepName, content) {
       $.ajax({
         context: thisWebBrowser,
-        url: "/guides/iguide-common/html/interactive-guides/web-browser.html",
+        url: "/guides/iguides-common/html/interactive-guides/web-browser.html",
         async: false,
         success: function(result) {
           container.append($(result));

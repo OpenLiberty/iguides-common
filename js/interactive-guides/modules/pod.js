@@ -19,7 +19,7 @@ var pod = (function(){
        var extension = content.substring(content.length - 4).toLowerCase();
        var file =  extension === 'html' || extension === 'htm' ? true: false;
        if (file) {
-         //var fileLocation = '/guides/iguide-common/src/main/content/html/' + content;
+         //var fileLocation = '/guides/iguides-common/src/main/content/html/' + content;
          $.ajax({
            context: this.contentRootElement,
            //url: fileLocation,
@@ -58,7 +58,7 @@ var pod = (function(){
   var __loadAndCreate = function(thisPod, container, stepName, content) {
       $.ajax({
         context: thisPod,
-        url: "/guides/iguide-common/html/interactive-guides/pod.html",
+        url: "/guides/iguides-common/html/interactive-guides/pod.html",
         async: false,
         success: function(result) {
           container.append($(result));

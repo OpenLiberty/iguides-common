@@ -30,11 +30,13 @@ var blueprint = (function(){
     $(ID.prevButton).on('click', function(){
       var prevStep = tableofcontents.prevStepFromName(stepContent.getCurrentStepName());
       stepContent.createContents(prevStep, true);
+      tableofcontents.scrollToContent();
     });
 
     $(ID.nextButton).on('click', function(){
       var nextStep = tableofcontents.nextStepFromName(stepContent.getCurrentStepName());
       stepContent.createContents(nextStep, true);
+      tableofcontents.scrollToContent();
     });
 
     //adding aria-labels to previous/next buttons and using messages file for button text
@@ -58,18 +60,18 @@ var blueprint = (function(){
   calculateBackgroundContainer = function(){
     // Calculate the bottom of the table of contents
     var tocParent = $("#toc_container").parent();
-    //var backgroundMargin = parseInt($("#background_container").css('margin-top')) + parseInt($("#background_container").css('margin-bottom'));
-    var backgroundMargin = 0;
+    var backgroundMargin = parseInt($("#background_container").css('margin-top')) + parseInt($("#background_container").css('margin-bottom'));
     var backgroundPadding = parseInt($("#background_container").css('padding-top')) + parseInt($("#background_container").css('padding-bottom'));
     var minHeight = tocParent.offset().top + tocParent.height() + backgroundMargin + backgroundPadding;
 
     // Extend the background container's min-height to cover the table of contents
     $("#background_container").css('min-height', minHeight);
+    $("#background_container").css('background-size', "100% calc(100% - 50px)");
   };
 
   var __load = function() {
     $.ajax({
-      url: "/guides/iguide-common/html/interactive-guides/blueprint.html",
+      url: "/guides/iguides-common/html/interactive-guides/blueprint.html",
       async: false,
       success: function (result) {
         $("#guide_content").append($(result));
@@ -85,13 +87,3 @@ var blueprint = (function(){
   };
 })();
 
-/*
-$(document).ready(function() {
-  var iguideJsonName = "circuit-breaker.json";
-  var iguideContextRoot = "CircuitBreaker"
-
-  jsonGuide.getAGuide(iguideJsonName).done(function() {
-    blueprint.create(iguideContextRoot);    
-  });
-});
-*/

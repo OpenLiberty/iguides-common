@@ -25,7 +25,7 @@ var cmdPrompt = (function(){
       console.log("using ajax to load cmd-prompt.html", container);
       $.ajax({
           context: thisCmdPrompt,
-          url: "/guides/iguide-common/html/interactive-guides/cmd-prompt.html",
+          url: "/guides/iguides-common/html/interactive-guides/cmd-prompt.html",
           async: false,
           success: function (result) {
               container.append($(result));
