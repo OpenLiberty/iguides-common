@@ -173,6 +173,10 @@ instruction.unavailable {
   pointer-events: none;
 }
 
+.podContainer {
+  padding-bottom: 30px;
+}
+
 .instructionContent {
   padding-left: 5px;
 }
