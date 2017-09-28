@@ -147,7 +147,7 @@ var fileBrowser = (function() {
       if (dest) {
         destElem = this.__findElement(dest, this.__fileStructure);
         if (!destElem) {
-          console.log("Destination directory does not exist: " + dest);
+          //console.log("Destination directory does not exist: " + dest);
           return;
         }
       } else {
@@ -158,7 +158,7 @@ var fileBrowser = (function() {
       if (src) {
         parent = this.__findElement(src, this.__fileStructure);
         if (!parent || !parent.files) {
-          console.log("Source directory does not exist: " + src);
+          //console.log("Source directory does not exist: " + src);
           return;
         }
       } else {
@@ -170,7 +170,7 @@ var fileBrowser = (function() {
         return (file.name === name);
       });
       if (index === -1) {
-        console.log("File or directory: " + name + " to move does not exist in the source directory");
+        //console.log("File or directory: " + name + " to move does not exist in the source directory");
         return;
       }
       var elem = parent.files.splice(index, 1)[0]; // Returns the element and removes it from the parent

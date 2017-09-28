@@ -58,25 +58,25 @@ var stepContent = (function() {
   };
 
   var __parseAction = function(instruction) {
-    console.log("AAA __parseAction ");
-    console.log("instruction ", instruction);
+    //console.log("AAA __parseAction ");
+    //console.log("instruction ", instruction);
     if (instruction) {
       if ($.isArray(instruction)) {
         for (var instr in instruction) {
           var instrStr = instruction[instr];
           //console.log("descStr ", instrStr);
           var parseStringAction = utils.parseActionTag(instrStr);
-          console.log("parseStringAction ", parseStringAction);
+          //console.log("parseStringAction ", parseStringAction);
           if (parseStringAction) {
-            console.log("string not empty (array) - contains action tag, replace string");
+            //console.log("string not empty (array) - contains action tag, replace string");
             instruction[instr] = parseStringAction;
           }
         }
       } else {
         var parseStringAction = utils.parseActionTag(instruction);
-        console.log("parseStringAction ", parseStringAction);
+        //console.log("parseStringAction ", parseStringAction);
         if (parseStringAction) {
-          console.log("string not empty - contains action tag, replace string");
+          //console.log("string not empty - contains action tag, replace string");
           instruction = parseStringAction;
           //console.log("instruction - ", instruction);
         }
@@ -158,20 +158,20 @@ var stepContent = (function() {
             // and __lookForExistingContents.
             var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv ' + contentBootstrapColSize + '"></div>';
             var mainContainer = $('#contentContainer');
-            console.log(mainContainer);
+            //console.log(mainContainer);
             mainContainer.append(subContainerDiv);
             var subContainer = $("#" + subContainerDivId);
             displayTypeNum++;
 
-            console.log("displayType: ", content.displayType);
+            //console.log("displayType: ", content.displayType);
             switch (content.displayType) {
               case 'fileEditor':
                 var newEditor = editor.create(subContainer, step.name, content);
-                console.log(newEditor);
+                //console.log(newEditor);
                 contentManager.setEditor(step.name, newEditor);
                 break;
               case 'commandPrompt':
-                console.log("commandPrompt detected");
+                //console.log("commandPrompt detected");
                 var newCmdPrompt = cmdPrompt.create(subContainer, step.name, content);
                 contentManager.setCommandPrompt(step.name, newCmdPrompt);
                 break;
@@ -180,7 +180,7 @@ var stepContent = (function() {
                 contentManager.setWebBrowser(step.name, newWebBrowser);
                 break;
               case 'fileBrowser':
-                console.log("fileBrowser type found.");
+                //console.log("fileBrowser type found.");
                 var newFileBrowser = fileBrowser.create(subContainer, content, step.name);
                 contentManager.setFileBrowser(step.name, newFileBrowser);
                 break;
@@ -216,8 +216,8 @@ var stepContent = (function() {
 
   var __parseDescriptionForButton = function(step) {
     var description = step.description;
-    console.log("description: ", description);
-    console.log("step.name ", step.name);
+    //console.log("description: ", description);
+    //console.log("step.name ", step.name);
     if (description) {
       var buttonArray = [];
       if ($.isArray(description)) {
@@ -245,12 +245,12 @@ var stepContent = (function() {
       $(ID.blueprintDescription).append("<br>");
       $(ID.blueprintDescription).append("<div class=\"buttonContainer\">");
       for (var i = 0; i < buttonArray.length; i++) {
-        console.log("button ", buttonArray[i]);
+        //console.log("button ", buttonArray[i]);
         //var buttonId = subContainer[0].id + "-button-" + i;
         var buttonId = utils.replaceString(buttonArray[i], " ");
-        console.log("id ", buttonId);
+        //console.log("id ", buttonId);
         var callbackMethod = "(function test(currentStepName) {circuitBreakerCallBack." + buttonId + "(\"" + currentStepName + "\")})";
-        console.log("callbackMethod ", callbackMethod);
+        //console.log("callbackMethod ", callbackMethod);
 
         var button = __createButton(buttonId, buttonArray[i], callbackMethod);
         $(".buttonContainer").append(button);

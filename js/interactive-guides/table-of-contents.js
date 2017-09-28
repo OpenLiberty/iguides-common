@@ -90,7 +90,7 @@ var tableofcontents = (function() {
       orderedStepArray.push(step);
       orderedStepNamesArray.push(step.name);
 
-      console.log("Added: " + step.name);
+      //console.log("Added: " + step.name);
       // Handle children steps recursively if the step has sub-steps.
       if(step.steps !== undefined && step.steps !== null){
         for(var i = 0; i < step.steps.length; i++){
@@ -134,7 +134,7 @@ var tableofcontents = (function() {
             event.stopPropagation();
             __handleFirstStepContent(step);
 
-            console.log("Clicked step: " + step.name);
+            //console.log("Clicked step: " + step.name);
             stepContent.createContents(step);
 
             scrollToContent();

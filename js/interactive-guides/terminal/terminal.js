@@ -110,7 +110,7 @@ var Terminal = function() {
             if(input[0] && input[0] in thisCommands) {                            
                 runCommand(thisElem, input[0], input);
             } else {
-                console.log("cmd not support " + input[0]);
+                //console.log("cmd not support " + input[0]);
                 var strMsg = utils.formatString(messages.cmdNotSupport, input[0]);
                 //thisElem.innerHTML += input[0]  + " not support";
                 thisElem.innerHTML += strMsg;

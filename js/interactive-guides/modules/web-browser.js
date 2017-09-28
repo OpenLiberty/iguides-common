@@ -179,8 +179,8 @@ var webBrowser = (function(){
         thisWebBrowser.updatedURLCallback(thisWebBrowser.getURL());
       });
     } else {   // This webBrowser does not support URL changes.  Redisplay current HTML.
-      console.log(thisWebBrowser.webURL);
-      console.log(thisWebBrowser.webContent);
+      //console.log(thisWebBrowser.webURL);
+      //console.log(thisWebBrowser.webContent);
       refreshButton.on("click", function(event) {
         thisWebBrowser.setURL(thisWebBrowser.webURL);
         thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);

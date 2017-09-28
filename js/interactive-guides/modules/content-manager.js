@@ -85,7 +85,7 @@ var contentManager = (function() {
                     break;
             }
         }
-        console.log("stepContent for " + stepName, __stepContents);
+        //console.log("stepContent for " + stepName, __stepContents);
     };
 
 // ==== GET FUNCTIONS ====
@@ -175,9 +175,9 @@ var contentManager = (function() {
             if (instanceNumber) {
                 module = moduleList[instanceNumber];
             }
-            console.log("Found " + moduleType + " " + module);
+            //console.log("Found " + moduleType + " " + module);
         } else {
-            console.log("Not able to locate any " + moduleType + " in " + stepName);
+            //console.log("Not able to locate any " + moduleType + " in " + stepName);
         }
         return module;
     };
@@ -231,7 +231,7 @@ var contentManager = (function() {
     var getBrowserURL = function(stepName, instanceNumber) {
         var browser = __getWebBrowserInstance(stepName, instanceNumber);
         if (browser) {
-            console.log("Getting URL from Web Browser ", browser);
+            //console.log("Getting URL from Web Browser ", browser);
             return browser.getURL();
         }
     };
@@ -244,7 +244,7 @@ var contentManager = (function() {
     var setBrowserURL = function(stepName, URL, instanceNumber) {
         var browser = __getWebBrowserInstance(stepName, instanceNumber);
         if (browser) {
-            console.log("Setting URL for Web Browser ", browser);
+            //console.log("Setting URL for Web Browser ", browser);
             browser.setURL(URL);
         }
     };
@@ -510,7 +510,7 @@ var contentManager = (function() {
         var instruction = stepInstruction.instructions[index];
         complete = instruction.complete;
       } catch (e) {
-        console.log("isInstructionComplete: Instruction does not exist at index: " + index);
+        //console.log("isInstructionComplete: Instruction does not exist at index: " + index);
       }
       return complete;
     };

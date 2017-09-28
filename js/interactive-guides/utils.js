@@ -12,12 +12,12 @@ var utils = (function() {
         var resultStr;
         if (strDesc.indexOf("`") != -1) {
           var firstIndex = strDesc.indexOf("\`") + 1;
-          console.log("1st index of ` ", firstIndex);
+          //console.log("1st index of ` ", firstIndex);
           var lastIndex = strDesc.lastIndexOf("\`");
-          console.log("last index of ` ", lastIndex);
+          //console.log("last index of ` ", lastIndex);
           resultStr = strDesc.slice(firstIndex, lastIndex);
         } 
-        console.log("resultStr ", resultStr);
+        //console.log("resultStr ", resultStr);
         return resultStr;  
     };
 
@@ -68,7 +68,7 @@ var utils = (function() {
         var firstIndex = strName.indexOf("<b>") + 3;
         var lastIndex = strName.indexOf("</b>");
         var buttonName = strName.substring(firstIndex, lastIndex);
-        console.log("buttonName ", buttonName);
+        //console.log("buttonName ", buttonName);
         return buttonName;
     };
     
@@ -80,19 +80,19 @@ var utils = (function() {
             var lastIndex = strDesc.lastIndexOf("</action>") + 9;
             //console.log("last index of </action> ", lastIndex);
             var origActionStr = strDesc.slice(firstIndex, lastIndex);
-            console.log("original action ", origActionStr);
+            //console.log("original action ", origActionStr);
             var name =  __getNameAction(origActionStr); 
             if (name) {          
                 var callback = __getCallbackAction(origActionStr);
                 var buttonName = __getButtonName(origActionStr);
                 var newActionStr = "<action role='button' tabindex='0' title=" + name + " aria-label=" + name + " onkeypress=" + callback + " onclick=" + callback + " ><b>" + buttonName + "</b></action>";
-                console.log("new action ", newActionStr);
+                //console.log("new action ", newActionStr);
                 //tabindex='0' title='Enter' role='button' aria-label='enter' onkeypress=\"circ
                 resultStr = strDesc.replace(origActionStr, newActionStr)
                 //console.log("resultStr ", resultStr);
             }
         } 
-        console.log("resultStr ", resultStr);
+        //console.log("resultStr ", resultStr);
         return resultStr;  
     };
 

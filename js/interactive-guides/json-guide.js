@@ -11,11 +11,11 @@ var jsonGuide = (function () {
             //url: "/guides/iguide-circuit-breaker/src/main/content/json-guides/" + fileName,
             url: fullFileNameWithPath,
             success: function(response) {
-                console.log("response", response);
+                //console.log("response", response);
                 deferred.resolve(response);
             },
             error: function(jqXHR, status) {
-                console.log("not able to read " + fileName, status);
+                //console.log("not able to read " + fileName, status);
                 deferred.resolve(__noGuideExist);
             }
         });
@@ -26,25 +26,25 @@ var jsonGuide = (function () {
         var deferred = new $.Deferred();
         __getJson('allGuides.toc').done(function(guidesToRead) {
             if (guidesToRead === __noGuideExist) {
-                console.log("Not table to read allGuides.toc");
+                //console.log("Not table to read allGuides.toc");
             } else {
-                console.log("guidesToRead in done", guidesToRead);
+                //console.log("guidesToRead in done", guidesToRead);
                 var promises = [];
                 var done = 0;
                 for (var i = 0; i < guidesToRead.length; i++) {
                     promises[i] = new $.Deferred();
-                    console.log("promises", promises);
+                    //console.log("promises", promises);
                     __getJson(guidesToRead[i]).done(function (guide) {
                         if (guide !== __noGuideExist) {
                             __guides.push(guide);
                         }
-                        console.log("---- guides", __guides);
+                        //console.log("---- guides", __guides);
                         promises[done++].resolve();
                     });
                 }
 
                 $.when.apply($, promises).done(function () {
-                    console.log("------- all done");
+                    //console.log("------- all done");
                     deferred.resolve();
                 });
             }

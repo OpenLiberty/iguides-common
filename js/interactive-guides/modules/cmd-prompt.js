@@ -22,7 +22,7 @@ var cmdPrompt = (function(){
   };
 
   var __loadAndCreate = function(thisCmdPrompt, container, stepName, content) {
-      console.log("using ajax to load cmd-prompt.html", container);
+      //console.log("using ajax to load cmd-prompt.html", container);
       $.ajax({
           context: thisCmdPrompt,
           url: "/guides/iguides-common/html/interactive-guides/cmd-prompt.html",
@@ -33,7 +33,7 @@ var cmdPrompt = (function(){
               //console.log("cmdP ", cmdP);
               //console.log("container id", container[0].id);
               var id = container[0].id + "-cmdPrompt";
-              console.log("id ", id);
+              //console.log("id ", id);
               this.id = id;
               cmdP.attr("id", id);
               //console.log("this.id ", this.id);
@@ -62,7 +62,7 @@ var cmdPrompt = (function(){
   var __createCmdPrompt = function(thisCmdPrompt, id, stepName, content) {
 
       var cmds = __defaultCmds();
-      console.log("initialize terminal ", cmds);
+      //console.log("initialize terminal ", cmds);
       var elem = document.getElementById(id);
       var terminal = new Terminal();
       terminal.init(elem, cmds);
@@ -76,9 +76,9 @@ var cmdPrompt = (function(){
 
             var input = prompt.textContent.split(" ");
             if(input[0] && input[0] in cmds) {               
-                console.log("support cmds");
+                //console.log("support cmds");
             } else {
-                console.log("not support" + input);
+                //console.log("not support" + input);
                 elem.innerHTML += input[0]  + " not support";
             }
 
@@ -88,14 +88,14 @@ var cmdPrompt = (function(){
   };
 
   var __createCmdPromptCallBack = function(thisCmdPrompt, id, stepName, content) {
-      console.log(" createCmdPromptCallBack");
+      //console.log(" createCmdPromptCallBack");
       var callback = eval(content.callback);
       callback(thisCmdPrompt); //pass in instance of this class
   };
 
   var __setCmdPrompt = function(cmds, id) {
-      console.log("cmds ", cmds);
-      console.log("initialize terminal via callback ", id);
+      //console.log("cmds ", cmds);
+      //console.log("initialize terminal via callback ", id);
       var elem = document.getElementById(id);
       var terminal = new Terminal();
       terminal.init(elem, cmds);
@@ -117,13 +117,13 @@ var cmdPrompt = (function(){
       };
 
       cmds.hello = function (args) {
-        console.log("args.length ", args.length);
+        //console.log("args.length ", args.length);
         if (args.length < 3) return "<p>Hello. Why don't you tell me your name?</p>";
         return "Hello " + args[1];
       };
 
       cmds.cd = function (args) {
-        console.log("args.length ", args.length); 
+        //console.log("args.length ", args.length); 
         //<span class="prompt">$></span>
         var elem = document.getElementById(id);      
         var nodes = elem.querySelectorAll('.prompt');
@@ -163,19 +163,19 @@ var cmdPrompt = (function(){
 
             var input = prompt.textContent.split(" ");
             if(input[0] && input[0] in cmds) {               
-                console.log("support cmds");
+                //console.log("support cmds");
             } else {
-                console.log("not support" + input);
+                //console.log("not support" + input);
                 elem.innerHTML += input[0]  + " not support";
             }
       });   
   };
 
   var __focusOnLastInput = function(container) {
-      console.log("focus on last input");
+      //console.log("focus on last input");
       var cmdP = container.find('.terminal');
       var id = container[0].id + "-cmdPrompt";
-      console.log("id ", id);    
+      //console.log("id ", id);    
       var elem = document.getElementById(id);          
       var nodes = elem.querySelectorAll('.input');
       var last = nodes[nodes.length- 1];
@@ -183,7 +183,7 @@ var cmdPrompt = (function(){
   };
 
   var __hide = function(container) {
-      console.log("hide terminal");
+      //console.log("hide terminal");
       container.hide();
       //container.addClass("hidden");
       //if ($('#commandPrompt')) {

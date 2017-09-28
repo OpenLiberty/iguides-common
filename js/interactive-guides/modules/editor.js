@@ -49,7 +49,7 @@ var editor = (function() {
             this.editor.markText({line: fromLineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
         },
         addSaveListener: function(callback) {
-            console.log("saveListener callback", callback);
+            //console.log("saveListener callback", callback);
             this.saveListenerCallback = callback;
         },
         getStepName: function() {
@@ -69,7 +69,7 @@ var editor = (function() {
     };
 
     var __loadAndCreate = function(thisEditor, container, stepName, content) {
-            console.log("using ajax to load editor.html", container);
+            //console.log("using ajax to load editor.html", container);
             $.ajax({
                 context: thisEditor,
                 url: "/guides/iguides-common/html/interactive-guides/editor.html",
@@ -84,14 +84,14 @@ var editor = (function() {
                         container.find(".editorContainer").css("margin-top", "-20px");
                     }
                     var editor = container.find('.codeeditor');
-                    console.log("container id", container[0].id);
+                    //console.log("container id", container[0].id);
                     var id = container[0].id + "-codeeditor";
                     editor.attr("id", id);
                     __createEditor(thisEditor, id, container, stepName, content);
                     return this;
                 },
                 error: function (result) {
-                    console.error("Could not load the edittor.html");
+                    //console.error("Could not load the edittor.html");
                 }
             });
     };
@@ -120,7 +120,7 @@ var editor = (function() {
             if ($.isArray(content.preload)) {
                 preloadEditorContent = content.preload.join("\n");
             }
-            console.log("formatted preloadEditorContent", preloadEditorContent);
+            //console.log("formatted preloadEditorContent", preloadEditorContent);
             thisEditor.editor.setValue(preloadEditorContent);
             thisEditor.editor.contentValue = preloadEditorContent;
         }
@@ -178,12 +178,12 @@ var editor = (function() {
             if ($.isNumeric(readonlyLines.from)) {
                 fromLine = parseInt(readonlyLines.from) - 2;
             } else {
-                console.log("invalid from line", readonlyLines.from);
+                //console.log("invalid from line", readonlyLines.from);
             }
             if ($.isNumeric(readonlyLines.to)) {
                 toLine = parseInt(readonlyLines.to) - 1;
             } else {
-                console.log("invalid to line", readonlyLines.to);
+                //console.log("invalid to line", readonlyLines.to);
             }
             if (fromLine !== undefined && toLine !== undefined) {
                 markText.push({
