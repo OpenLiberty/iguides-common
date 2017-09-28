@@ -106,9 +106,9 @@ var webBrowser = (function(){
 
     enableRefreshButton: function(enable) {
       if (enable === true) {
-          this.contentRootElement.find('.wbRefreshButton').removeClass("disabled");
+          this.contentRootElement.find('.wbRefreshButton').prop('disabled', false);
       } else {
-          this.contentRootElement.find('.wbRefreshButton').addClass("disabled");
+          this.contentRootElement.find('.wbRefreshButton').prop('disabled', true);
       } 
     }
 
