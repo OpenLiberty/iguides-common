@@ -11,7 +11,7 @@ var tableofcontents = (function() {
       var stepIdx = __getStepIndex(name);
       var nextStep = orderedStepArray[stepIdx+1];
       if(nextStep){
-        __handleDurationLabel(nextStep);
+        __handleFirstStepContent(nextStep);
       }      
       return nextStep;
     };
@@ -20,7 +20,7 @@ var tableofcontents = (function() {
       var stepIdx = __getStepIndex(name);
       var previousStep = orderedStepArray[stepIdx-1];
       if(previousStep){
-        __handleDurationLabel(previousStep);
+        __handleFirstStepContent(previousStep);
       }      
       return previousStep;
     };
@@ -104,12 +104,15 @@ var tableofcontents = (function() {
     /**
      * Decide if the guide time duration label needs to be shown.
      */
-    var __handleDurationLabel = function(step) {
+    var __handleFirstStepContent = function(step) {
       // Only show the duration on the first step
       if(__getStepIndex(step.name) != 0) {
-        $(ID.duration_container).hide();
+        $(ID.toc_guide_title).show();
+        $(ID.first_step_header).hide();
       } else {
-        $(ID.duration_container).show();
+        // It is first step
+        $(ID.toc_guide_title).hide();
+        $(ID.first_step_header).show();
       }
     };
 
@@ -128,7 +131,7 @@ var tableofcontents = (function() {
         span.on("click", function(event){
             event.preventDefault();
             event.stopPropagation();            
-            __handleDurationLabel(step);
+            __handleFirstStepContent(step);
 
             console.log("Clicked step: " + step.name);
             stepContent.createContents(step);

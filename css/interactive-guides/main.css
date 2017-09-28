@@ -1,3 +1,7 @@
+#toc_guide_title {
+  padding-top: 30px;
+}
+
 #guide_content pre.CodeMirror-line {
   border-radius: unset;
   border: unset;

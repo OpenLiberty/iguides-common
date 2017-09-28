@@ -6,5 +6,6 @@ var ID = {
     "navButtons": "#nav_buttons",
     "nextButton": "#next_button",
     "prevButton": "#prev_button",
-    "duration_container": "#duration_container"
+    "first_step_header": "#first_step_header",
+    "toc_guide_title": "#toc_guide_title"
 };
