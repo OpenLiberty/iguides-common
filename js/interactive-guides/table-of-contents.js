@@ -119,6 +119,7 @@ var tableofcontents = (function() {
     // Scroll the page back up to the content
     var scrollToContent = function(){
       $("html, body").animate({ scrollTop: $("#guide_column").offset().top }, 400);
+      $(ID.blueprintDescription).focus();
     };
 
     /*
