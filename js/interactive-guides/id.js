@@ -3,7 +3,7 @@ var ID = {
     "blueprintTitle":       "#blueprint_title",
     "blueprintDescription": "#blueprint_description",
     "blueprintInstruction": "#blueprint_instruction",
-    "navButtons": "#nav_buttons",
+    "navButtons": "#page_nav_buttons",
     "nextButton": "#next_button",
     "prevButton": "#prev_button",
     "first_step_header": "#first_step_header",
