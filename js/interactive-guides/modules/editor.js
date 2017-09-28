@@ -44,8 +44,8 @@ var editor = (function() {
             var markTextToLineNumber = fromLineNumber - 1 + (toLineNumber - fromLineNumber )
             this.editor.replaceRange('\n' + content, {line: fromLineNumber-2}, {line: toLineNumber-1});
             if (numberOfLines !== undefined) {
-                markTextToLineNumber = fromLineNumber - 2 + numberOfLines; 
-            } 
+                markTextToLineNumber = fromLineNumber - 2 + numberOfLines;
+            }
             this.editor.markText({line: fromLineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
         },
         addSaveListener: function(callback) {
@@ -77,6 +77,7 @@ var editor = (function() {
                 success: function (result) {
                     container.append($(result));
                     if (content.fileName) {
+                        container.find('.editorContainer').attr("aria-label", content.fileName + " editor");
                         container.find('.editorFileName').text(content.fileName);
                         this.fileName = content.fileName;
                         //$(".editorContainer").css("margin-top", "-20px");
