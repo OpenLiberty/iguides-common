@@ -51,7 +51,6 @@ var stepContent = (function() {
       var instr = __addInstructionTag(stepName, instruction, index);
 
       $(ID.blueprintInstruction).append(instr);
-      $(ID.blueprintInstruction).attr('tabindex', '0');
       $(ID.blueprintInstruction).show();
       contentManager.addCheckmarkToInstruction(stepName, index);
       index++;
