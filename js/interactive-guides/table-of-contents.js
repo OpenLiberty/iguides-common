@@ -12,7 +12,7 @@ var tableofcontents = (function() {
       var nextStep = orderedStepArray[stepIdx+1];
       if(nextStep){
         __handleFirstStepContent(nextStep);
-      }      
+      }
       return nextStep;
     };
 
@@ -21,7 +21,7 @@ var tableofcontents = (function() {
       var previousStep = orderedStepArray[stepIdx-1];
       if(previousStep){
         __handleFirstStepContent(previousStep);
-      }      
+      }
       return previousStep;
     };
 
@@ -46,7 +46,7 @@ var tableofcontents = (function() {
         }
 
         // Focus the selected step when shift-tabbing from the main content
-        $("#blueprint_description").on('keydown', function(event){          
+        $("#blueprint_description").on('keydown', function(event){
           if(event.which === 9 && event.shiftKey){
             event.preventDefault();
             event.stopPropagation();
@@ -55,7 +55,7 @@ var tableofcontents = (function() {
             }
             else{
               $(".selectedStep > span").focus();
-            }            
+            }
           }
         });
     };
@@ -67,7 +67,7 @@ var tableofcontents = (function() {
        Input: {div} container, {JSON} step, {number} depth
     */
     var __buildStep = function(container, step, depth, parentName){
-      var listItem = $("<li class='tableOfContentsStep'></li>");      
+      var listItem = $("<li class='tableOfContentsStep'></li>");
       listItem.attr('data-toc', step.name);
       if(parent){
         listItem.attr('data-parent', parentName);
@@ -127,16 +127,16 @@ var tableofcontents = (function() {
         @param - `span` is the span of the step in the table of contents
         @param - `step` is the JSON containing information for the step
     */
-    var __addOnClickListener = function(listItem, step) {   
+    var __addOnClickListener = function(listItem, step) {
         var span = listItem.find('.tableOfContentsSpan');
         span.on("click", function(event){
             event.preventDefault();
-            event.stopPropagation();            
+            event.stopPropagation();
             __handleFirstStepContent(step);
 
             console.log("Clicked step: " + step.name);
             stepContent.createContents(step);
-            
+
             scrollToContent();
         });
 
@@ -144,7 +144,12 @@ var tableofcontents = (function() {
           // Enter key or space key
           if(event.which === 13 || event.which === 32){
             span.click();
-            $(ID.blueprintDescription).focus();
+            if(__getStepIndex(step.name) != 0) {
+              $(ID.blueprintDescription).focus();
+            } else { //accessibility: read first_step_header info on first step
+              $(ID.first_step_header).attr("tabindex","0");
+              $(ID.first_step_header).focus();
+            }
           }
         });
 
@@ -176,17 +181,17 @@ var tableofcontents = (function() {
       jQuery.fn.visible = function() {
         return this.css('visibility', 'visible');
       };
-      
+
       jQuery.fn.invisible = function() {
           return this.css('visibility', 'hidden');
       };
-      
+
       jQuery.fn.visibilityToggle = function() {
           return this.css('visibility', function(i, visibility) {
               return (visibility == 'visible') ? 'hidden' : 'visible';
           });
       };
-    
+
       if (stepIndex == 0) {
         $(ID.prevButton).invisible();
       } else {
