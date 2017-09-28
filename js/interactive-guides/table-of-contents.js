@@ -141,49 +141,10 @@ var tableofcontents = (function() {
         });
 
         span.on("keydown", function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var stepName = step.name;
           // Enter key or space key
           if(event.which === 13 || event.which === 32){
             span.click();
             $(ID.blueprintDescription).focus();
-          }
-          // Shift + Tab key
-          else if(event.shiftKey && event.which == 9){
-            $("#all_guides_link").focus();
-          }
-          // Tab key
-          else if(event.which === 9 && !event.shiftKey) {
-            // If there is a tag under the table of contents, focus it. Otherwise, go to the description.
-            if($("#tags_container > a").length > 0){
-              $("#tags_container > a").first().focus();
-            }
-            else{
-              $(ID.blueprintDescription).focus();
-            }            
-          }          
-          // Right or down arrow keys
-          else if(event.which === 39 || event.which === 40){
-            var nextStepObj = tableofcontents.nextStepFromName(stepName);
-            if(nextStepObj){
-              var nextStep = tableofcontents.getStepElement(nextStepObj.name);
-              var nextSpan = nextStep.find('span');
-              if(nextSpan){
-                nextSpan.focus();
-              }
-            }
-          }
-          // Left or Up arrow keys
-          else if(event.which === 37 || event.which === 38){
-            var prevStepObj = tableofcontents.prevStepFromName(stepName);
-            if(prevStepObj){
-              var prevStep = tableofcontents.getStepElement(prevStepObj.name);
-              var prevSpan = prevStep.find('span');
-              if(prevSpan){
-                prevSpan.focus();
-              }
-            }
           }
         });
 
