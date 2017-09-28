@@ -51,7 +51,6 @@ var stepContent = (function() {
       var instr = __addInstructionTag(stepName, instruction, index);
 
       $(ID.blueprintInstruction).append(instr);
-      $(ID.blueprintInstruction).attr('tabindex', '0');
       $(ID.blueprintInstruction).show();
       contentManager.addCheckmarkToInstruction(stepName, index);
       index++;
@@ -87,7 +86,7 @@ var stepContent = (function() {
 
   var __addInstructionTag = function (stepName, instruction, index) {
     if (instruction != null) { //some 'steps' don't have instructions
-      var instructionTag = $('<instruction>', {id: stepName + '-instruction-' + index});
+      var instructionTag = $('<instruction>', {id: stepName + '-instruction-' + index, tabindex: 0});
       var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
       var instructionContentDiv = $('<div>', {class: 'instructionContent'});
         instructionContentDiv.html(instruction);
