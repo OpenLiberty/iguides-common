@@ -19,19 +19,18 @@ var pod = (function(){
        var extension = content.substring(content.length - 4).toLowerCase();
        var file =  extension === 'html' || extension === 'htm' ? true: false;
        if (file) {
-         //var fileLocation = '/guides/iguides-common/src/main/content/html/' + content;
+         var thisPod = this;
          $.ajax({
            context: this.contentRootElement,
-           //url: fileLocation,
            url: content,
            async: false,
-           //cache: true,
+           cache: true,
            success: function(result) {
-            this.html($(result));
+            $(thisPod.contentRootElement).html($(result));
            },
            error: function(result) {
              console.error("Could not load content for file " + file);
-             this.html("");
+             $(thisPod.contentRootElement).html("");
            }
          });
        } else {
