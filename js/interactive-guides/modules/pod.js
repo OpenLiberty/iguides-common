@@ -23,7 +23,7 @@ var pod = (function(){
          $.ajax({
            context: this.contentRootElement,
            url: content,
-           async: false,
+           async: true,
            cache: true,
            success: function(result) {
             $(thisPod.contentRootElement).html($(result));
@@ -59,7 +59,7 @@ var pod = (function(){
       $.ajax({
         context: thisPod,
         url: "/guides/iguides-common/html/interactive-guides/pod.html",
-        async: false,
+        async: true,
         cache: true,
         success: function(result) {
           container.append($(result));

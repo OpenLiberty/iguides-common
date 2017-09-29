@@ -11,7 +11,7 @@ var fileBrowser = (function() {
     $.ajax({
       context: this,
       url: "/guides/iguides-common/html/interactive-guides/file-browser.html",
-      async: false,
+      async: true,
       cache: true,
       success: function(result) {
         container.append($(result));
