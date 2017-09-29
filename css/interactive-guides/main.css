@@ -78,6 +78,7 @@
   border: solid 2px #5E6B8D;
   border-radius: 100px;
   transition: all .2s;
+  visibility: hidden;
 }
 .navButton:hover,
 .navButton:focus {
