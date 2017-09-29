@@ -57,7 +57,7 @@ var webBrowser = (function(){
         $(function(){
           $.ajax({
             type: "HEAD",
-            async: true,
+            async: false,
             url: fileLocation
           })
           .success(function() {
@@ -119,7 +119,7 @@ var webBrowser = (function(){
       $.ajax({
         context: thisWebBrowser,
         url: "/guides/iguides-common/html/interactive-guides/web-browser.html",
-        async: true,
+        async: false,
         cache: true,
         success: function(result) {
           container.append($(result));

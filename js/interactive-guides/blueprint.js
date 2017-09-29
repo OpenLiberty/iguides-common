@@ -73,7 +73,7 @@ var blueprint = (function(){
   var __load = function() {
     $.ajax({
       url: "/guides/iguides-common/html/interactive-guides/blueprint.html",
-      async: true,
+      async: false,
       success: function (result) {
         $("#guide_content").append($(result));
       },
