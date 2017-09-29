@@ -120,18 +120,19 @@ var webBrowser = (function(){
         context: thisWebBrowser,
         url: "/guides/iguides-common/html/interactive-guides/web-browser.html",
         async: false,
+        cache: true,
         success: function(result) {
           container.append($(result));
-          this.contentRootElement = container.find('.wb');
-          var $wbNavURL = this.contentRootElement.find('.wbNavURL');
-          var $wbContent = this.contentRootElement.find('.wbContent');
+          thisWebBrowser.contentRootElement = container.find('.wb');
+          var $wbNavURL = thisWebBrowser.contentRootElement.find('.wbNavURL');
+          var $wbContent = thisWebBrowser.contentRootElement.find('.wbContent');
 
           // set aria labels
-          this.contentRootElement.attr('aria-label', messages.browserSample);
+          thisWebBrowser.contentRootElement.attr('aria-label', messages.browserSample);
           $wbNavURL.attr('aria-label', messages.browserAddressBar);
           $wbContent.attr('aria-label', messages.browserContentIdentifier);
-          this.contentRootElement.find('.wbRefreshButton').attr('aria-label', messages.browserRefreshButton);
-          this.contentRootElement.find('.wbRefreshButton').attr('title', messages.browserRefreshButton);
+          thisWebBrowser.contentRootElement.find('.wbRefreshButton').attr('aria-label', messages.browserRefreshButton);
+          thisWebBrowser.contentRootElement.find('.wbRefreshButton').attr('title', messages.browserRefreshButton);
 
           // Select URL text when in focus
           $wbNavURL.focus(function() {
@@ -148,8 +149,8 @@ var webBrowser = (function(){
           __addBrowserListeners(thisWebBrowser);
 
           // fill in contents
-          this.setURL(this.webURL);        
-          this.setBrowserContent(this.webContent);
+          thisWebBrowser.setURL(thisWebBrowser.webURL);        
+          thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
         },
         error: function(result) {
           console.error("Could not load web-browser.html");

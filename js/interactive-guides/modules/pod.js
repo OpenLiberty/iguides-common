@@ -25,6 +25,7 @@ var pod = (function(){
            //url: fileLocation,
            url: content,
            async: false,
+           //cache: true,
            success: function(result) {
             this.html($(result));
            },
@@ -60,12 +61,13 @@ var pod = (function(){
         context: thisPod,
         url: "/guides/iguides-common/html/interactive-guides/pod.html",
         async: false,
+        cache: true,
         success: function(result) {
           container.append($(result));
-          this.contentRootElement = container.find('.podContainer').first();          
+          thisPod.contentRootElement = container.find('.podContainer').first();          
 
           // fill in contents
-          this.setContent(content.content);
+          thisPod.setContent(content.content);
 
           if (content.callback) {
             var callback = eval(content.callback);

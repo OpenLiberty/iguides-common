@@ -1,6 +1,7 @@
 var blueprint = (function(){
   var create = function(blueprintName) {
     __load();
+    __setupLocalSession();
 
     var steps = jsonGuide.getSteps(blueprintName);
 
@@ -80,6 +81,32 @@ var blueprint = (function(){
         console.error("Could not load the edittor.html");
       }
     });
+  };
+
+  var __setupLocalSession = function () {
+    if (typeof (Storage) !== "undefined") {
+      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+        if (options.cache) {
+          var success = originalOptions.success || $.noop,
+            url = originalOptions.url;
+
+          options.cache = false; //remove jQuery cache as we have our own localStorage
+          options.beforeSend = function () {
+            if (window.sessionStorage.getItem(url)) {
+              success(window.sessionStorage.getItem(url));
+              return false;
+            }
+            return true;
+          };
+          options.success = function (data, textStatus) {
+            window.sessionStorage.setItem(url, data);
+            if ($.isFunction(success)) {
+              success(data); //call back to original ajax call
+            }
+          };
+        }
+      });
+    }
   }
 
   return {

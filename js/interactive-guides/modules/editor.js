@@ -74,12 +74,13 @@ var editor = (function() {
                 context: thisEditor,
                 url: "/guides/iguides-common/html/interactive-guides/editor.html",
                 async: false,
+                cache: true,
                 success: function (result) {
                     container.append($(result));
                     if (content.fileName) {
                         container.find('.editorContainer').attr("aria-label", content.fileName + " editor");
                         container.find('.editorFileName').text(content.fileName);
-                        this.fileName = content.fileName;
+                        thisEditor.fileName = content.fileName;
                         //$(".editorContainer").css("margin-top", "-20px");
                         container.find(".editorContainer").css("margin-top", "-20px");
                     }

@@ -12,6 +12,7 @@ var fileBrowser = (function() {
       context: this,
       url: "/guides/iguides-common/html/interactive-guides/file-browser.html",
       async: false,
+      cache: true,
       success: function(result) {
         container.append($(result));
         var fileBrowser = container.find('.fileBrowserContainer');

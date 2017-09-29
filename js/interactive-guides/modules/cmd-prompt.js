@@ -27,6 +27,7 @@ var cmdPrompt = (function(){
           context: thisCmdPrompt,
           url: "/guides/iguides-common/html/interactive-guides/cmd-prompt.html",
           async: false,
+          cache: true,
           success: function (result) {
               container.append($(result));
               var cmdP = container.find('.terminal');
