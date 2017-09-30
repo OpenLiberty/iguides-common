@@ -461,7 +461,9 @@ var contentManager = (function() {
         
         if(instruction){
             var instructionID = stepName + '-instruction-' + currentInstructionIndex;
-            $("html, body").animate({ scrollTop: $("#"+instructionID).offset().top }, 750);
+            if($("#"+instructionID).length > 0){
+                $("html, body").animate({ scrollTop: $("#"+instructionID).offset().top }, 750);
+            }            
 
             if(instruction.complete === false){
                 instruction.complete = true;
@@ -471,6 +473,7 @@ var contentManager = (function() {
                 }
                 else{
                     stepInstruction.currentInstructionIndex = -1;
+                    colorNextButton(true);
                 }
             }
         }
@@ -510,7 +513,7 @@ var contentManager = (function() {
         var instruction = stepInstruction.instructions[index];
         complete = instruction.complete;
       } catch (e) {
-        //console.log("isInstructionComplete: Instruction does not exist at index: " + index);
+        // console.log("isInstructionComplete: Instruction does not exist at index: " + index);
       }
       return complete;
     };
@@ -548,6 +551,37 @@ var contentManager = (function() {
     var getInstructionsLastIndex = function(stepName) {
       var stepInstruction = __getStepInstruction(stepName);
       return stepInstruction.instructions.length-1;
+    };
+
+    var colorNextButton = function(isComplete){
+        // Mark next button green if all instructions are complete
+        var nextButton = $('#next_button');
+        if(nextButton && nextButton.length > 0){
+            if(isComplete){
+                nextButton.addClass('green');
+            }     
+            else{
+                nextButton.removeClass('green');
+            }
+        }
+    };
+
+    /*
+        Check if all of the instructions for a given step are complete.
+        Input: {stepName} Step name
+    */
+    var enableNextWhenAllInstructionsComplete = function(stepName) {
+        var isComplete = true;
+        var stepInstruction = __getStepInstruction(stepName);
+        if(stepInstruction.instructions.length > 0){
+            var lastLoadedInstruction = getCurrentInstructionIndex(stepName);
+            if(lastLoadedInstruction !== -1){
+                isComplete = false;
+            }
+        }       
+        colorNextButton(isComplete);
+        
+        return isComplete;        
     };
 
     var resetInstruction = function(stepName) {
@@ -595,6 +629,7 @@ var contentManager = (function() {
         getCurrentInstructionIndex: getCurrentInstructionIndex,
         getInstructionAtIndex: getInstructionAtIndex,
         getInstructionsLastIndex: getInstructionsLastIndex,
+        enableNextWhenAllInstructionsComplete: enableNextWhenAllInstructionsComplete,
         updateWithNewInstructionNoMarkComplete: updateWithNewInstructionNoMarkComplete
     };
 })();

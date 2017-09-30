@@ -114,6 +114,20 @@
   outline: none; 
 }
 
+#next_button.green {
+  background-image: url(/guides/iguides-common/img/interactive-guides/guides_btnarrow_next_greenbtn.svg);
+  background-color: #ABD155;
+  border: 2px solid #A9D155;
+  color: #282A4A;
+}
+
+#next_button.green:hover, 
+#next_button.green:focus,
+#next_button.green:active {
+  background-color: #C7EE63;
+  border: 2px solid #C7EE63;
+}
+
 @media (max-width: 767px) {
   .navButton {
     width: 130px;

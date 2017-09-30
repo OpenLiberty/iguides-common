@@ -39,21 +39,20 @@ var stepContent = (function() {
     $(ID.blueprintInstruction).empty();
     var index = 0;
     var lastLoadedInstruction = contentManager.getCurrentInstructionIndex(stepName);
+    // Reached the end of the instructions
     if(lastLoadedInstruction === -1){
       lastLoadedInstruction = contentManager.getInstructionsLastIndex(stepName);
     }
     do {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
-
-      //__parseAction(instruction);
-      //console.log("instruction after parse ", instruction);
-
-      var instr = __addInstructionTag(stepName, instruction, index);
-
-      $(ID.blueprintInstruction).append(instr);
-      $(ID.blueprintInstruction).show();
-      contentManager.addCheckmarkToInstruction(stepName, index);
-      index++;
+      // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
+      if(instruction && instruction.indexOf("NOSHOW") !== 0){
+        var instr = __addInstructionTag(stepName, instruction, index);        
+        $(ID.blueprintInstruction).append(instr);
+        $(ID.blueprintInstruction).show();
+        contentManager.addCheckmarkToInstruction(stepName, index);        
+      }
+      index++;      
     } while (index <= lastLoadedInstruction);
   };
 
@@ -127,7 +126,8 @@ var stepContent = (function() {
     __hideContents();
     currentStepName = step.name;
 
-    //__parseDescriptionForButton(step);
+    // Highlight the next button if all of the instructions are complete or there are no instructions
+    contentManager.enableNextWhenAllInstructionsComplete(step.name);
 
     if (!__lookForExistingContents(step)) {
       if (step.content) {
