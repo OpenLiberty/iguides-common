@@ -173,8 +173,9 @@ var stepContent = (function() {
                 break;
               case 'commandPrompt':
                 //console.log("commandPrompt detected");
-                var newCmdPrompt = cmdPrompt.create(subContainer, step.name, content);
-                contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
+                cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
+                  contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
+                });                
                 break;
               case 'webBrowser':
                 webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
@@ -183,8 +184,9 @@ var stepContent = (function() {
                 break;
               case 'fileBrowser':
                 //console.log("fileBrowser type found.");
-                var newFileBrowser = fileBrowser.create(subContainer, content, step.name);
-                contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
+                fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
+                  contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
+                });                
                 break;
               case 'pod':
                 pod.create(subContainer, step.name, content).done(function(newPod){
