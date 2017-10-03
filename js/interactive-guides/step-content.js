@@ -132,7 +132,7 @@ var stepContent = (function() {
     if (!__lookForExistingContents(step)) {
       if (step.content) {
         var content = step.content;
-        var displayTypeNum = 1;
+        var displayTypeNum = 0;
         var defaultBootstrapColSize = "col-sm-12";
         // two contents will be side by side. Otherwise, it will be stack on top of each other.
         if (step.content.length == 2) {
@@ -166,27 +166,32 @@ var stepContent = (function() {
             //console.log("displayType: ", content.displayType);
             switch (content.displayType) {
               case 'fileEditor':
-                var newEditor = editor.create(subContainer, step.name, content);
-                //console.log(newEditor);
-                contentManager.setEditor(step.name, newEditor);
+                editor.create(subContainer, step.name, content).done(function(newEditor){
+                  //console.log(newEditor);
+                  contentManager.setEditor(step.name, newEditor, displayTypeNum);
+                });                
                 break;
               case 'commandPrompt':
                 //console.log("commandPrompt detected");
-                var newCmdPrompt = cmdPrompt.create(subContainer, step.name, content);
-                contentManager.setCommandPrompt(step.name, newCmdPrompt);
+                cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
+                  contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
+                });                
                 break;
               case 'webBrowser':
-                var newWebBrowser = webBrowser.create(subContainer, step.name, content);
-                contentManager.setWebBrowser(step.name, newWebBrowser);
+                webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
+                  contentManager.setWebBrowser(step.name, newWebBrowser, displayTypeNum);
+                });                
                 break;
               case 'fileBrowser':
                 //console.log("fileBrowser type found.");
-                var newFileBrowser = fileBrowser.create(subContainer, content, step.name);
-                contentManager.setFileBrowser(step.name, newFileBrowser);
+                fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
+                  contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
+                });                
                 break;
               case 'pod':
-                var newPod = pod.create(subContainer, step.name, content);
-                contentManager.setPod(step.name, newPod);
+                pod.create(subContainer, step.name, content).done(function(newPod){
+                  contentManager.setPod(step.name, newPod, displayTypeNum);
+                });                
                 break;
             }
           }

@@ -2,10 +2,14 @@ var editor = (function() {
     var __editors = {}; // ToDo: __editors is no longer needed with the new changes
 
     var editorType = function(container, stepName, content) {
+        var deferred = new $.Deferred();
         this.stepName = stepName;
         this.saveListenerCallback = null;
         this.fileName = "";
-        __loadAndCreate(this, container, stepName, content);
+        __loadAndCreate(this, container, stepName, content).done(function(result){
+            deferred.resolve(result);
+        });
+        return deferred;
     };
 
     editorType.prototype = {
@@ -70,10 +74,11 @@ var editor = (function() {
 
     var __loadAndCreate = function(thisEditor, container, stepName, content) {
             //console.log("using ajax to load editor.html", container);
+            var deferred = new $.Deferred();
             $.ajax({
                 context: thisEditor,
                 url: "/guides/iguides-common/html/interactive-guides/editor.html",
-                async: false,
+                async: true,
                 cache: true,
                 success: function (result) {
                     container.append($(result));
@@ -89,12 +94,14 @@ var editor = (function() {
                     var id = container[0].id + "-codeeditor";
                     editor.attr("id", id);
                     __createEditor(thisEditor, id, container, stepName, content);
-                    return this;
+                    deferred.resolve(thisEditor);
                 },
                 error: function (result) {
                     //console.error("Could not load the edittor.html");
+                    deferred.resolve(thisEditor);
                 }
             });
+            return deferred;
     };
 
     var __createEditor = function(thisEditor, id, container, stepName, content) {
