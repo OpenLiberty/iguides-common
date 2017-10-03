@@ -1,9 +1,13 @@
 var cmdPrompt = (function(){
 
   var cmdPromptType = function(container, stepName, content) {
+      var deferred = new $.Deferred();
       this.stepName = stepName;
       this.id = "";
-      __loadAndCreate(this, container, stepName, content);
+      __loadAndCreate(this, container, stepName, content).done(function(result){
+        deferred.resolve(result);
+      });
+      return deferred;
   };
 
   cmdPromptType.prototype = {        
@@ -23,10 +27,11 @@ var cmdPrompt = (function(){
 
   var __loadAndCreate = function(thisCmdPrompt, container, stepName, content) {
       //console.log("using ajax to load cmd-prompt.html", container);
+      var deferred = new $.Deferred();
       $.ajax({
           context: thisCmdPrompt,
           url: "/guides/iguides-common/html/interactive-guides/cmd-prompt.html",
-          async: false,
+          async: true,
           cache: true,
           success: function (result) {
               container.append($(result));
@@ -52,12 +57,15 @@ var cmdPrompt = (function(){
                   __createCmdPromptCallBack(thisCmdPrompt, id, stepName, content);
               } else {
                   __createCmdPrompt(thisCmdPrompt, id, stepName, content);
-            }
+              }
+              deferred.resolve(thisCmdPrompt);
           },
           error: function (result) {
               console.error("Could not load the cmd-prompt.html");
+              deferred.resolve(thisCmdPrompt);
           }
       });
+      return deferred;
   };
 
   var __createCmdPrompt = function(thisCmdPrompt, id, stepName, content) {

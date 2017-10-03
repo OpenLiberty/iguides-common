@@ -5,30 +5,31 @@ var contentManager = (function() {
     var __instructions = {};
 
 // ==== SET FUNCTIONS ====
-    var setFileBrowser = function(stepName, fileBrowser) {
-        __setModule(stepName, fileBrowser, 'fileBrowser');
+    var setFileBrowser = function(stepName, fileBrowser, index) {
+        __setModule(stepName, fileBrowser, 'fileBrowser', index);
     };
-    var setEditor = function(stepName, editor) {
-        __setModule(stepName, editor, 'fileEditor');
+    var setEditor = function(stepName, editor, index) {
+        __setModule(stepName, editor, 'fileEditor', index);
     };
-    var setCommandPrompt = function(stepName, cmdPrompt) {
-        __setModule(stepName, cmdPrompt, 'commandPrompt');
+    var setCommandPrompt = function(stepName, cmdPrompt, index) {
+        __setModule(stepName, cmdPrompt, 'commandPrompt', index);
     };
-    var setWebBrowser = function(stepName, webBrowser) {
-        __setModule(stepName, webBrowser, 'webBrowser');
+    var setWebBrowser = function(stepName, webBrowser, index) {
+        __setModule(stepName, webBrowser, 'webBrowser', index);
     };
-    var setPod = function(stepName, pod) {
-        __setModule(stepName, pod, 'pod');
+    var setPod = function(stepName, pod, index) {
+        __setModule(stepName, pod, 'pod', index);
     };
-    var setCircuitBreaker = function(stepName, circuitBreaker){
-        __setModule(stepName, circuitBreaker, 'circuitBreaker');
+    var setCircuitBreaker = function(stepName, circuitBreaker, index){
+        __setModule(stepName, circuitBreaker, 'circuitBreaker', index);
     };
     /** Generic method to add modules to their respective step
      * @param {String} stepName - stepName where module is located
      * @param {Module Object} module - the module object
      * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {Integer} index - Index in which the module should be stored to preserve order with async loading of modules
      */
-    var __setModule = function(stepName, module, moduleType) {
+    var __setModule = function(stepName, module, moduleType, index) {
         var stepContent = __stepContents[stepName];
         if (!stepContent) {
             __stepContents[stepName] = {};
@@ -37,55 +38,49 @@ var contentManager = (function() {
         var moduleList = null;
         switch(moduleType) {
             case 'webBrowser':
+                if(!stepContent.browsers){
+                    stepContent.browsers = [];
+                }
                 moduleList = stepContent.browsers;
                 break;
             case 'fileBrowser':
+                if(!stepContent.fileBrowsers){
+                    stepContent.fileBrowsers = [];
+                }
                 moduleList = stepContent.fileBrowsers;
                 break;
             case 'fileEditor':
+                if(!stepContent.editors){
+                    stepContent.editors = [];
+                }
                 moduleList = stepContent.editors;
                 break;
             case 'commandPrompt':
+                if(!stepContent.terminals){
+                    stepContent.terminals = [];
+                }
                 moduleList = stepContent.terminals;
                 break;
             case 'pod':
+                if(!stepContent.pods){
+                    stepContent.pods = [];
+                }
                 moduleList = stepContent.pods;
                 break;
             case 'circuitBreaker':
+                if(!stepContent.circuitBreaker){
+                    stepContent.circuitBreaker = [];
+                }
                 moduleList = stepContent.circuitBreaker;
                 break;
         }
         if (moduleList) {
-            moduleList.push(module);
-        } else {
-            switch(moduleType) {
-                case 'webBrowser':
-                    stepContent.browsers = [];
-                    stepContent.browsers.push(module);
-                    break;
-                case 'fileBrowser':
-                    stepContent.fileBrowsers = [];
-                    stepContent.fileBrowsers.push(module);
-                    break;
-                case 'fileEditor':
-                    stepContent.editors = [];
-                    stepContent.editors.push(module);
-                    break;
-                case 'commandPrompt':
-                    stepContent.terminals = [];
-                    stepContent.terminals.push(module);
-                    break;
-                case 'pod':
-                    stepContent.pods = [];
-                    stepContent.pods.push(module);
-                    break;
-                case 'circuitBreaker':
-                    stepContent.circuitBreaker = [];
-                    stepContent.circuitBreaker.push(module);
-                    break;
-            }
-        }
-        //console.log("stepContent for " + stepName, __stepContents);
+            if(index !== undefined){
+                moduleList.splice(index, 0, module); // Insert module at specificed index in the array, to maintain order due to asynchronous loading
+            } else{
+                moduleList.push(module);
+            }            
+        } 
     };
 
 // ==== GET FUNCTIONS ====

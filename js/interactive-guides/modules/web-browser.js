@@ -1,6 +1,7 @@
 var webBrowser = (function(){
 
   var webBrowserType = function(container, stepName, content) {
+    var deferred = new $.Deferred();
     this.stepName = stepName;
     this.contentRootElement = null;
     this.updatedURLCallback = null;    // User-defined callback function
@@ -18,7 +19,10 @@ var webBrowser = (function(){
       this.webContent = "";
     }
     
-    __loadAndCreate(this, container, stepName, content);
+    __loadAndCreate(this, container, stepName, content).done(function(result){
+      deferred.resolve(result);
+    });
+    return deferred;
   };
 
   webBrowserType.prototype = {
@@ -57,7 +61,7 @@ var webBrowser = (function(){
         $(function(){
           $.ajax({
             type: "HEAD",
-            async: false,
+            async: true,
             url: fileLocation
           })
           .success(function() {
@@ -116,10 +120,11 @@ var webBrowser = (function(){
 
 
   var __loadAndCreate = function(thisWebBrowser, container, stepName, content) {
+      var deferred = new $.Deferred();
       $.ajax({
         context: thisWebBrowser,
         url: "/guides/iguides-common/html/interactive-guides/web-browser.html",
-        async: false,
+        async: true,
         cache: true,
         success: function(result) {
           container.append($(result));
@@ -151,11 +156,14 @@ var webBrowser = (function(){
           // fill in contents
           thisWebBrowser.setURL(thisWebBrowser.webURL);        
           thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
+          deferred.resolve(thisWebBrowser);
         },
         error: function(result) {
           console.error("Could not load web-browser.html");
+          deferred.resolve(thisWebBrowser);
         }
       });
+      return deferred;
   };
 
   var __addBrowserListeners = function(thisWebBrowser) {

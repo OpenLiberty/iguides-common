@@ -1,16 +1,20 @@
 var pod = (function(){
 
   var podType = function(container, stepName, content) {
+    var deferred = new $.Deferred();
     this.stepName = stepName;
     this.contentRootElement = null;
     this.updateCallback = null;
 
-    __loadAndCreate(this, container, stepName, content);
+    __loadAndCreate(this, container, stepName, content).done(function(result){
+      deferred.resolve(result);
+    });
+    return deferred;
   };
 
   podType.prototype = {
 
-    setContent: function(content) {
+    setContent: function(content, callback) {
        if (!content) {
          content = "";
          this.contentRootElement.html(content);
@@ -23,10 +27,16 @@ var pod = (function(){
          $.ajax({
            context: this.contentRootElement,
            url: content,
-           async: false,
+           async: true,
            cache: true,
            success: function(result) {
             $(thisPod.contentRootElement).html($(result));
+            if(callback){
+              callback = eval(callback);
+              // Identify this pod instance with the updateCallback
+              // function specified by the user.
+              callback(thisPod);
+            }            
            },
            error: function(result) {
              console.error("Could not load content for file " + file);
@@ -56,29 +66,26 @@ var pod = (function(){
 
 
   var __loadAndCreate = function(thisPod, container, stepName, content) {
+      var deferred = new $.Deferred();
       $.ajax({
         context: thisPod,
         url: "/guides/iguides-common/html/interactive-guides/pod.html",
-        async: false,
+        async: true,
         cache: true,
         success: function(result) {
           container.append($(result));
           thisPod.contentRootElement = container.find('.podContainer').first();          
 
           // fill in contents
-          thisPod.setContent(content.content);
-
-          if (content.callback) {
-            var callback = eval(content.callback);
-            // Identify this pod instance with the updateCallback
-            // function specified by the user.
-            callback(thisPod);
-          }
+          thisPod.setContent(content.content, content.callback);
+          deferred.resolve(thisPod);
         },
         error: function(result) {
           console.error("Could not load pod.html");
+          deferred.resolve(thisPod);
         }
       });
+      return deferred;
   };
 
   var __create = function(container, stepName, content) {
