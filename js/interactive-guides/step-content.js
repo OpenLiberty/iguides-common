@@ -131,8 +131,8 @@ var stepContent = (function() {
 
     if (!__lookForExistingContents(step)) {
       if (step.content) {
-        var content = step.content;
-        var displayTypeNum = 0;
+        var content = step.content;        
+        var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
         var defaultBootstrapColSize = "col-sm-12";
         // two contents will be side by side. Otherwise, it will be stack on top of each other.
         if (step.content.length == 2) {
@@ -152,7 +152,16 @@ var stepContent = (function() {
             } else if (content.size === "10%") {
               contentBootstrapColSize = "col-sm-1";
             }
-            // create a new div under the main contentContainer to load the content of each display type
+
+            // Create an id for the subContainer using the displayType, starting with 0 for each displayType
+            if(!displayTypeCounts[content.displayType]){
+              displayTypeCounts[content.displayType] = 0;
+            }
+            else{
+              displayTypeCounts[content.displayType]++;
+            }
+            // create a new div under the main contentContainer to load the content of each display type 
+            var displayTypeNum = displayTypeCounts[content.displayType];
             var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
             // data-step attribute is used to look for content of an existing step in __hideContents
             // and __lookForExistingContents.
@@ -160,8 +169,7 @@ var stepContent = (function() {
             var mainContainer = $('#contentContainer');
             //console.log(mainContainer);
             mainContainer.append(subContainerDiv);
-            var subContainer = $("#" + subContainerDivId);
-            displayTypeNum++;
+            var subContainer = $("#" + subContainerDivId);            
 
             //console.log("displayType: ", content.displayType);
             switch (content.displayType) {
@@ -194,6 +202,7 @@ var stepContent = (function() {
                 });                
                 break;
             }
+            displayTypeNum++;
           }
         });
       }
