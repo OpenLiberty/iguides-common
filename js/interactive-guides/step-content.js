@@ -202,7 +202,6 @@ var stepContent = (function() {
                 });                
                 break;
             }
-            displayTypeNum++;
           }
         });
       }
