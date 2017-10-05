@@ -66,6 +66,27 @@ var editor = (function() {
             //console.log("saveListener callback", callback);
             this.saveListenerCallback = callback;
         },
+        addContentChangeListener: function(callback) {
+            var thisEditor = this;
+            this.editor.on("change", function(instance, change) {
+                if (!thisEditor.contentChanges) {
+                    thisEditor.contentChanges = [];
+                }
+                thisEditor.contentChanges.push(change);
+                if (thisEditor.contentChangeTimeout) {
+                    clearTimeout(thisEditor.contentChangeTimeout); 
+                    thisEditor.ccontentChangeTimeout = undefined;
+                }
+                thisEditor.contentChangeTimeout = setTimeout(function() {
+                     // Wait until timeout to call callback so as to reduce the number of calls when
+                     // content is still changing. 
+                     // Pass to callback all the saved changes from the editor change event.
+                     callback(thisEditor.editor, thisEditor.contentChanges);
+                     thisEditor.contentChangeTimeout = undefined;
+                     thisEditor.contentChanges = [];
+                }, 2000);
+            });
+        },
         getStepName: function() {
             return this.stepName;
         },
@@ -148,18 +169,8 @@ var editor = (function() {
         }
         // mark any readOnly lines
         thisEditor.markText = markText;
-         // $.each(markText, function(index, readOnlyFromAndTo) {
-         //$.each(markText, function(index, readOnlyFromAndTo) {		 +            thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});
-         //    thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});		 +        });
-         //});
          __markTextForReadOnly(thisEditor, thisEditor.markText);
 
-        /*
-        $(".editorSaveButton .glyphicon-save-file").text(messages.saveButton);
-        if (content.save === false && content.save !== undefined) {
-            $(".editorSaveButton").addClass("hidden");
-        }
-        */
         var saveButton = container.find(".editorSaveButton");
         saveButton.attr('title', messages.saveButton);
         var resetButton = container.find(".editorResetButton");
@@ -184,6 +195,26 @@ var editor = (function() {
         __addRedoOnClickListener(thisEditor, redoButton);
         __addSaveOnClickListener(thisEditor, runButton);
 
+        /* Testing
+        thisEditor.editor.on("changes", function(instance, change) {           
+            if (!thisEditor.contentChanges) {
+                thisEditor.contentChanges = [];
+            }
+            thisEditor.contentChanges.push(change);
+            if (thisEditor.contentChangeTimeout) {
+                console.log("clearing timeout");
+                clearTimeout(thisEditor.timeout); 
+                thisEditor.ccontentChangeTimeout = undefined;
+            }
+            thisEditor.contentChangeTimeout = setTimeout(function() {
+                 // wait until timeout
+                 console.log("after timeout for " + thisEditor.stepName, thisEditor.contentChanges);
+                 thisEditor.contentChangeTimeout = undefined;
+                 thisEditor.contentChanges = [];
+            }, 2000);
+            
+        });
+        */
         __editors[stepName] = thisEditor.editor;
     };
 
