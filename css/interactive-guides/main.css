@@ -66,10 +66,6 @@
   margin-bottom: 15px;
 }
 
-#guide_content #blueprint_description h4 {
-  color: black;
-}
-
 #blueprint_description:focus,
 #blueprint_instruction:focus {
   outline: none;
