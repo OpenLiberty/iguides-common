@@ -195,26 +195,6 @@ var editor = (function() {
         __addRedoOnClickListener(thisEditor, redoButton);
         __addSaveOnClickListener(thisEditor, runButton);
 
-        /* Testing
-        thisEditor.editor.on("changes", function(instance, change) {           
-            if (!thisEditor.contentChanges) {
-                thisEditor.contentChanges = [];
-            }
-            thisEditor.contentChanges.push(change);
-            if (thisEditor.contentChangeTimeout) {
-                console.log("clearing timeout");
-                clearTimeout(thisEditor.timeout); 
-                thisEditor.ccontentChangeTimeout = undefined;
-            }
-            thisEditor.contentChangeTimeout = setTimeout(function() {
-                 // wait until timeout
-                 console.log("after timeout for " + thisEditor.stepName, thisEditor.contentChanges);
-                 thisEditor.contentChangeTimeout = undefined;
-                 thisEditor.contentChanges = [];
-            }, 2000);
-            
-        });
-        */
         __editors[stepName] = thisEditor.editor;
     };
 
