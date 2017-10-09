@@ -84,11 +84,13 @@ var tableofcontents = (function() {
         // Indent based on depth
         listItem.css('margin-left', depth * 30 + 'px');
       
-        // Set text for the step
+        // Create a span and set the text and attributes
         var span = $("<span class='tableOfContentsSpan'>");
         span.attr('tabindex', '0');
         span.attr('aria-label', title);
         span.text(title);
+
+        // Append the span to the list item and then add it to the container
         listItem.append(span);
         container.append(listItem);
         return listItem;
@@ -172,10 +174,7 @@ var tableofcontents = (function() {
               scrollToContent();
             }            
 
-            // Clear previously selected step and highlight step
-            $('.selectedStep').removeClass('selectedStep');
-            var $step = getStepElement(dataToc);
-            $step.addClass('selectedStep');
+            __highlightTableOfContents(dataToc);
         });
 
         span.on("keydown", function(event){
@@ -202,11 +201,20 @@ var tableofcontents = (function() {
       return $("[data-toc='" + name + "']");
     };
 
+    var __highlightTableOfContents = function(name){
+      // Clear previously selected step and highlight step
+      $('.selectedStep').removeClass('selectedStep');
+      var $step = getStepElement(name);
+      $step.addClass('selectedStep');
+    };
+
     /*
         Handles 1. table of content steps clicks and 2. Prev/Next step button clicks
         Select the step in the table of contents.
     */
     var __selectStep = function(stepObj, navButtonClick){     
+      __highlightTableOfContents(stepObj.name);
+
       //Hide the previous and next buttons when not needed
       var stepIndex = orderedStepNamesArray.indexOf(stepObj.name);
       var last = orderedStepNamesArray.length - 1;
