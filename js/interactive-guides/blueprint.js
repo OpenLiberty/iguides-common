@@ -79,7 +79,7 @@ var blueprint = (function(){
     $("#background_container").css('min-height', minHeight);
     $("#background_container").css('background-size', "100% calc(100% - 50px)");
   };
-
+ 
   var __load = function() {
     var deferred = new $.Deferred();
     $.ajax({
