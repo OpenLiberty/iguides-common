@@ -71,41 +71,60 @@ var tableofcontents = (function() {
     };
 
     /*
+       Creates a list item for the table of contents
+       The depth determines how much left-padding the step list item has in the table of contents.
+       Inputs: container: table of contents container for where the list item should be added
+               dataTOC: data attribute to identify the list item
+               title: Title to display in the table of contents list item
+               depth: How many levels down the step is 
+    */
+    var __createListItem = function(container, dataToc, title, depth){
+        var listItem = $("<li class='tableOfContentsStep'></li>");
+        listItem.attr('data-toc', dataToc);
+        // Indent based on depth
+        listItem.css('margin-left', depth * 30 + 'px');
+      
+        // Create a span and set the text and attributes
+        var span = $("<span class='tableOfContentsSpan'>");
+        span.attr('tabindex', '0');
+        span.attr('aria-label', title);
+        span.text(title);
+
+        // Append the span to the list item and then add it to the container
+        listItem.append(span);
+        container.append(listItem);
+        return listItem;
+    };
+
+    /*
        Parses a given step and adds it to the container
        Depth is the given depth of the tree so that it can recursively create steps. The depth determines
        how much left-padding the step list item has in the table of contents.
        Input: {div} container, {JSON} step, {number} depth
     */
-    var __buildStep = function(container, step, depth, parentName){
-      var listItem = $("<li class='tableOfContentsStep'></li>");
-      listItem.attr('data-toc', step.name);
-      if(parent){
-        listItem.attr('data-parent', parentName);
+    var __buildStep = function(container, step, depth){
+      var listItem = __createListItem(container, step.name, step.title, depth);
+       __addOnClickListener(listItem, step, step.name);
+
+      // Build the subsections table of contents links for this step using the data-subsection attributes contained in this description
+      if(step.sections){
+        var sections = step.sections;
+        for(var i = 0; i < sections.length; i++){
+          // Create a toc link to this section, and when clicked on it loads the original step and then scrolls to the section
+          var subStepLink = __createListItem(container, sections[i], sections[i], depth + 1);
+          __addOnClickListener(subStepLink, step, sections[i], sections[i]);
+        }
       }
-
-      // Indent based on depth
-      listItem.css('margin-left', depth * 30 + 'px');
-
-      // Set text for the step
-      var span = $("<span class='tableOfContentsSpan'>");
-      span.attr('tabindex', '0');
-      span.attr('aria-label', step.title);
-      span.text(step.title);
-      listItem.append(span);
-
-      __addOnClickListener(listItem, step);
-      container.append(listItem);
 
       //used for previous/next button functionality
       orderedStepArray.push(step);
       orderedStepNamesArray.push(step.name);
 
-      //console.log("Added: " + step.name);
       // Handle children steps recursively if the step has sub-steps.
       if(step.steps !== undefined && step.steps !== null){
         for(var i = 0; i < step.steps.length; i++){
           var child = step.steps[i];
-          __buildStep(container, child, depth + 1, step.name);
+          __buildStep(container, child, depth + 1);
         }
       }
     };
@@ -137,17 +156,25 @@ var tableofcontents = (function() {
         @param - `span` is the span of the step in the table of contents
         @param - `step` is the JSON containing information for the step
     */
-    var __addOnClickListener = function(listItem, step) {
+    var __addOnClickListener = function(listItem, step, dataToc, section) {
         var span = listItem.find('.tableOfContentsSpan');
         span.on("click", function(event){
             event.preventDefault();
             event.stopPropagation();
             __handleFirstStepContent(step);
-
-            //console.log("Clicked step: " + step.name);
             stepContent.createContents(step);
 
-            scrollToContent();
+            // If the listItem is for a subsection scroll to it after loading the step
+            var focusSection = $("[data-section='" + section + "']");
+            if(section && focusSection.length > 0){
+              $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
+            }
+            // Otherwise, scroll to the top of the step
+            else{
+              scrollToContent();
+            }            
+
+            __highlightTableOfContents(dataToc);
         });
 
         span.on("keydown", function(event){
@@ -174,15 +201,19 @@ var tableofcontents = (function() {
       return $("[data-toc='" + name + "']");
     };
 
+    var __highlightTableOfContents = function(name){
+      // Clear previously selected step and highlight step
+      $('.selectedStep').removeClass('selectedStep');
+      var $step = getStepElement(name);
+      $step.addClass('selectedStep');
+    };
+
     /*
         Handles 1. table of content steps clicks and 2. Prev/Next step button clicks
         Select the step in the table of contents.
     */
-    var __selectStep = function(stepObj, navButtonClick){
-      // Clear previously selected step and highlight step
-      $('.selectedStep').removeClass('selectedStep');
-      var $step = getStepElement(stepObj.name);
-      $step.addClass('selectedStep');
+    var __selectStep = function(stepObj, navButtonClick){     
+      __highlightTableOfContents(stepObj.name);
 
       //Hide the previous and next buttons when not needed
       var stepIndex = orderedStepNamesArray.indexOf(stepObj.name);
