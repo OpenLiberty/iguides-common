@@ -84,7 +84,7 @@ var editor = (function() {
                      callback(thisEditor.editor, thisEditor.contentChanges);
                      thisEditor.contentChangeTimeout = undefined;
                      thisEditor.contentChanges = [];
-                }, 2000);
+                }, 1000);
             });
         },
         getStepName: function() {
