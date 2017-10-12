@@ -39,13 +39,13 @@ var blueprint = (function(){
           //On click listener functions for Previous and Next buttons
           $(ID.prevButton).on('click', function(){
             var prevStep = tableofcontents.prevStepFromName(stepContent.getCurrentStepName());
-            stepContent.createContents(prevStep, true);
+            stepContent.createContents(prevStep);
             tableofcontents.scrollToContent();
           });
       
           $(ID.nextButton).on('click', function(){
             var nextStep = tableofcontents.nextStepFromName(stepContent.getCurrentStepName());
-            stepContent.createContents(nextStep, true);
+            stepContent.createContents(nextStep);
             tableofcontents.scrollToContent();
           });
       

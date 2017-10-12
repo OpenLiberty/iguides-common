@@ -113,7 +113,7 @@ var tableofcontents = (function() {
           var section = sections[i];
           // Create a toc link to this section, and when clicked on it loads the original step and then scrolls to the section
           var subStepLink = __createListItem(container, section.name, section.title, depth + 1);
-          __addOnClickListener(subStepLink, step, section.name, section.name);
+          __addOnClickListener(subStepLink, section, section.name, step); // Pass in parent step
         }
       }
 
@@ -135,14 +135,23 @@ var tableofcontents = (function() {
      * Decide if the guide time duration label needs to be shown.
      */
     var __handleFirstStepContent = function(step) {
+      var isFirstStep;
+      if(step.parent){
+        isFirstStep = __getStepIndex(step.parent.name) === 0;
+      }
+      else{
+        isFirstStep = __getStepIndex(step.name) === 0;
+      }
       // Only show the duration on the first step
-      if(__getStepIndex(step.name) != 0) {
-        $(ID.toc_guide_title).show();
-        $(ID.first_step_header).hide();
-      } else {
-        // It is first step
+      if(isFirstStep) {
         $(ID.toc_guide_title).hide();
-        $(ID.first_step_header).show();
+        $(ID.blueprintTitle).show();
+        $(ID.first_step_header).show();       
+        
+      } else {
+        $(ID.toc_guide_title).show();
+        $(ID.blueprintTitle).hide();
+        $(ID.first_step_header).hide();
       }
     };
 
@@ -157,17 +166,18 @@ var tableofcontents = (function() {
         @param - `span` is the span of the step in the table of contents
         @param - `step` is the JSON containing information for the step
     */
-    var __addOnClickListener = function(listItem, step, dataToc, section) {
+    var __addOnClickListener = function(listItem, step, dataToc, parent) {
         var span = listItem.find('.tableOfContentsSpan');
         span.on("click", function(event){
             event.preventDefault();
             event.stopPropagation();
+
             __handleFirstStepContent(step);
             stepContent.createContents(step);
 
             // If the listItem is for a subsection scroll to it after loading the step
-            var focusSection = $(".title[data-step='" + section + "']");
-            if(section && focusSection.length > 0){
+            var focusSection = $(".title[data-step='" + step.name + "']");
+            if(focusSection.length > 0){
               $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
             }
             // Otherwise, scroll to the top of the step
@@ -224,7 +234,7 @@ var tableofcontents = (function() {
         Handles 1. table of content steps clicks and 2. Prev/Next step button clicks
         Select the step in the table of contents.
     */
-    var __selectStep = function(stepObj, navButtonClick){     
+    var __selectStep = function(stepObj){     
       __highlightTableOfContents(stepObj.name);
 
       //Hide the previous and next buttons when not needed

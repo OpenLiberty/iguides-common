@@ -16,6 +16,20 @@ var stepContent = (function() {
 
   var setSteps = function(steps) {
     _steps = steps;
+    __createLinksToParentSteps();    
+  };
+
+  // Create link to parent step for each section so it can load the parent step when clicked on
+  var __createLinksToParentSteps = function() {
+    // Make links to parents
+    for(var i = 0; i < _steps.length; i++){
+      var step = _steps[i];
+      if(step.sections){
+        for(var j=0; j<step.sections.length; j++){
+          step.sections[j].parent = step;
+        }
+      }
+    }
   };
 
   var getCurrentStepName = function() {
@@ -164,31 +178,58 @@ var stepContent = (function() {
   };
 
   /*
+    Searches for a step JSON from a given step name, and call create contents using that step json
+  */
+  var createContentsFromName = function(stepName){
+    // Make links to parents
+    for(var i = 0; i < _steps.length; i++){
+      var step = _steps[i];
+      if(step.name === stepName){
+        createContents(step);
+        return;
+      }
+      if(step.sections){
+        for(var j=0; j<step.sections.length; j++){
+          if(step.sections[j].name === stepName){
+            createContents(step.sections[j]);
+            return;
+          }
+        }
+      }
+    }
+  };
+
+  /*
     Before create content for the selected step,
     - hide the content of the previous selected step
     - check whether the content of the selected step has been created before
       - if it has, show the existing content
       - otherwise create the new content
       Inputs: {JSON} step
-              {Boolean} navButtonClick: True if they clicked on prev/next buttons and false otherwise
   */
-  var createContents = function(step, navButtonClick) {
-    tableofcontents.selectStep(step, navButtonClick);
+  var createContents = function(step) {
+    tableofcontents.selectStep(step);
     currentStepName = step.name;
     __hideContents(step.name); // Hide other steps that are not for this step
 
-    if (!__lookForExistingContents(step)) {
-      __buildContent(step);
-      if(step.sections){
-        for(var i = 0; i < step.sections.length; i++){
-          contentManager.setInstructions(step.name, step.instruction);
-          __buildContent(step.sections[i]);
+    // Check if there is a parent step to load
+    if(step.parent){
+      createContents(step.parent);
+    }
+    else{
+      if (!__lookForExistingContents(step)) {
+        __buildContent(step);
+        if(step.sections){
+          for(var i = 0; i < step.sections.length; i++){
+            contentManager.setInstructions(step.name, step.instruction);
+            __buildContent(step.sections[i]);
+          }
         }
       }
-    }
-
-    // Highlight the next button if all of the instructions are complete or there are no instructions
-    contentManager.enableNextWhenAllInstructionsComplete(step);
+  
+      // Highlight the next button if all of the instructions are complete or there are no instructions
+      contentManager.enableNextWhenAllInstructionsComplete(step);
+    }    
   };
 
   var __buildContent = function(step) {
@@ -347,6 +388,7 @@ var stepContent = (function() {
 
   return {
     setSteps: setSteps,
+    createContentsFromName: createContentsFromName,
     createContents: createContents,
     getCurrentStepName: getCurrentStepName,
     createInstructionBlock: createInstructionBlock
