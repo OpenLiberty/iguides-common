@@ -112,8 +112,8 @@ var tableofcontents = (function() {
         for(var i = 0; i < sections.length; i++){
           var section = sections[i];
           // Create a toc link to this section, and when clicked on it loads the original step and then scrolls to the section
-          var subStepLink = __createListItem(container, section.title, section.title, depth + 1);
-          __addOnClickListener(subStepLink, step, section.title, section.title);
+          var subStepLink = __createListItem(container, section.name, section.title, depth + 1);
+          __addOnClickListener(subStepLink, step, section.name, section.name);
         }
       }
 
