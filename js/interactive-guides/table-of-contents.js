@@ -110,9 +110,10 @@ var tableofcontents = (function() {
       if(step.sections){
         var sections = step.sections;
         for(var i = 0; i < sections.length; i++){
+          var section = sections[i];
           // Create a toc link to this section, and when clicked on it loads the original step and then scrolls to the section
-          var subStepLink = __createListItem(container, sections[i], sections[i], depth + 1);
-          __addOnClickListener(subStepLink, step, sections[i], sections[i]);
+          var subStepLink = __createListItem(container, section.title, section.title, depth + 1);
+          __addOnClickListener(subStepLink, step, section.title, section.title);
         }
       }
 
@@ -165,7 +166,7 @@ var tableofcontents = (function() {
             stepContent.createContents(step);
 
             // If the listItem is for a subsection scroll to it after loading the step
-            var focusSection = $("[data-section='" + section + "']");
+            var focusSection = $(".title[data-step='" + section + "']");
             if(section && focusSection.length > 0){
               $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
             }
@@ -181,12 +182,23 @@ var tableofcontents = (function() {
           // Enter key or space key
           if(event.which === 13 || event.which === 32){
             span.click();
-            if(__getStepIndex(step.name) != 0) {
-              $(ID.blueprintDescription).focus();
-            } else { //accessibility: read first_step_header info on first step
+
+            if(__getStepIndex(step.name) == 0){
               $(ID.first_step_header).attr("tabindex","0");
               $(ID.first_step_header).focus();
             }
+            else{
+              var description = $(".description[data-step='" + step.name + "'");
+              if(description && description.length > 0){
+                description.focus();
+              }
+            }            
+            // if(__getStepIndex(step.name) != 0) {
+            //   $(ID.blueprintDescription).focus();
+            // } else { //accessibility: read first_step_header info on first step
+            //   $(ID.first_step_header).attr("tabindex","0");
+            //   $(ID.first_step_header).focus();
+            // }
           }
         });
 
