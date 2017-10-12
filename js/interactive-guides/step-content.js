@@ -153,7 +153,7 @@ var stepContent = (function() {
     if(currentInstruction){
       currentInstruction = __addInstructionTag(stepName, currentInstruction, instructionNumber);
       // Check if there is already an instruction for this step, and to append it after that one
-      var stepInstructions = $(".instructionContent[data-step='" + stepName + "']");
+      var stepInstructions = $(".instruction[data-step='" + stepName + "']");
       if(stepInstructions.length > 0){
         stepInstructions.last().after(currentInstruction);
       }
