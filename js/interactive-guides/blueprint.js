@@ -35,6 +35,9 @@ var blueprint = (function(){
       
           tableofcontents.selectStep(steps[0].name);
           stepContent.createContents(steps[0]);
+
+          // Hide the #blueprint_title as it is not used in the interactive guides
+          $(ID.blueprintTitle).hide();
       
           //On click listener functions for Previous and Next buttons
           $(ID.prevButton).on('click', function(){

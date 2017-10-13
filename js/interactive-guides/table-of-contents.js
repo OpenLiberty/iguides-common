@@ -145,12 +145,10 @@ var tableofcontents = (function() {
       // Only show the duration on the first step
       if(isFirstStep) {
         $(ID.toc_guide_title).hide();
-        $(ID.blueprintTitle).show();
         $(ID.first_step_header).show();       
         
       } else {
         $(ID.toc_guide_title).show();
-        $(ID.blueprintTitle).hide();
         $(ID.first_step_header).hide();
       }
     };
