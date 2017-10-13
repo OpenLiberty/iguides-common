@@ -182,32 +182,44 @@ var stepContent = (function() {
     Searches for a step JSON from a given step name, and call create contents using that step json
   */
   var createContentsFromName = function(stepName){
+    var stepToLoad = findStepFromName(_steps, stepName);
+    if(stepToLoad){
+      createContents(stepToLoad);
+    }
+
     // Make links to parents
     for(var i = 0; i < _steps.length; i++){
       var step = _steps[i];
-      if(step.name === stepName){
-        createContents(step);
+      var stepToLoad = findStepFromName(step, stepName);
+      if(stepToLoad){
+        createContents(stepToLoad);
         return;
       }
-      // Search sections
-      if(step.sections){
-        for(var j=0; j<step.sections.length; j++){
-          if(step.sections[j].name === stepName){
-            createContents(step.sections[j]);
-            return;
-          }
+    }
+  };
+
+  var findStepFromName = function(root, stepToFind){
+    if(root.name === stepToFind){
+      return root;
+    }
+    else if(root.sections){
+      for(var i=0; i<root.sections.length; i++){
+        var section = findStepFromName(root.sections[i], stepToFind);
+        if(section){
+          return section;
         }
       }
-      // Search substeps
-      if(step.steps){
-        for(var j=0; j<step.steps.length; j++){
-          if(step.steps[j].name === stepName){
-            createContents(step.steps[j]);
-          }
+    }
+    else if(root.steps){
+      for(var j=0; j<root.steps.length; j++){
+        var step = findStepFromName(root.steps[j], stepToFind);
+        if(step){
+          return step;
         }
       }
     }
   };
+  
 
   /*
     Before create content for the selected step,
@@ -217,14 +229,16 @@ var stepContent = (function() {
       - otherwise create the new content
       Inputs: {JSON} step
   */
-  var createContents = function(step) {
-    tableofcontents.selectStep(step);
-    currentStepName = step.name;
-    __hideContents(step.name); // Hide other steps that are not for this step
+  var createContents = function(step) {  
+    currentStepName = step.name;  
+    __hideContents(); // Hide other steps that are not for this step    
 
     // Check if there is a parent step to load
     if(step.parent){
       createContents(step.parent);
+      tableofcontents.selectStep(step);      
+      scrollToSection(step.name);
+      return;
     }
     else{
       if (!__lookForExistingContents(step)) {
@@ -235,10 +249,25 @@ var stepContent = (function() {
           }
         }
       }
+      tableofcontents.selectStep(step);
+      currentStepName = step.name;
   
       // Highlight the next button if all of the instructions are complete or there are no instructions
       contentManager.enableNextWhenAllInstructionsComplete(step);
     }    
+  };
+
+  var scrollToSection = function(stepname){    
+    var focusSection = $(".title[data-step='" + stepname + "']");
+    
+    // If the section is found scroll to it
+    if(focusSection.length > 0){
+      $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
+    }
+    // Otherwise, scroll to the top of the step
+    else{
+      scrollToContent();
+    }   
   };
 
   var __buildContent = function(step) {
@@ -397,7 +426,8 @@ var stepContent = (function() {
 
   return {
     setSteps: setSteps,
-    createContentsFromName: createContentsFromName,
+    scrollToSection: scrollToSection,
+    createContentsFromName: createContentsFromName,    
     createContents: createContents,
     getCurrentStepName: getCurrentStepName,
     createInstructionBlock: createInstructionBlock

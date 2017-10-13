@@ -172,17 +172,8 @@ var tableofcontents = (function() {
 
             __handleFirstStepContent(step);
             stepContent.createContents(step);
-
-            // If the listItem is for a subsection scroll to it after loading the step
-            var focusSection = $(".title[data-step='" + step.name + "']");
-            if(focusSection.length > 0){
-              $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
-            }
-            // Otherwise, scroll to the top of the step
-            else{
-              scrollToContent();
-            }            
-
+            
+            stepContent.scrollToSection(step.name);                   
             __highlightTableOfContents(dataToc);
         });
 
