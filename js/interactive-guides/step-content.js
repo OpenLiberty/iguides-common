@@ -48,6 +48,7 @@ var stepContent = (function() {
       return;
     }
     var newTitle = $("<div class='title'></div>");
+    newTitle.attr('aria-label', step.title);
     newTitle.attr('data-step', step.name);
     newTitle.html(step.title);
     $("#contentContainer").append(newTitle);
@@ -221,7 +222,6 @@ var stepContent = (function() {
         __buildContent(step);
         if(step.sections){
           for(var i = 0; i < step.sections.length; i++){
-            contentManager.setInstructions(step.name, step.instruction);
             __buildContent(step.sections[i]);
           }
         }
