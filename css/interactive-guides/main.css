@@ -172,6 +172,10 @@ instruction {
   align-items: center;
 }
 
+instruction:last-of-type {
+  margin-bottom: 30px;
+}
+
 instruction.completed {
   opacity: 0.5;
   pointer-events: none;
