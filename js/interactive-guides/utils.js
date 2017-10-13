@@ -43,41 +43,71 @@ var utils = (function() {
     var __getTitleAction = function(strAction) {
         var title;  
         if (strAction.indexOf("title=") !== -1) {
-          var index = strAction.indexOf("title=") + 6;
-          //console.log("index ", index);
-          title = strAction.substring(index);
-          //console.log("title ", name);
-          var quote = title.substring(0, 1);
-          //console.log("quote ", quote);
-          var tmpString = title.substring(1);
-          //console.log("tmpString ", tmpString);
-          var lastIndex = tmpString.indexOf(quote);
-          title = title.substring(0, lastIndex + 2);
-          //console.log("title=", title);
+            var index = strAction.indexOf("title=") + 6;
+            //console.log("index ", index);
+            title = strAction.substring(index);
+            var nextSpace = title.indexOf(" ");
+            // get content of title
+            if (nextSpace !== -1) {
+                title = title.substring(0, nextSpace);
+            }
+            // check if contain quote
+            if (title.indexOf("\"") !== -1 ||
+                title.indexOf("'") !== -1) {
+                //var quote = title.substring(0, 1);
+                //var tmpString = title.substring(1);
+                //console.log("tmpString ", tmpString);
+                //var lastIndex = tmpString.indexOf(quote);
+                //title = title.substring(0, lastIndex + 2);
+            } else { 
+                title = "'" + title + "'";
+            }
         }
+        //console.log("title=", title);
         return title;
     };
     
     var __getCallbackAction = function(strAction) {
-        var callbackStr;
-        if (strAction.indexOf("callback=") !== -1) {
-            var index = strAction.indexOf("callback=") + 9;
-            //console.log("index ", index);
+        var callbackStr, index;
+           
+        if (strAction.indexOf("onclick=") !== -1) {
+            index = strAction.indexOf("onclick=") + 8;
+        } else if (strAction.indexOf("onkeypress=") !== -1) {
+            index = strAction.indexOf("onkeypress=") + 11;
+        }
+        //console.log("index ", index);
+        if (index) {
             callbackStr = strAction.substring(index);
             //console.log("callback ", callbackStr);
             var lastIndex = callbackStr.indexOf(")");
-            callbackStr = callbackStr.substring(0, lastIndex + 2);
-            //console.log("callback=", callbackStr);
+            var hasQuotes = callbackStr.substring(0, 1);
+            if (hasQuotes.indexOf("\"") !== -1 ||
+                hasQuotes.indexOf("'") !== -1) {
+                callbackStr = callbackStr.substring(0, lastIndex + 2);
+            } else {
+                callbackStr = "\"" + callbackStr.substring(0, lastIndex + 1) + "\"";
+            }
         }
+        //console.log("callback=", callbackStr);
         return callbackStr;
     };
     
     var __getButtonName = function(strName) {
-        var buttonName = strName.substring(1, strName.length - 1);
-        var firstIndex = strName.indexOf("<b>") + 3;
-        var lastIndex = strName.indexOf("</b>");
-        var buttonName = strName.substring(firstIndex, lastIndex);
-        //console.log("buttonName ", buttonName);
+        var buttonName;
+        if (strName.indexOf("<b>") !== -1) {
+            var firstIndex = strName.indexOf("<b>") + 3;
+            var lastIndex = strName.indexOf("</b>");
+            buttonName = strName.substring(firstIndex, lastIndex);
+        } else {
+            //get string from last index of <action forward
+            var tmpStr = strName.substring(7);
+            if (tmpStr.indexOf(">") !== -1) {
+                var firstIndex = tmpStr.indexOf(">") + 1;
+                var lastIndex = tmpStr.indexOf("</action>");
+                buttonName = tmpStr.substring(firstIndex, lastIndex);
+            }
+        }
+        //console.log("buttonName=", buttonName);
         return buttonName;
     };
 
@@ -92,6 +122,7 @@ var utils = (function() {
             if (name) {          
                 var callback = __getCallbackAction(origActionStr);
                 var buttonName = __getButtonName(origActionStr);
+                // construct new action
                 var newActionStr = "<action role='button' tabindex='0' title=" + name + " aria-label=" + name + " onkeypress=" + callback + " onclick=" + callback + " ><b>" + buttonName + "</b></action>";
                 //console.log("new action ", newActionStr);
                 resultStr = resultStr.replace(origActionStr, newActionStr);
