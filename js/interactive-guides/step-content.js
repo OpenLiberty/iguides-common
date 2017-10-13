@@ -235,8 +235,8 @@ var stepContent = (function() {
   var __buildContent = function(step) {
     contentManager.setInstructions(step.name, step.instruction);
     __addTitle(step);
-    __updateInstructions(step);
     __addDescription(step);
+    __updateInstructions(step);    
     if (step.content) {
       var content = step.content;        
       var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
