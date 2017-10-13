@@ -33,7 +33,6 @@ var blueprint = (function(){
           var toc_title = jsonGuide.getGuideDisplayTitle(blueprintName);
           tableofcontents.create(toc_title, steps);
       
-          tableofcontents.selectStep(steps[0].name);
           stepContent.createContents(steps[0]);
 
           // Hide the #blueprint_title as it is not used in the interactive guides

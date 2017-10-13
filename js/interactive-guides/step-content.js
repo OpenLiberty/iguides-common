@@ -189,11 +189,20 @@ var stepContent = (function() {
         createContents(step);
         return;
       }
+      // Search sections
       if(step.sections){
         for(var j=0; j<step.sections.length; j++){
           if(step.sections[j].name === stepName){
             createContents(step.sections[j]);
             return;
+          }
+        }
+      }
+      // Search substeps
+      if(step.steps){
+        for(var j=0; j<step.steps.length; j++){
+          if(step.steps[j].name === stepName){
+            createContents(step.steps[j]);
           }
         }
       }
