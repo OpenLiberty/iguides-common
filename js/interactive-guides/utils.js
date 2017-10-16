@@ -55,7 +55,7 @@ var utils = (function() {
             //console.log("index ", index);
             str = strAction.substring(index);
             var quote = __getQuote(str);
-            if (quote) {             
+            if (quote == "\"" || quote == "'") {            
                 // exclude the first quote
                 var openQuoteIndex = str.indexOf(quote);
                 str = str.substring(openQuoteIndex + 1);
