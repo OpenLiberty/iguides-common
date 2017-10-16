@@ -182,12 +182,6 @@ var stepContent = (function() {
     Searches for a step JSON from a given step name, and call create contents using that step json
   */
   var createContentsFromName = function(stepName){
-    var stepToLoad = findStepFromName(_steps, stepName);
-    if(stepToLoad){
-      createContents(stepToLoad);
-    }
-
-    // Make links to parents
     for(var i = 0; i < _steps.length; i++){
       var step = _steps[i];
       var stepToLoad = findStepFromName(step, stepName);
