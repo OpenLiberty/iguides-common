@@ -33,19 +33,21 @@ var blueprint = (function(){
           var toc_title = jsonGuide.getGuideDisplayTitle(blueprintName);
           tableofcontents.create(toc_title, steps);
       
-          tableofcontents.selectStep(steps[0].name);
           stepContent.createContents(steps[0]);
+
+          // Hide the #blueprint_title as it is not used in the interactive guides
+          $(ID.blueprintTitle).hide();
       
           //On click listener functions for Previous and Next buttons
           $(ID.prevButton).on('click', function(){
             var prevStep = tableofcontents.prevStepFromName(stepContent.getCurrentStepName());
-            stepContent.createContents(prevStep, true);
+            stepContent.createContents(prevStep);
             tableofcontents.scrollToContent();
           });
       
           $(ID.nextButton).on('click', function(){
             var nextStep = tableofcontents.nextStepFromName(stepContent.getCurrentStepName());
-            stepContent.createContents(nextStep, true);
+            stepContent.createContents(nextStep);
             tableofcontents.scrollToContent();
           });
       

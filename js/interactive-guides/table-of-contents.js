@@ -110,9 +110,10 @@ var tableofcontents = (function() {
       if(step.sections){
         var sections = step.sections;
         for(var i = 0; i < sections.length; i++){
+          var section = sections[i];
           // Create a toc link to this section, and when clicked on it loads the original step and then scrolls to the section
-          var subStepLink = __createListItem(container, sections[i], sections[i], depth + 1);
-          __addOnClickListener(subStepLink, step, sections[i], sections[i]);
+          var subStepLink = __createListItem(container, section.name, section.title, depth + 1);
+          __addOnClickListener(subStepLink, section, section.name, step); // Pass in parent step
         }
       }
 
@@ -134,14 +135,21 @@ var tableofcontents = (function() {
      * Decide if the guide time duration label needs to be shown.
      */
     var __handleFirstStepContent = function(step) {
+      var isFirstStep;
+      if(step.parent){
+        isFirstStep = __getStepIndex(step.parent.name) === 0;
+      }
+      else{
+        isFirstStep = __getStepIndex(step.name) === 0;
+      }
       // Only show the duration on the first step
-      if(__getStepIndex(step.name) != 0) {
+      if(isFirstStep) {
+        $(ID.toc_guide_title).hide();
+        $(ID.first_step_header).show();       
+        
+      } else {
         $(ID.toc_guide_title).show();
         $(ID.first_step_header).hide();
-      } else {
-        // It is first step
-        $(ID.toc_guide_title).hide();
-        $(ID.first_step_header).show();
       }
     };
 
@@ -156,24 +164,16 @@ var tableofcontents = (function() {
         @param - `span` is the span of the step in the table of contents
         @param - `step` is the JSON containing information for the step
     */
-    var __addOnClickListener = function(listItem, step, dataToc, section) {
+    var __addOnClickListener = function(listItem, step, dataToc, parent) {
         var span = listItem.find('.tableOfContentsSpan');
         span.on("click", function(event){
             event.preventDefault();
             event.stopPropagation();
+
             __handleFirstStepContent(step);
             stepContent.createContents(step);
-
-            // If the listItem is for a subsection scroll to it after loading the step
-            var focusSection = $("[data-section='" + section + "']");
-            if(section && focusSection.length > 0){
-              $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
-            }
-            // Otherwise, scroll to the top of the step
-            else{
-              scrollToContent();
-            }            
-
+            
+            stepContent.scrollToSection(step.name);                   
             __highlightTableOfContents(dataToc);
         });
 
@@ -181,12 +181,23 @@ var tableofcontents = (function() {
           // Enter key or space key
           if(event.which === 13 || event.which === 32){
             span.click();
-            if(__getStepIndex(step.name) != 0) {
-              $(ID.blueprintDescription).focus();
-            } else { //accessibility: read first_step_header info on first step
+
+            if(__getStepIndex(step.name) == 0){
               $(ID.first_step_header).attr("tabindex","0");
               $(ID.first_step_header).focus();
             }
+            else{
+              var description = $(".description[data-step='" + step.name + "'");
+              if(description && description.length > 0){
+                description.focus();
+              }
+            }            
+            // if(__getStepIndex(step.name) != 0) {
+            //   $(ID.blueprintDescription).focus();
+            // } else { //accessibility: read first_step_header info on first step
+            //   $(ID.first_step_header).attr("tabindex","0");
+            //   $(ID.first_step_header).focus();
+            // }
           }
         });
 
@@ -212,8 +223,13 @@ var tableofcontents = (function() {
         Handles 1. table of content steps clicks and 2. Prev/Next step button clicks
         Select the step in the table of contents.
     */
-    var __selectStep = function(stepObj, navButtonClick){     
+    var __selectStep = function(stepObj){     
       __highlightTableOfContents(stepObj.name);
+
+      // Don't show/hide the previous/next buttons based on this section if this is a section of a parent's step
+      if(stepObj.parent){
+        return;
+      }
 
       //Hide the previous and next buttons when not needed
       var stepIndex = orderedStepNamesArray.indexOf(stepObj.name);
@@ -225,12 +241,6 @@ var tableofcontents = (function() {
 
       jQuery.fn.invisible = function() {
           return this.css('visibility', 'hidden');
-      };
-
-      jQuery.fn.visibilityToggle = function() {
-          return this.css('visibility', function(i, visibility) {
-              return (visibility == 'visible') ? 'hidden' : 'visible';
-          });
       };
 
       if (stepIndex == 0) {
