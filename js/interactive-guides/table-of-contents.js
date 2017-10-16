@@ -226,6 +226,11 @@ var tableofcontents = (function() {
     var __selectStep = function(stepObj){     
       __highlightTableOfContents(stepObj.name);
 
+      // Don't show/hide the previous/next buttons based on this section if this is a section of a parent's step
+      if(stepObj.parent){
+        return;
+      }
+
       //Hide the previous and next buttons when not needed
       var stepIndex = orderedStepNamesArray.indexOf(stepObj.name);
       var last = orderedStepNamesArray.length - 1;
@@ -236,12 +241,6 @@ var tableofcontents = (function() {
 
       jQuery.fn.invisible = function() {
           return this.css('visibility', 'hidden');
-      };
-
-      jQuery.fn.visibilityToggle = function() {
-          return this.css('visibility', function(i, visibility) {
-              return (visibility == 'visible') ? 'hidden' : 'visible';
-          });
       };
 
       if (stepIndex == 0) {
