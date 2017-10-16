@@ -40,72 +40,65 @@ var utils = (function() {
         return resultStr;
     };
 
-    var __getTitleAction = function(strAction) {
-        var title;  
-        if (strAction.indexOf("title=") !== -1) {
-            var index = strAction.indexOf("title=") + 6;
+    var __getQuote = function(str) {
+        var quote;
+        str = str.trimLeft();
+        quote = str.substring(0, 1);
+        //console.log("quote ", quote);
+        return quote;
+    }
+
+    var __getAttributeAction = function(strAction, attr) {
+        var str;  
+        if (strAction.indexOf(attr) !== -1) {
+            var index = strAction.indexOf(attr) + attr.length;
             //console.log("index ", index);
-            title = strAction.substring(index);
-            var nextSpace = title.indexOf(" ");
-            // get content of title
-            if (nextSpace !== -1) {
-                title = title.substring(0, nextSpace);
-            }
-            // check if contain quote
-            if (title.indexOf("\"") !== -1 ||
-                title.indexOf("'") !== -1) {
-                //var quote = title.substring(0, 1);
-                //var tmpString = title.substring(1);
-                //console.log("tmpString ", tmpString);
-                //var lastIndex = tmpString.indexOf(quote);
-                //title = title.substring(0, lastIndex + 2);
-            } else { 
-                title = "'" + title + "'";
+            str = strAction.substring(index);
+            var quote = __getQuote(str);
+            if (quote) {             
+                // exclude the first quote
+                var openQuoteIndex = str.indexOf(quote);
+                str = str.substring(openQuoteIndex + 1);
+                var closeQuoteIndex = str.indexOf(quote);
+                if (closeQuoteIndex !== -1) {
+                    str = quote + str.substring(0, closeQuoteIndex + 1);
+                } else {
+                    console.log("syntax error: " + str + " in <action> tag missing closing quote");
+                }
+            } else {
+                console.log("syntax error: " + str + " in <action> tag missing open quote");
             }
         }
+        //console.log(attr + ": ", str);
+        return str;   
+    }
+
+    var __getTitleAction = function(strAction) {
+        var title = __getAttributeAction(strAction, "title=");
         //console.log("title=", title);
         return title;
     };
     
-    var __getCallbackAction = function(strAction) {
-        var callbackStr, index;
-           
-        if (strAction.indexOf("onclick=") !== -1) {
-            index = strAction.indexOf("onclick=") + 8;
-        } else if (strAction.indexOf("onkeypress=") !== -1) {
-            index = strAction.indexOf("onkeypress=") + 11;
-        }
-        //console.log("index ", index);
-        if (index) {
-            callbackStr = strAction.substring(index);
-            //console.log("callback ", callbackStr);
-            var lastIndex = callbackStr.indexOf(")");
-            var hasQuotes = callbackStr.substring(0, 1);
-            if (hasQuotes.indexOf("\"") !== -1 ||
-                hasQuotes.indexOf("'") !== -1) {
-                callbackStr = callbackStr.substring(0, lastIndex + 2);
-            } else {
-                callbackStr = "\"" + callbackStr.substring(0, lastIndex + 1) + "\"";
-            }
-        }
-        //console.log("callback=", callbackStr);
-        return callbackStr;
-    };
+    var __getOnClickAction = function(strAction) {
+        var str = __getAttributeAction(strAction, "onclick=");
+        //console.log("onclick=", str);
+        return str; 
+    }
+
+    var __getOnKeyPressAction = function(strAction) {
+        var str = __getAttributeAction(strAction, "onkeypress=");
+        //console.log("onkeypress=", str);
+        return str;
+    }
     
     var __getButtonName = function(strName) {
         var buttonName;
-        if (strName.indexOf("<b>") !== -1) {
-            var firstIndex = strName.indexOf("<b>") + 3;
-            var lastIndex = strName.indexOf("</b>");
-            buttonName = strName.substring(firstIndex, lastIndex);
-        } else {
-            //get string from last index of <action forward
-            var tmpStr = strName.substring(7);
-            if (tmpStr.indexOf(">") !== -1) {
-                var firstIndex = tmpStr.indexOf(">") + 1;
-                var lastIndex = tmpStr.indexOf("</action>");
-                buttonName = tmpStr.substring(firstIndex, lastIndex);
-            }
+        //get string from last index of <action forward
+        var tmpStr = strName.substring(7);
+        if (tmpStr.indexOf(">") !== -1) {
+            var firstIndex = tmpStr.indexOf(">") + 1;
+            var lastIndex = tmpStr.indexOf("</action>");
+            buttonName = tmpStr.substring(firstIndex, lastIndex);
         }
         //console.log("buttonName=", buttonName);
         return buttonName;
@@ -118,12 +111,22 @@ var utils = (function() {
         for (var a in actionArray) {
             var origActionStr = actionArray[a];
             //console.log("action[" + a + "]", origActionStr);
-            var name =  __getTitleAction(origActionStr); 
-            if (name) {          
-                var callback = __getCallbackAction(origActionStr);
+            var title =  __getTitleAction(origActionStr, "title="); 
+            if (title) {          
+                var onclickMethod = __getOnClickAction(origActionStr, "onclick=");
+                var onkeypressMethod = __getOnKeyPressAction(origActionStr, "onkeypress=");
+                if (onclickMethod) {
+                    if (!onkeypressMethod) {
+                        onkeypressMethod = onclickMethod;
+                    }
+                } else if (onkeypressMethod) {
+                    if (!onclickMethod) {
+                        onclickMethod = onkeypressMethod;
+                    }
+                }
                 var buttonName = __getButtonName(origActionStr);
                 // construct new action
-                var newActionStr = "<action role='button' tabindex='0' title=" + name + " aria-label=" + name + " onkeypress=" + callback + " onclick=" + callback + " ><b>" + buttonName + "</b></action>";
+                var newActionStr = "<action role='button' tabindex='0' title=" + title + " aria-label=" + title + " onkeypress=" + onkeypressMethod + " onclick=" + onclickMethod + " >" + buttonName + "</action>";
                 //console.log("new action ", newActionStr);
                 resultStr = resultStr.replace(origActionStr, newActionStr);
             }
