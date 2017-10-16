@@ -47,7 +47,7 @@ var stepContent = (function() {
     if(!step.title){
       return;
     }
-    var newTitle = $("<div class='title'></div>");
+    var newTitle = $("<h2 class='title'></h2>");
     newTitle.attr('aria-label', step.title);
     newTitle.attr('data-step', step.name);
     newTitle.html(step.title);
@@ -118,7 +118,7 @@ var stepContent = (function() {
         var section = step.sections[i];
         __updateInstructions(section);
       }
-    }
+    }        
   };
 
   var __parseAction = function(instruction) {
@@ -175,7 +175,15 @@ var stepContent = (function() {
       else{
         $("#contentContainer").append(currentInstruction);
       }   
+      __addMarginToLastInstruction();
+      
     }
+  };
+
+  var __addMarginToLastInstruction = function(){
+    // Add padding to the last instruction to not overlap the step's content
+    $('.lastInstruction').removeClass('lastInstruction');
+    $(".instruction:visible:last").addClass('lastInstruction');
   };
 
   /*
@@ -248,7 +256,9 @@ var stepContent = (function() {
   
       // Highlight the next button if all of the instructions are complete or there are no instructions
       contentManager.enableNextWhenAllInstructionsComplete(step);
-    }    
+    }
+    
+    __addMarginToLastInstruction();
   };
 
   var scrollToSection = function(stepname){    
@@ -260,7 +270,7 @@ var stepContent = (function() {
     }
     // Otherwise, scroll to the top of the step
     else{
-      scrollToContent();
+      tableofcontents.scrollToContent();
     }   
   };
 
