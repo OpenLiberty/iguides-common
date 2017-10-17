@@ -11,28 +11,29 @@
 var tableofcontents = (function() {
     "use strict";
 
-    //orderedStepArray: populated with the guide steps in order in which whey will be followed
-    //orderedStepNamesArray: will used to map guide step name to the index(step number)
-    var orderedStepArray = [];
+    // orderedStepNamesArray: used to map guide step name to the index(step number)
+    // in the __steps array.
     var orderedStepNamesArray = [];
-
+    
+    // A local pointer to the array of steps represented by this Table Of Contents.
+    var __steps;
 
     var __getNextStepFromName = function(name) {
       var stepIdx = __getStepIndex(name);
-      var nextStep = orderedStepArray[stepIdx+1];
-      if(nextStep){
-        __handleFirstStepContent(nextStep);
+      var nextStepName = orderedStepNamesArray[stepIdx+1];
+      if(nextStepName){
+        __handleFirstStepContent(nextStepName);
       }
-      return nextStep;
+      return nextStepName;
     };
 
     var __getPrevStepFromName = function(name) {
       var stepIdx = __getStepIndex(name);
-      var previousStep = orderedStepArray[stepIdx-1];
-      if(previousStep){
-        __handleFirstStepContent(previousStep);
+      var previousStepName = orderedStepNamesArray[stepIdx-1];
+      if(previousStepName){
+        __handleFirstStepContent(previousStepName);
       }
-      return previousStep;
+      return previousStepName;
     };
 
     var __getStepIndex = function(name) {
@@ -41,9 +42,13 @@ var tableofcontents = (function() {
 
     /*
         Creates the table of contents for the BluePrint based on the JSON representation.
-        Input: The steps of the BluePrint represented as JSON
+        Input: 
+          title - string - guide display title
+          steps - array - the steps of the BluePrint represented as JSON
     */
     var __create = function(title, steps){
+        __steps = steps;   // Save a local pointer to the steps array, managed by step-content.js
+
         var container = $("#toc_container");
         container.attr("role", "application");
         container.attr("aria-label", "Table of contents");
@@ -52,33 +57,25 @@ var tableofcontents = (function() {
         // Loop through the steps and append each one to the table of contents.
         for(var i = 0; i < steps.length; i++){
           var step = steps[i];
-          __buildStep(container, step, 0);
+          __buildStep(container, step);
         }
 
-        // Focus the selected step when shift-tabbing from the main content
-        $("#blueprint_description").on('keydown', function(event){
-          if(event.which === 9 && event.shiftKey){
-            event.preventDefault();
-            event.stopPropagation();
-            if($("#tags_container > a").length > 0){
-              $("#tags_container > a").last().focus();
-            }
-            else{
-              $(".selectedStep > span").focus();
-            }
-          }
-        });
     };
 
     /*
-       Creates a list item for the table of contents
-       The depth determines how much left-padding the step list item has in the table of contents.
-       Inputs: container: table of contents container for where the list item should be added
-               dataTOC: data attribute to identify the list item
-               title: Title to display in the table of contents list item
-               depth: How many levels down the step is 
+       Creates a list item entry in the table of contents.
+       The depth determines how much left-padding the list item has in the table of contents.
+       The value is set as the 'TOCIndent' property of the guide's JSON file describing the steps.
+       If 'TOCIndent' is not specified in the JSON for the step, a value of '0' is assumed and 
+       the step's title appears at the leftmost edge of the TOC.
+       Input: container: div - table of contents container for where the list item should be added
+              dataTOC: string - data attribute to identify the list item
+              title: title to display in the table of contents list item
+              depth: how many levels the entry is indented.  '0' is no indent or leftmost edge. 
     */
     var __createListItem = function(container, dataToc, title, depth){
+        depth = depth ? depth: 0;
+
         var listItem = $("<li class='tableOfContentsStep'></li>");
         listItem.attr('data-toc', dataToc);
         // Indent based on depth
@@ -98,50 +95,45 @@ var tableofcontents = (function() {
 
     /*
        Parses a given step and adds it to the container
-       Depth is the given depth of the tree so that it can recursively create steps. The depth determines
-       how much left-padding the step list item has in the table of contents.
-       Input: {div} container, {JSON} step, {number} depth
+       Input: {div} container, {JSON} step
     */
-    var __buildStep = function(container, step, depth){
-      var listItem = __createListItem(container, step.name, step.title, depth);
-       __addOnClickListener(listItem, step, step.name);
+    var __buildStep = function(container, step){
+      var listItem = __createListItem(container, step.name, step.title, step.TOCIndent || 0);
+       __addOnClickListener(listItem, step);
 
-      // Build the subsections table of contents links for this step using the data-subsection attributes contained in this description
+      // A section is a portion of a step that appears in the TOC as a separate, indented entry
+      // following the step's entry.  It appears on the same PAGE as the step, but has its
+      // own TOC entry.   Selecting a section's entry in the TOC should load that step's page 
+      // and scroll the contents down to the section's header.
+      //
+      // Build the subsection's table of contents links for this step.
       if(step.sections){
         var sections = step.sections;
         for(var i = 0; i < sections.length; i++){
           var section = sections[i];
-          // Create a toc link to this section, and when clicked on it loads the original step and then scrolls to the section
-          var subStepLink = __createListItem(container, section.name, section.title, depth + 1);
-          __addOnClickListener(subStepLink, section, section.name, step); // Pass in parent step
+          // Create a TOC link to this section, and when clicked on it loads the original step 
+          // and then scrolls to the section.
+          // Sections, in the TOC, are indented one from their parent.
+          var depth = step.TOCIndent ? step.TOCIndent + 1: 1;
+          var subStepLink = __createListItem(container, section.name, section.title, depth);
+          __addOnClickListener(subStepLink, section);
         }
       }
 
-      //used for previous/next button functionality
-      orderedStepArray.push(step);
+      // Used for previous/next button functionality.
+      // NOTE: sections aren't added to this array since they don't have their own
+      //       previous and next buttons.
       orderedStepNamesArray.push(step.name);
 
-      // Handle children steps recursively if the step has sub-steps.
-      if(step.steps !== undefined && step.steps !== null){
-        for(var i = 0; i < step.steps.length; i++){
-          var child = step.steps[i];
-          __buildStep(container, child, depth + 1);
-        }
-      }
     };
 
 
     /**
      * Decide if the guide time duration label needs to be shown.
      */
-    var __handleFirstStepContent = function(step) {
-      var isFirstStep;
-      if(step.parent){
-        isFirstStep = __getStepIndex(step.parent.name) === 0;
-      }
-      else{
-        isFirstStep = __getStepIndex(step.name) === 0;
-      }
+    var __handleFirstStepContent = function(stepName) {
+      var isFirstStep = __getStepIndex(stepName) === 0;
+
       // Only show the duration on the first step
       if(isFirstStep) {
         $(ID.toc_guide_title).hide();
@@ -160,21 +152,23 @@ var tableofcontents = (function() {
     };
 
     /*
-        Handler for clicking on a step in the table of contents.
-        @param - `span` is the span of the step in the table of contents
-        @param - `step` is the JSON containing information for the step
+        Handler for clicking on a step or section in the table of contents.
+        Input: 
+          listItem - html <li> item in TOC representing the step or section
+          element - JSON containing information for the step or section.
+                    element.name is the identity of the element within the DOM.
     */
-    var __addOnClickListener = function(listItem, step, dataToc, parent) {
+    var __addOnClickListener = function(listItem, element) {
         var span = listItem.find('.tableOfContentsSpan');
         span.on("click", function(event){
             event.preventDefault();
             event.stopPropagation();
 
-            __handleFirstStepContent(step);
-            stepContent.createContents(step);
+            __handleFirstStepContent(element.name);
+            stepContent.createContents(element);
             
-            stepContent.scrollToSection(step.name);                   
-            __highlightTableOfContents(dataToc);
+            stepContent.scrollToSection(element.name);                   
+            __highlightTableOfContents(element.name);
         });
 
         span.on("keydown", function(event){
@@ -182,22 +176,16 @@ var tableofcontents = (function() {
           if(event.which === 13 || event.which === 32){
             span.click();
 
-            if(__getStepIndex(step.name) == 0){
+            if(__getStepIndex(element.name) === 0){
               $(ID.first_step_header).attr("tabindex","0");
               $(ID.first_step_header).focus();
             }
             else{
-              var description = $(".description[data-step='" + step.name + "'");
+              var description = $(".description[data-step='" + element.name + "'");
               if(description && description.length > 0){
                 description.focus();
               }
             }            
-            // if(__getStepIndex(step.name) != 0) {
-            //   $(ID.blueprintDescription).focus();
-            // } else { //accessibility: read first_step_header info on first step
-            //   $(ID.first_step_header).attr("tabindex","0");
-            //   $(ID.first_step_header).focus();
-            // }
           }
         });
 
@@ -226,7 +214,9 @@ var tableofcontents = (function() {
     var __selectStep = function(stepObj){     
       __highlightTableOfContents(stepObj.name);
 
-      // Don't show/hide the previous/next buttons based on this section if this is a section of a parent's step
+      // Don't show/hide the previous/next buttons based on this section if this is a
+      // section of a parent's step.  Sections appear on the same page as its parent step,
+      // so they don't have their own previous/next buttons.
       if(stepObj.parent){
         return;
       }
