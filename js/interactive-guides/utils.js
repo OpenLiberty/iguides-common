@@ -63,10 +63,10 @@ var utils = (function() {
                 if (closeQuoteIndex !== -1) {
                     str = quote + str.substring(0, closeQuoteIndex + 1);
                 } else {
-                    console.log("syntax error: " + str + " in <action> tag missing closing quote");
+                    console.error("syntax error: " + str + " in <action> tag missing closing quote");
                 }
             } else {
-                console.log("syntax error: " + str + " in <action> tag missing open quote");
+                console.error("syntax error: " + str + " in <action> tag missing open quote");
             }
         }
         //console.log(attr + ": ", str);
