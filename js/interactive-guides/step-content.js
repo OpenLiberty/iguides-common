@@ -13,7 +13,7 @@ var stepContent = (function() {
 
   var currentStepName;
   var _steps;
-
+  
   var setSteps = function(steps) {
     _steps = steps;
     __createLinksToParentSteps();    
@@ -88,7 +88,7 @@ var stepContent = (function() {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
       // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
       if(instruction && instruction.indexOf("NOSHOW") !== 0){
-        // If in the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content. 
+        // If the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content. 
         var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
         if(instr.length > 0){
           instr.show();
@@ -105,8 +105,6 @@ var stepContent = (function() {
           }          
         }            
         
-        // $(ID.blueprintInstruction).append(instr);
-        // $(ID.blueprintInstruction).show();
         contentManager.addCheckmarkToInstruction(stepName, index);        
       }
       index++;      
@@ -122,8 +120,6 @@ var stepContent = (function() {
   };
 
   var __parseAction = function(instruction) {
-    //console.log("AAA __parseAction ");
-    //console.log("instruction ", instruction);
     if (instruction) {
       if ($.isArray(instruction)) {
         for (var instr in instruction) {
@@ -179,12 +175,12 @@ var stepContent = (function() {
   };
 
   /*
-    Searches for a step JSON from a given step name, and call create contents using that step json
+    Searches for a step JSON from a given step name, and call create contents using that step JSON
   */
   var createContentsFromName = function(stepName){
     for(var i = 0; i < _steps.length; i++){
       var step = _steps[i];
-      var stepToLoad = findStepFromName(step, stepName);
+      var stepToLoad = __findStepFromName(step, stepName);
       if(stepToLoad){
         createContents(stepToLoad);
         return;
@@ -192,28 +188,19 @@ var stepContent = (function() {
     }
   };
 
-  var findStepFromName = function(root, stepToFind){
+  var __findStepFromName = function(root, stepToFind){
     if(root.name === stepToFind){
       return root;
     }
     else if(root.sections){
       for(var i=0; i<root.sections.length; i++){
-        var section = findStepFromName(root.sections[i], stepToFind);
+        var section = __findStepFromName(root.sections[i], stepToFind);
         if(section){
           return section;
         }
       }
     }
-    else if(root.steps){
-      for(var j=0; j<root.steps.length; j++){
-        var step = findStepFromName(root.steps[j], stepToFind);
-        if(step){
-          return step;
-        }
-      }
-    }
-  };
-  
+  }; 
 
   /*
     Before create content for the selected step,
@@ -221,15 +208,17 @@ var stepContent = (function() {
     - check whether the content of the selected step has been created before
       - if it has, show the existing content
       - otherwise create the new content
-      Inputs: {JSON} step
+      Inputs: {JSON} step or section 
   */
   var createContents = function(step) {  
     currentStepName = step.name;  
     __hideContents(); // Hide other steps that are not for this step    
 
-    // Check if there is a parent step to load
+    // Check if this is a section of a step. A section appears on the same
+    // page as a step, but has its own TOC entry. Sections have a 
+    // parent attribute in their JSON indicating which step to load.
     if(step.parent){
-      createContents(step.parent);
+      createContents(step.parent);  // Create step page this section is part of
       tableofcontents.selectStep(step);      
       scrollToSection(step.name);
       return;
@@ -246,7 +235,8 @@ var stepContent = (function() {
       tableofcontents.selectStep(step);
       currentStepName = step.name;
   
-      // Highlight the next button if all of the instructions are complete or there are no instructions
+      // Highlight the next button if all of the instructions are complete or there are
+      // no instructions
       contentManager.enableNextWhenAllInstructionsComplete(step);
     }    
   };
@@ -348,7 +338,8 @@ var stepContent = (function() {
     var existingStep = $("[data-step=" + step.name + "]");
     if (existingStep.length > 0) {
       existingStep.removeClass("hidden");
-      // Look for any other sections of this step and show them
+      // Look for any sections of this step and show them.  Sections appear on 
+      // the same page as a step, but have their own TOC entry.
       if(step.sections){
         for(var i = 0; i < step.sections.length; i++){
           var section = step.sections[i];
