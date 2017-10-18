@@ -20,6 +20,10 @@
   color: unset;
 }
 
+#guide_content #contentContainer h2.title, #guide_content #contentContainer h3.title {
+  margin-bottom: 30px;
+}
+
 #leftPane {
   height: 500px;
   margin-top: 28px;
@@ -49,14 +53,6 @@
   #blueprint{
     overflow-x: scroll;
   }
-}
-
-.title {
-  display: inline-block;
-  text-align: left;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 30px;
 }
 
 .description {
@@ -172,7 +168,7 @@ instruction {
   align-items: center;
 }
 
-instruction:last-of-type {
+.lastInstruction {
   margin-bottom: 30px;
 }
 

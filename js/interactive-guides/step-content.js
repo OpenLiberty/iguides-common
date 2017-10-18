@@ -42,15 +42,22 @@ var stepContent = (function() {
     stepsToBeHidden.addClass("hidden");
   };
 
-  // Append the step title
-  var __addTitle = function(step) {
-    if(!step.title){
+  // Append the element's title to the content
+  var __addTitle = function(element) {
+    if(!element.title){
       return;
     }
-    var newTitle = $("<div class='title'></div>");
-    newTitle.attr('aria-label', step.title);
-    newTitle.attr('data-step', step.name);
-    newTitle.html(step.title);
+    var newTitle;
+    // If the element has a parent, it is a section and should have a h3 tag
+    if(element.parent){
+      newTitle = $("<h3 class='title'></h3>");
+    }
+    else{
+      newTitle = $("<h2 class='title'></h2>");
+    }    
+    newTitle.attr('aria-label', element.title);
+    newTitle.attr('data-step', element.name);
+    newTitle.html(element.title);
     $("#contentContainer").append(newTitle);
   };
 
@@ -116,7 +123,7 @@ var stepContent = (function() {
         var section = step.sections[i];
         __updateInstructions(section);
       }
-    }
+    }        
   };
 
   var __parseAction = function(instruction) {
@@ -171,7 +178,15 @@ var stepContent = (function() {
       else{
         $("#contentContainer").append(currentInstruction);
       }   
+      __addMarginToLastInstruction();
+      
     }
+  };
+
+  var __addMarginToLastInstruction = function(){
+    // Add padding to the last instruction to not overlap the step's content
+    $('.lastInstruction').removeClass('lastInstruction');
+    $(".instruction:visible:last").addClass('lastInstruction');
   };
 
   /*
@@ -238,7 +253,9 @@ var stepContent = (function() {
       // Highlight the next button if all of the instructions are complete or there are
       // no instructions
       contentManager.enableNextWhenAllInstructionsComplete(step);
-    }    
+    }
+    
+    __addMarginToLastInstruction();
   };
 
   var scrollToSection = function(stepname){    
@@ -250,7 +267,7 @@ var stepContent = (function() {
     }
     // Otherwise, scroll to the top of the step
     else{
-      scrollToContent();
+      tableofcontents.scrollToContent();
     }   
   };
 
