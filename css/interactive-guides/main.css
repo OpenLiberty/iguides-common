@@ -20,7 +20,7 @@
   color: unset;
 }
 
-#guide_content #contentContainer  h2.title {
+#guide_content #contentContainer h2.title, #guide_content #contentContainer h3.title {
   margin-bottom: 30px;
 }
 
