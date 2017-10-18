@@ -49,7 +49,7 @@ var utils = (function() {
     }
 
     var __getAttributeAction = function(strAction, attr) {
-        var str;  
+        var str, resultStr;
         if (strAction.indexOf(attr) !== -1) {
             var index = strAction.indexOf(attr) + attr.length;
             //console.log("index ", index);
@@ -70,24 +70,31 @@ var utils = (function() {
             }
         }
         //console.log(attr + ": ", str);
-        return str;   
+        if (str) {
+            var attrStr = attr + str;
+            // remove the attr from action
+            strAction = strAction.replace(attrStr, "");
+        } 
+        resultStr = {attr: str, action: strAction}; 
+        
+        return resultStr;   
     }
 
     var __getTitleAction = function(strAction) {
         var title = __getAttributeAction(strAction, "title=");
-        //console.log("title=", title);
+        //console.log("title=", title.attr);   
         return title;
     };
     
     var __getOnClickAction = function(strAction) {
         var str = __getAttributeAction(strAction, "onclick=");
-        //console.log("onclick=", str);
+        //console.log("onclick=", str.attr);
         return str; 
     }
 
     var __getOnKeyPressAction = function(strAction) {
         var str = __getAttributeAction(strAction, "onkeypress=");
-        //console.log("onkeypress=", str);
+        //console.log("onkeypress=", str.attr);
         return str;
     }
     
@@ -110,11 +117,20 @@ var utils = (function() {
         //console.log("parseStr: ", actionArray);
         for (var a in actionArray) {
             var origActionStr = actionArray[a];
+            var tmpActionStr = origActionStr;
             //console.log("action[" + a + "]", origActionStr);
-            var title =  __getTitleAction(origActionStr, "title="); 
-            if (title) {          
-                var onclickMethod = __getOnClickAction(origActionStr, "onclick=");
-                var onkeypressMethod = __getOnKeyPressAction(origActionStr, "onkeypress=");
+            var titleObj =  __getTitleAction(tmpActionStr, "title="); 
+            var title = titleObj.attr; 
+            if (title) {                
+                tmpActionStr = titleObj.action; 
+                var onclickMethodObj = __getOnClickAction(tmpActionStr, "onclick=");
+                var onclickMethod = onclickMethodObj.attr;
+                tmpActionStr = onclickMethodObj.action;
+        
+                var onkeypressMethodObj = __getOnKeyPressAction(tmpActionStr, "onkeypress=");
+                var onkeypressMethod = onkeypressMethodObj.attr;
+                tmpActionStr = onkeypressMethodObj.action;
+              
                 if (onclickMethod) {
                     if (!onkeypressMethod) {
                         onkeypressMethod = onclickMethod;
@@ -124,7 +140,9 @@ var utils = (function() {
                         onclickMethod = onkeypressMethod;
                     }
                 }
-                var buttonName = __getButtonName(origActionStr);
+            
+                var buttonName = __getButtonName(tmpActionStr);
+                
                 // construct new action
                 var newActionStr = "<action role='button' tabindex='0' title=" + title + " aria-label=" + title + " onkeypress=" + onkeypressMethod + " onclick=" + onclickMethod + " >" + buttonName + "</action>";
                 //console.log("new action ", newActionStr);
