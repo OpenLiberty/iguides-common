@@ -164,7 +164,8 @@ var tableofcontents = (function() {
             event.preventDefault();
             event.stopPropagation();
 
-            __handleFirstStepContent(element.name);
+
+            __handleFirstStepContent(element.parent ? element.parent.name : element.name); // Handle hiding/showing the first step's title
             stepContent.createContents(element);
             
             stepContent.scrollToSection(element.name);                   
