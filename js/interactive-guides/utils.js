@@ -97,6 +97,12 @@ var utils = (function() {
         //console.log("onkeypress=", str.attr);
         return str;
     }
+
+    var __getAriaLabelAction = function(strAction) {
+        var str = __getAttributeAction(strAction, "aria-label=");
+        console.log("aria-label=", str.attr);
+        return str;
+    }
     
     var __getButtonName = function(strName) {
         var buttonName;
@@ -119,15 +125,15 @@ var utils = (function() {
             var origActionStr = actionArray[a];
             var tmpActionStr = origActionStr;
             //console.log("action[" + a + "]", origActionStr);
-            var titleObj =  __getTitleAction(tmpActionStr, "title="); 
+            var titleObj =  __getTitleAction(tmpActionStr); 
             var title = titleObj.attr; 
             if (title) {                
-                tmpActionStr = titleObj.action; 
-                var onclickMethodObj = __getOnClickAction(tmpActionStr, "onclick=");
+                tmpActionStr = titleObj.action;               
+                var onclickMethodObj = __getOnClickAction(tmpActionStr);
                 var onclickMethod = onclickMethodObj.attr;
                 tmpActionStr = onclickMethodObj.action;
         
-                var onkeypressMethodObj = __getOnKeyPressAction(tmpActionStr, "onkeypress=");
+                var onkeypressMethodObj = __getOnKeyPressAction(tmpActionStr);
                 var onkeypressMethod = onkeypressMethodObj.attr;
                 tmpActionStr = onkeypressMethodObj.action;
               
@@ -140,11 +146,19 @@ var utils = (function() {
                         onclickMethod = onkeypressMethod;
                     }
                 }
+
+                var ariaLabelObj = __getAriaLabelAction(tmpActionStr);
+                var ariaLabel = ariaLabelObj.attr;
+                if (!ariaLabel) {
+                    console.log("aria label not available set to title");
+                    ariaLabel = title;
+                }
+                tmpActionStr = ariaLabelObj.action;
             
                 var buttonName = __getButtonName(tmpActionStr);
                 
                 // construct new action
-                var newActionStr = "<action role='button' tabindex='0' title=" + title + " aria-label=" + title + " onkeypress=" + onkeypressMethod + " onclick=" + onclickMethod + " >" + buttonName + "</action>";
+                var newActionStr = "<action role='button' tabindex='0' title=" + title + " aria-label=" + ariaLabel + " onkeypress=" + onkeypressMethod + " onclick=" + onclickMethod + " >" + buttonName + "</action>";
                 //console.log("new action ", newActionStr);
                 resultStr = resultStr.replace(origActionStr, newActionStr);
             }
