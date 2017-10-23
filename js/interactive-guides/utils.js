@@ -52,7 +52,7 @@ var utils = (function() {
         var str, resultStr;
         if (strAction.indexOf(attr) !== -1) {
             var index = strAction.indexOf(attr) + attr.length;
-            //console.log("index ", index);
+         
             str = strAction.substring(index);
             var quote = __getQuote(str);
             if (quote === "\"" || quote === "'") {            
@@ -69,7 +69,7 @@ var utils = (function() {
                 console.error("syntax error: " + str + " in <action> tag missing open quote");
             }
         }
-        //console.log(attr + ": ", str);
+     
         if (str) {
             var attrStr = attr + str;
             // remove the attr from action
@@ -100,7 +100,7 @@ var utils = (function() {
 
     var __getAriaLabelAction = function(strAction) {
         var str = __getAttributeAction(strAction, "aria-label=");
-        console.log("aria-label=", str.attr);
+        //console.log("aria-label=", str.attr);
         return str;
     }
     
@@ -120,7 +120,6 @@ var utils = (function() {
     var __parseActionTag = function(str) {
         var resultStr = str;                    
         var actionArray = str.match(/<action\b[^>]*>((\s|\S)*?)<\/action>/gm);
-        //console.log("parseStr: ", actionArray);
         for (var a in actionArray) {
             var origActionStr = actionArray[a];
             var tmpActionStr = origActionStr;
@@ -150,7 +149,6 @@ var utils = (function() {
                 var ariaLabelObj = __getAriaLabelAction(tmpActionStr);
                 var ariaLabel = ariaLabelObj.attr;
                 if (!ariaLabel) {
-                    console.log("aria label not available set to title");
                     ariaLabel = title;
                 }
                 tmpActionStr = ariaLabelObj.action;
@@ -159,7 +157,6 @@ var utils = (function() {
                 
                 // construct new action
                 var newActionStr = "<action role='button' tabindex='0' title=" + title + " aria-label=" + ariaLabel + " onkeypress=" + onkeypressMethod + " onclick=" + onclickMethod + " >" + buttonName + "</action>";
-                //console.log("new action ", newActionStr);
                 resultStr = resultStr.replace(origActionStr, newActionStr);
             }
         }
