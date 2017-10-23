@@ -450,6 +450,11 @@ var contentManager = (function() {
       return stepInstruction;
     };
 
+    var checkIfInstructionsForStep = function(stepName){
+        var stepInstruction = __getStepInstruction(stepName);
+        return (stepInstruction && stepInstruction.instructions.length > 0);
+    }
+
     var updateWithNewInstructionNoMarkComplete = function(stepName) {
         stepContent.createInstructionBlock(stepName);        
     }
@@ -541,7 +546,7 @@ var contentManager = (function() {
 
     var getCurrentInstructionIndex = function(stepName) {
       var stepInstruction = __getStepInstruction(stepName);
-      return stepInstruction.currentInstructionIndex;
+      return stepInstruction ? stepInstruction.currentInstructionIndex : -1;
     };
 
     var getInstructionAtIndex = function(index, stepName) {
@@ -555,7 +560,7 @@ var contentManager = (function() {
 
     var getInstructionsLastIndex = function(stepName) {
       var stepInstruction = __getStepInstruction(stepName);
-      return stepInstruction.instructions.length-1;
+      return stepInstruction ? stepInstruction.instructions.length-1 : -1;
     };
 
     var colorNextButton = function(isComplete){
@@ -575,17 +580,29 @@ var contentManager = (function() {
         Check if all of the instructions for a given step are complete.
         Input: {stepName} Step name
     */
-    var enableNextWhenAllInstructionsComplete = function(stepName) {
+    var enableNextWhenAllInstructionsComplete = function(step) {
+        var stepName = step.name;
         var isComplete = true;
         var stepInstruction = __getStepInstruction(stepName);
-        if(stepInstruction.instructions.length > 0){
+        if(stepInstruction.instructions && stepInstruction.instructions.length > 0){
             var lastLoadedInstruction = getCurrentInstructionIndex(stepName);
             if(lastLoadedInstruction !== -1){
                 isComplete = false;
             }
         }       
-        colorNextButton(isComplete);
-        
+        // Check if there are sections to this step and if they are complete
+        if(isComplete && step.sections){
+            for(var i = 0; i < step.sections.length; i++){
+                stepInstruction = __getStepInstruction(step.sections[i].name);
+                if(stepInstruction.instructions && stepInstruction.instructions.length > 0){
+                    lastLoadedInstruction = getCurrentInstructionIndex(step.sections[i].name);
+                    if(lastLoadedInstruction !== -1){
+                        isComplete = false;
+                    }
+                }                
+            }
+        }        
+        colorNextButton(isComplete);        
         return isComplete;        
     };
 
@@ -626,6 +643,7 @@ var contentManager = (function() {
         markEditorReadOnlyLines: markEditorReadOnlyLines,
 
         setInstructions: setInstructions,
+        checkIfInstructionsForStep: checkIfInstructionsForStep,
         updateWithNewInstruction: updateWithNewInstruction,
         markCurrentInstructionComplete: markCurrentInstructionComplete,
         addCheckmarkToInstruction: addCheckmarkToInstruction,

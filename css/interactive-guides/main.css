@@ -20,6 +20,10 @@
   color: unset;
 }
 
+#guide_content #contentContainer h2.title, #guide_content #contentContainer h3.title {
+  margin-bottom: 30px;
+}
+
 #leftPane {
   height: 500px;
   margin-top: 28px;
@@ -51,27 +55,19 @@
   }
 }
 
-#blueprint_title {
-  display: inline-block;
-  text-align: left;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-#blueprint_description {
+.description {
   text-align: left;
   font-size: 16px;
   width: 100%;
   margin-bottom: 15px;
 }
 
-#blueprint_description:focus,
-#blueprint_instruction:focus {
+.description:focus,
+.instruction:focus {
   outline: none;
 }
 
-#blueprint_instruction {
+.instruction {
   text-align: left;
   font-size: 16px;
   width: 100%;
@@ -170,6 +166,10 @@ instruction {
   margin-bottom: 10px;
   display: inline-flex;
   align-items: center;
+}
+
+.lastInstruction {
+  margin-bottom: 30px;
 }
 
 instruction.completed {

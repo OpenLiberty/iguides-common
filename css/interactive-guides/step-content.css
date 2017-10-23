@@ -9,22 +9,17 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 #blueprint_step_content{
-  padding-top: 60px;
 }
 
-.subContainerDiv{
+.subContainerDiv {
   padding: 0px 5px;
-  margin-bottom: 25px;
+  margin-bottom: 25px;  
 }
 
 @media (max-width: 450px) {
   .subContainerDiv {
     margin-bottom: 60px;
   }
-}
-
-.instruction {
-  display: block;
 }
 
 .buttonContainer {
