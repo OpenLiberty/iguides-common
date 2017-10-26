@@ -28,28 +28,48 @@ var blueprint = (function(){
             };
             steps.push(contributeStep);
           }
+
+          // Hide the #blueprint_title as it is not used in the interactive guides
+          $(ID.blueprintTitle).hide();      
           
           stepContent.setSteps(steps);
           var toc_title = jsonGuide.getGuideDisplayTitle(blueprintName);
           tableofcontents.create(toc_title, steps);
       
-          stepContent.createContents(steps[0]);
+          if (window.location.hash === "") {
+            // No step specified in the URL, so display the first page.
+            stepContent.createContents(steps[0], false);
+          } else {    
+            // The URL fragment indentifier (first hash (#) after the URL) indicates
+            // the user requested a specific page within the guide.  Go to it.
+            var hashValue = window.location.hash.substring(1);  // get rid of '#'
+            stepContent.createContentsFromHash(hashValue);
+          }
 
-          // Hide the #blueprint_title as it is not used in the interactive guides
-          $(ID.blueprintTitle).hide();
-      
           //On click listener functions for Previous and Next buttons
           $(ID.prevButton).on('click', function(){
             var prevStepName = tableofcontents.prevStepFromName(stepContent.getCurrentStepName());
-            stepContent.createContentsFromName(prevStepName);
-            tableofcontents.scrollToContent();
+            stepContent.updateURLfromStepName(prevStepName);
+            // Updating the hash in the URL will kick off the window.onhashchange
+            // event which will update the page contents.  See window.onhashchange below.
           });
       
           $(ID.nextButton).on('click', function(){
             var nextStepName = tableofcontents.nextStepFromName(stepContent.getCurrentStepName());
-            stepContent.createContentsFromName(nextStepName);
-            tableofcontents.scrollToContent();
+            stepContent.updateURLfromStepName(nextStepName);
+            // Updating the hash in the URL will kick off the window.onhashchange
+            // event which will update the page contents.  See window.onhashchange below.
           });
+
+          // Monitor for hash changes to show the requested page.
+          // Hash changes occur when the URL is updated with a new hash
+          // value (as in someone bookmarked one of the pages), when a new
+          // page is selected from the table of contents, or when the next
+          // or previous buttons are selected.
+          window.onhashchange = function() {
+            var hashValue = window.location.hash.substring(1);  // get rid of '#'
+            stepContent.createContentsFromHash(hashValue);
+          };
       
           //adding aria-labels to previous/next buttons and using messages file for button text
           $(ID.navButtons).attr('aria-label', messages.navigationButtons);
