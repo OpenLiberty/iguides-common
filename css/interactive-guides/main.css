@@ -12,6 +12,10 @@
   padding-top: 30px;
 }
 
+#first_step_header:focus {
+  outline:none;
+}
+
 #guide_content pre.CodeMirror-line {
   border-radius: unset;
   border: unset;
@@ -62,8 +66,7 @@
   margin-bottom: 15px;
 }
 
-.description:focus,
-.instruction:focus {
+.description:focus {
   outline: none;
 }
 

@@ -21,18 +21,12 @@ var tableofcontents = (function() {
     var __getNextStepFromName = function(name) {
       var stepIdx = __getStepIndex(name);
       var nextStepName = orderedStepNamesArray[stepIdx+1];
-      if(nextStepName){
-        __handleFirstStepContent(nextStepName);
-      }
       return nextStepName;
     };
 
     var __getPrevStepFromName = function(name) {
       var stepIdx = __getStepIndex(name);
       var previousStepName = orderedStepNamesArray[stepIdx-1];
-      if(previousStepName){
-        __handleFirstStepContent(previousStepName);
-      }
       return previousStepName;
     };
 
@@ -127,30 +121,21 @@ var tableofcontents = (function() {
 
     };
 
-
-    /**
-     * Decide if the guide time duration label needs to be shown.
-     */
-    var __handleFirstStepContent = function(stepName) {
-      var isFirstStep = __getStepIndex(stepName) === 0;
-
-      // Only show the duration on the first step
-      if(isFirstStep) {
-        $(ID.toc_guide_title).hide();
-        $(ID.first_step_header).show();       
-        
-      } else {
-        $(ID.toc_guide_title).show();
-        $(ID.first_step_header).hide();
+    var __scrollToContent = function(stepName){    
+      var focusSection = $(".title[data-step='" + stepName + "']");
+      
+      // If the section is found scroll to it
+      if(focusSection.length > 0){
+        $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
+        focusSection.siblings('.description[data-step="' + stepName + '"]').focus();
       }
+      // Otherwise, scroll to the top of the step
+      else{
+        $("html, body").animate({ scrollTop: $("#guide_column").offset().top }, 400);
+        focusSection.siblings('.description[data-step="' + stepName + '"]').focus();
+      }   
     };
-
-    // Scroll the page back up to the content
-    var scrollToContent = function(){
-      $("html, body").animate({ scrollTop: $("#guide_column").offset().top }, 400);
-      $(ID.blueprintDescription).focus();
-    };
-
+    
     /*
         Handler for clicking on a step or section in the table of contents.
         Input: 
@@ -164,12 +149,9 @@ var tableofcontents = (function() {
             event.preventDefault();
             event.stopPropagation();
 
-
-            __handleFirstStepContent(element.parent ? element.parent.name : element.name); // Handle hiding/showing the first step's title
-            stepContent.createContents(element);
-            
-            stepContent.scrollToSection(element.name);                   
-            __highlightTableOfContents(element.name);
+            stepContent.updateURLfromStepTitle(element.title);
+            // Updating the hash in the URL will kick off the window.onhashchange
+            // event which will update the page contents.  See blueprint.js.
         });
 
         span.on("keydown", function(event){
@@ -179,14 +161,7 @@ var tableofcontents = (function() {
 
             if(__getStepIndex(element.name) === 0){
               $(ID.first_step_header).attr("tabindex","0");
-              $(ID.first_step_header).focus();
             }
-            else{
-              var description = $(".description[data-step='" + element.name + "'");
-              if(description && description.length > 0){
-                description.focus();
-              }
-            }            
           }
         });
 
@@ -197,23 +172,31 @@ var tableofcontents = (function() {
         });
     };
 
-    var getStepElement = function(name){
+    var __getStepElement = function(name){
       return $("[data-toc='" + name + "']");
     };
 
     var __highlightTableOfContents = function(name){
       // Clear previously selected step and highlight step
       $('.selectedStep').removeClass('selectedStep');
-      var $step = getStepElement(name);
+      var $step = __getStepElement(name);
       $step.addClass('selectedStep');
     };
 
     /*
-        Handles 1. table of content steps clicks and 2. Prev/Next step button clicks
-        Select the step in the table of contents.
+        Select the step in the table of contents and scroll to its contents.  
     */
-    var __selectStep = function(stepObj){     
+    var __selectStep = function(stepObj){  
+      stepContent.handleFirstStepContent(stepObj.parent ? stepObj.parent.name : stepObj.name); // Handle hiding/showing the first step's title   
       __highlightTableOfContents(stepObj.name);
+      __scrollToContent(stepObj.name);
+    
+    };
+    
+    /*
+      Determine if the previous/next buttons should be visible on the page.
+    */
+    var __addPreviousNext = function(stepObj) {
 
       // Don't show/hide the previous/next buttons based on this section if this is a
       // section of a parent's step.  Sections appear on the same page as its parent step,
@@ -248,9 +231,9 @@ var tableofcontents = (function() {
 
     return {
       create: __create,
-      scrollToContent: scrollToContent,
-      getStepElement: getStepElement,
       selectStep: __selectStep,
+      getStepIndex: __getStepIndex,
+      addPreviousNext: __addPreviousNext,
       nextStepFromName: __getNextStepFromName,
       prevStepFromName: __getPrevStepFromName
     };

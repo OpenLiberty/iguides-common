@@ -13,34 +13,120 @@ var stepContent = (function() {
 
   var currentStepName;
   var _steps;
+  var hashStepNames = {};   // Maps step's hash to its name.  This contains
+                            // more entries than the _steps array because it also 
+                            // contains elements for sections which appear in the TOC.
   
   var setSteps = function(steps) {
     _steps = steps;
-    __createLinksToParentSteps();    
+    __createLinks();   
   };
 
-  // Create link to parent step for each section so it can load the parent step when clicked on
-  var __createLinksToParentSteps = function() {
-    // Make links to parents
+  /*
+     1) Create the mapping between the step's name and its hash.  The hash
+     for the step is created from its title.  Hashes must be created for 
+     sections as well as steps. It is created for every entry that appears
+     in the Table of Contents (TOC). The hash may be used as the
+     URL fragment identifier to go directly to a step or section.  They
+     also enable the browser's previous and next buttons since each page
+     is now identified by a hash value.
+
+     2) Create a reference to parent step for each section so it can load 
+     the parent step when selected from the Table of Contents or identified
+     in the URL hash.
+  */
+  var __createLinks = function() {
+    var step, section, hashIdentifier;
+
     for(var i = 0; i < _steps.length; i++){
-      var step = _steps[i];
+      step = _steps[i];
+      hashIdentifier = __createStepHashIdentifier(step.title);
+      hashStepNames[hashIdentifier] = step.name;
+
       if(step.sections){
         for(var j=0; j<step.sections.length; j++){
-          step.sections[j].parent = step;
+          section = step.sections[j];
+          hashIdentifier = __createStepHashIdentifier(section.title);
+          hashStepNames[hashIdentifier] = section.name;
+
+          section.parent = step;    // Link parent to the section
         }
       }
     }
+  };
+
+  /*
+   Create the hash identifier for the TOC element.  This identifier
+   can be used in the fragment identifier of a URL to indicate which
+   page, or part of a page, to go to.  
+   
+   The identifier is the step or section title converted to lower-case.  
+   Spaces and apostrophes are changed to dashes (-). 
+   Existing dashes and underscores are allowed to remain.
+   All other characters are removed.
+   
+   elementTitle - step or section title (NOT name) which appears in the TOC.
+  */
+  var __createStepHashIdentifier = function(elementTitle) {
+    var stepTitle = elementTitle.toLowerCase();
+    // Get rid of any non-alphanumeric character that
+    // is not a space, dash, or apostrophe.
+    var cleanedStepTitle = stepTitle.replace(/[^\w\s-']/g, '');
+    // Replace duplicate spaces with only one.
+    var reducedStepTitle = cleanedStepTitle.replace(/\s\s+/g, ' ');
+    // Replace spaces and apostrophes with a dash and remove duplicate dashes
+    var hashIdentifier = reducedStepTitle.replace(/[\s']/g, '-').replace(/--+/g, '-');
+    return hashIdentifier;
   };
 
   var getCurrentStepName = function() {
     return currentStepName;
   };
 
-  // Hide the previous selected step content by looking for data-step attributes with the data-step not equal to the current step name
-  var __hideContents = function() {
-    var stepsToBeHidden = $("[data-step][data-step!=" + currentStepName + "]");
-    stepsToBeHidden.addClass("hidden");
+  /* 
+    Return the step or section name value associated with the hash value.  
+    If the hash is not recognized, return an empty string.
+
+    hash - string - hash value for a step.  Created in __createStepHashIdentifier().
+  */
+  var __getStepNameFromHash = function(hash) {
+    return hashStepNames[hash] ? hashStepNames[hash] : "";
+  }
+
+  /*
+    Hide the previously selected step content by looking for data-step attributes
+    with the data-step not equal to the current step name.
+
+    stepName - the step name value.   An empty string or 'undefined' will clear
+               all steps from the display.
+  */
+  var __hideContents = function(stepName) {
+    if (stepName) {
+      var stepsToBeHidden = $("[data-step][data-step!=" + stepName + "]");
+      stepsToBeHidden.addClass("hidden");  
+    } else {
+      // clear all contents
+      $("[data-step]").addClass("hidden");
+    }
   };
+
+  /*
+     Decide if the guide time duration label needs to be shown.
+
+     stepName - the step name value
+  */
+    var __handleFirstStepContent = function(stepName) {
+      var isFirstStep = tableofcontents.getStepIndex(stepName) === 0;
+
+      // Only show the duration on the first step
+      if(isFirstStep) {
+        $(ID.toc_guide_title).hide();
+        $(ID.first_step_header).show();               
+      } else {
+        $(ID.toc_guide_title).show();
+        $(ID.first_step_header).hide();
+      }
+    };
 
   // Append the element's title to the content
   var __addTitle = function(element) {
@@ -195,19 +281,32 @@ var stepContent = (function() {
   };
 
   /*
-    Searches for a step JSON from a given step name, and call create contents using that step JSON
+    Searches for a step JSON from a given step name, and calls createContents
+    using that step JSON.
   */
   var createContentsFromName = function(stepName){
-    for(var i = 0; i < _steps.length; i++){
-      var step = _steps[i];
-      var stepToLoad = __findStepFromName(step, stepName);
-      if(stepToLoad){
-        createContents(stepToLoad);
-        return;
+    if (stepName) {
+      for(var i = 0; i < _steps.length; i++){
+        var step = _steps[i];
+        var stepToLoad = __findStepFromName(step, stepName);
+        if(stepToLoad){
+          createContents(stepToLoad, true);
+          return;
+        }
       }
     }
+    // If we haven't returned yet, then the stepName is not valid for this guide
+    // or was blank.
+    // Default to the first page of the guide.  Set the URL appropriately.
+    __defaultToFirstPage();
   };
 
+  /*
+    Searches through a step object (root) to see if the step or one of its 
+    sections has a name matching stepToFind.
+
+    returns the step or section object if a match is found
+  */
   var __findStepFromName = function(root, stepToFind){
     if(root.name === stepToFind){
       return root;
@@ -223,27 +322,60 @@ var stepContent = (function() {
   }; 
   
   /*
+    Shows the first page of the guide, but not selected.  Therefore, the
+    fistSetpHeader is seen.
+
+    This situation occurs when we first enter the guide or when a unknown
+    hash is provided in the URL.
+  */
+  var __defaultToFirstPage = function() {
+    window.location.hash = "";
+    currentStepName = "";
+    $('.selectedStep').removeClass('selectedStep');
+    createContents(_steps[0], false);
+  }
+
+  /*
+    Calls createContents() for the step associated with the inputted
+    hash value.  If no step is associated with the hashValue, the first
+    page is shown.
+  */
+  var createContentsFromHash = function(hashValue) {
+    var requestedStepName = __getStepNameFromHash(hashValue);
+    if (requestedStepName) {
+      createContentsFromName(requestedStepName);      
+    } else {
+      // If the hash did not point to an existing step, default
+      // to show the first step of the guide but don't have it selected
+      // since it was not specified.
+      __defaultToFirstPage();
+    }
+  };
+
+  /*
     Before create content for the selected step,
     - hide the content of the previous selected step
     - check whether the content of the selected step has been created before
       - if it has, show the existing content
       - otherwise create the new content
       Inputs: {JSON} step or section 
+              boolean - selectStep - true if step should be selected after created
+                                     false step created should not be selected
   */
-  var createContents = function(step) {  
-    currentStepName = step.name;  
-    __hideContents(); // Hide other steps that are not for this step    
-
+  var createContents = function(step, selectStep) {  
     // Check if this is a section of a step. A section appears on the same
     // page as a step, but has its own TOC entry. Sections have a 
     // parent attribute in their JSON indicating which step to load.
     if(step.parent){
-      createContents(step.parent);  // Create step page this section is part of
-      tableofcontents.selectStep(step);      
-      scrollToSection(step.name);
+      createContents(step.parent, false);  // Create step page this section is part of
+      tableofcontents.selectStep(step);
       return;
     }
     else{
+      currentStepName = step.name;
+      __hideContents(step.name);      // Hide other steps that are not for this step
+      __handleFirstStepContent(step.name);
+            
       if (!__lookForExistingContents(step)) {
         __buildContent(step);
         if(step.sections){
@@ -252,9 +384,13 @@ var stepContent = (function() {
           }
         }
       }
-      tableofcontents.selectStep(step);
-      currentStepName = step.name;
-  
+      
+      tableofcontents.addPreviousNext(step);
+
+      if (selectStep) {   // Mark this step as selected.
+        tableofcontents.selectStep(step);       
+      } 
+ 
       // Highlight the next button if all of the instructions are complete or there are
       // no instructions
       contentManager.enableNextWhenAllInstructionsComplete(step);
@@ -263,24 +399,13 @@ var stepContent = (function() {
     __addMarginToLastInstruction();
   };
 
-  var scrollToSection = function(stepname){    
-    var focusSection = $(".title[data-step='" + stepname + "']");
-    
-    // If the section is found scroll to it
-    if(focusSection.length > 0){
-      $("html, body").animate({ scrollTop: focusSection.offset().top }, 400);
-    }
-    // Otherwise, scroll to the top of the step
-    else{
-      tableofcontents.scrollToContent();
-    }   
-  };
-
   var __buildContent = function(step) {
     contentManager.setInstructions(step.name, step.instruction);
+
     __addTitle(step);
     __addDescription(step);
     __updateInstructions(step);    
+
     if (step.content) {
       var content = step.content;        
       var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
@@ -376,12 +501,50 @@ var stepContent = (function() {
     return false;
   };
 
+  var updateURLfromStepName = function(stepName) {
+    var hashName = "";
+    $.each(hashStepNames, function(key, value){
+      if (value === stepName) {
+        hashName = key;
+        return false;
+      }
+    });
+
+    __updateURLwithStepHash(hashName);
+  }
+
+  var updateURLfromStepTitle = function(stepTitle) {
+    var hashName = __createStepHashIdentifier(stepTitle);
+
+    if (!hashStepNames[hashName]) {
+      hashName = "";
+    }
+
+    __updateURLwithStepHash(hashName);
+  }
+
+  var __updateURLwithStepHash = function(hashName) {
+    var URL = location.href;
+    if (URL.indexOf('#') != -1) {
+      URL = URL.substring(0, URL.indexOf('#'));
+    }
+
+    if (hashName) {
+      URL += '#' + hashName;      
+    }
+
+    location.href = URL;
+  }
+
   return {
     setSteps: setSteps,
-    scrollToSection: scrollToSection,
-    createContentsFromName: createContentsFromName,    
+    createContentsFromName: createContentsFromName,
+    createContentsFromHash: createContentsFromHash,    
     createContents: createContents,
     getCurrentStepName: getCurrentStepName,
-    createInstructionBlock: createInstructionBlock
+    createInstructionBlock: createInstructionBlock,
+    handleFirstStepContent: __handleFirstStepContent,
+    updateURLfromStepName: updateURLfromStepName,
+    updateURLfromStepTitle: updateURLfromStepTitle
   };
 })();
