@@ -179,6 +179,8 @@ var stepContent = (function() {
     }
     do {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
+      instruction = __parseInstructionForActionTag(instruction);
+      //console.log("new instruction ", instruction);
       // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
       if(instruction && instruction.indexOf("NOSHOW") !== 0){
         // If the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content. 
@@ -212,31 +214,6 @@ var stepContent = (function() {
     }        
   };
 
-  var __parseAction = function(instruction) {
-    if (instruction) {
-      if ($.isArray(instruction)) {
-        for (var instr in instruction) {
-          var instrStr = instruction[instr];
-          //console.log("descStr ", instrStr);
-          var parseStringAction = utils.parseActionTag(instrStr);
-          //console.log("parseStringAction ", parseStringAction);
-          if (parseStringAction) {
-            //console.log("string not empty (array) - contains action tag, replace string");
-            instruction[instr] = parseStringAction;
-          }
-        }
-      } else {
-        var parseStringAction = utils.parseActionTag(instruction);
-        //console.log("parseStringAction ", parseStringAction);
-        if (parseStringAction) {
-          //console.log("string not empty - contains action tag, replace string");
-          instruction = parseStringAction;
-          //console.log("instruction - ", instruction);
-        }
-      }
-    }
-  };
-
   var __addInstructionTag = function (stepName, instruction, index) {
     if (instruction != null) { // Some steps don't have instructions
       var instructionTag = $('<instruction>', {id: stepName + '-instruction-' + index, class: 'instruction', tabindex: 0});
@@ -255,6 +232,8 @@ var stepContent = (function() {
     var currentInstruction = contentManager.getCurrentInstruction(stepName);
     var instructionNumber = contentManager.getCurrentInstructionIndex(stepName);    
     if(currentInstruction){
+      currentInstruction = __parseInstructionForActionTag(currentInstruction);
+      //console.log("new currentInstruction ", currentInstruction);
       currentInstruction = __addInstructionTag(stepName, currentInstruction, instructionNumber);
       // Check if there is already an instruction for this step, and to append it after that one
       var stepInstructions = $(".instruction[data-step='" + stepName + "']");
@@ -267,6 +246,32 @@ var stepContent = (function() {
       __addMarginToLastInstruction();
       
     }
+  };
+
+  var __parseInstructionForActionTag = function(instruction) {
+    //console.log("instruction: ", instruction);
+    if (instruction) {
+      if ($.isArray(instruction)) {
+        for (var i in instruction) {
+          //console.log("str ", desc);
+          var instrStr = instruction[i];
+          //console.log("instr[" + i + "]", instrStr);
+          var newInstrStr = utils.parseActionTag(instrStr);
+          //console.log("new instr ", newInstrStr);
+          if (newInstrStr) {
+            instruction[i] = newInstrStr;
+          }
+        }
+      } else {
+        //console.log("single instr ");
+        var newInstrStr = utils.parseActionTag(instruction);
+        //console.log("new instr ", newInstrStr);
+        if (newInstrStr) {
+          instruction = newInstrStr;
+        }
+      }
+    } 
+    return instruction;
   };
 
   var __addMarginToLastInstruction = function(){
@@ -315,7 +320,7 @@ var stepContent = (function() {
       }
     }
   }; 
-
+  
   /*
     Shows the first page of the guide, but not selected.  Therefore, the
     fistSetpHeader is seen.
@@ -362,12 +367,12 @@ var stepContent = (function() {
     // page as a step, but has its own TOC entry. Sections have a 
     // parent attribute in their JSON indicating which step to load.
     if(step.parent){
-      currentStepName = step.name;
       createContents(step.parent, false);  // Create step page this section is part of
       tableofcontents.selectStep(step);
       return;
     }
     else{
+      currentStepName = step.name;
       __hideContents(step.name);      // Hide other steps that are not for this step
       __handleFirstStepContent(step.name);
             
@@ -383,7 +388,6 @@ var stepContent = (function() {
       tableofcontents.addPreviousNext(step);
 
       if (selectStep) {   // Mark this step as selected.
-        currentStepName = step.name;
         tableofcontents.selectStep(step);       
       } 
  
@@ -495,61 +499,6 @@ var stepContent = (function() {
       return true;
     }
     return false;
-  };
-
-  var __createButton = function(buttonId, buttonName, callbackMethod) {
-    return $('<button/>', {
-      type: 'button',
-      text: buttonName,
-      id: buttonId,
-      click: eval(callbackMethod)
-    });
-  };
-
-  var __parseDescriptionForButton = function(step) {
-    var description = step.description;
-    //console.log("description: ", description);
-    //console.log("step.name ", step.name);
-    if (description) {
-      var buttonArray = [];
-      if ($.isArray(description)) {
-        for (var desc in description) {
-          //console.log("str ", desc);
-          var descStr = description[desc];
-          //console.log("descStr ", descStr);
-          var parseStringButton = utils.parseString(descStr);
-          if (parseStringButton) {
-            //console.log("string not empty");
-            buttonArray.push(parseStringButton);
-          } //else {
-          //console.log("string is empty");
-          //}
-        }
-      } else {
-        var parseStringButton = utils.parseString(description);
-        if (parseStringButton) {
-          //console.log("string is not empty");
-          buttonArray.push(parseStringButton);
-        }
-      }
-
-      //subContainer.append("<div class=\"buttonContainer\">");
-      $(ID.blueprintDescription).append("<br>");
-      $(ID.blueprintDescription).append("<div class=\"buttonContainer\">");
-      for (var i = 0; i < buttonArray.length; i++) {
-        //console.log("button ", buttonArray[i]);
-        //var buttonId = subContainer[0].id + "-button-" + i;
-        var buttonId = utils.replaceString(buttonArray[i], " ");
-        //console.log("id ", buttonId);
-        var callbackMethod = "(function test(currentStepName) {circuitBreakerCallBack." + buttonId + "(\"" + currentStepName + "\")})";
-        //console.log("callbackMethod ", callbackMethod);
-
-        var button = __createButton(buttonId, buttonArray[i], callbackMethod);
-        $(".buttonContainer").append(button);
-      }
-      //subContainer.append("</div>");
-      $(ID.blueprintDescription).append("</div>");
-    }
   };
 
   var updateURLfromStepName = function(stepName) {
