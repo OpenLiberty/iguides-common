@@ -238,6 +238,10 @@ var stepContent = (function() {
       // Check if there is already an instruction for this step, and to append it after that one
       var stepInstructions = $(".instruction[data-step='" + stepName + "']");
       if(stepInstructions.length > 0){
+        // If the other step's instructions are hidden then this instruction should be hidden because the user switched steps before the instruction was created.
+        if($(".instruction[data-step='" + stepName + "']:visible").length === 0){
+          currentInstruction.addClass('hidden');
+        }
         stepInstructions.last().after(currentInstruction);
       }
       else{
