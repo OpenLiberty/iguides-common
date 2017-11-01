@@ -42,7 +42,7 @@ var utils = (function() {
 
     var __getQuote = function(str) {
         var quote;
-        str = str.trimLeft();
+        str = str.replace(/^\s+/,"");    // Trim spaces on the left
         quote = str.substring(0, 1);
         //console.log("quote ", quote);
         return quote;
