@@ -1,11 +1,25 @@
+/*******************************************************************************
+ * Copyright (c) 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 var editor = (function() {
     var __editors = {}; // ToDo: __editors is no longer needed with the new changes
 
     var editorType = function(container, stepName, content) {
+        var deferred = new $.Deferred();
         this.stepName = stepName;
         this.saveListenerCallback = null;
         this.fileName = "";
-        __loadAndCreate(this, container, stepName, content);
+        __loadAndCreate(this, container, stepName, content).done(function(result){
+            deferred.resolve(result);
+        });
+        return deferred;
     };
 
     editorType.prototype = {
@@ -52,6 +66,27 @@ var editor = (function() {
             //console.log("saveListener callback", callback);
             this.saveListenerCallback = callback;
         },
+        addContentChangeListener: function(callback) {
+            var thisEditor = this;
+            this.editor.on("change", function(instance, change) {
+                if (!thisEditor.contentChanges) {
+                    thisEditor.contentChanges = [];
+                }
+                thisEditor.contentChanges.push(change);
+                if (thisEditor.contentChangeTimeout) {
+                    clearTimeout(thisEditor.contentChangeTimeout); 
+                    thisEditor.ccontentChangeTimeout = undefined;
+                }
+                thisEditor.contentChangeTimeout = setTimeout(function() {
+                     // Wait until timeout to call callback so as to reduce the number of calls when
+                     // content is still changing. 
+                     // Pass to callback all the saved changes from the editor change event.
+                     callback(thisEditor.editor, thisEditor.contentChanges);
+                     thisEditor.contentChangeTimeout = undefined;
+                     thisEditor.contentChanges = [];
+                }, 1000);
+            });
+        },
         getStepName: function() {
             return this.stepName;
         },
@@ -70,10 +105,11 @@ var editor = (function() {
 
     var __loadAndCreate = function(thisEditor, container, stepName, content) {
             //console.log("using ajax to load editor.html", container);
+            var deferred = new $.Deferred();
             $.ajax({
                 context: thisEditor,
                 url: "/guides/iguides-common/html/interactive-guides/editor.html",
-                async: false,
+                async: true,
                 cache: true,
                 success: function (result) {
                     container.append($(result));
@@ -89,12 +125,14 @@ var editor = (function() {
                     var id = container[0].id + "-codeeditor";
                     editor.attr("id", id);
                     __createEditor(thisEditor, id, container, stepName, content);
-                    return this;
+                    deferred.resolve(thisEditor);
                 },
                 error: function (result) {
                     //console.error("Could not load the edittor.html");
+                    deferred.resolve(thisEditor);
                 }
             });
+            return deferred;
     };
 
     var __createEditor = function(thisEditor, id, container, stepName, content) {
@@ -131,18 +169,8 @@ var editor = (function() {
         }
         // mark any readOnly lines
         thisEditor.markText = markText;
-         // $.each(markText, function(index, readOnlyFromAndTo) {
-         //$.each(markText, function(index, readOnlyFromAndTo) {		 +            thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});
-         //    thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});		 +        });
-         //});
          __markTextForReadOnly(thisEditor, thisEditor.markText);
 
-        /*
-        $(".editorSaveButton .glyphicon-save-file").text(messages.saveButton);
-        if (content.save === false && content.save !== undefined) {
-            $(".editorSaveButton").addClass("hidden");
-        }
-        */
         var saveButton = container.find(".editorSaveButton");
         saveButton.attr('title', messages.saveButton);
         var resetButton = container.find(".editorResetButton");

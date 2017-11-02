@@ -1,5 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 #toc_guide_title {
   padding-top: 30px;
+}
+
+#first_step_header:focus {
+  outline:none;
 }
 
 #guide_content pre.CodeMirror-line {
@@ -8,6 +22,10 @@
   padding: 0 4px;  /* unset doesn't work on ie */
   background-color: transparent;  /* unset doesn't work on ie */
   color: unset;
+}
+
+#guide_content #contentContainer h2.title, #guide_content #contentContainer h3.title {
+  margin-bottom: 30px;
 }
 
 #leftPane {
@@ -41,31 +59,18 @@
   }
 }
 
-#blueprint_title {
-  display: inline-block;
-  text-align: left;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-#blueprint_description {
+.description {
   text-align: left;
   font-size: 16px;
   width: 100%;
   margin-bottom: 15px;
 }
 
-#guide_content #blueprint_description h4 {
-  color: black;
-}
-
-#blueprint_description:focus,
-#blueprint_instruction:focus {
+.description:focus {
   outline: none;
 }
 
-#blueprint_instruction {
+.instruction {
   text-align: left;
   font-size: 16px;
   width: 100%;
@@ -164,6 +169,10 @@ instruction {
   margin-bottom: 10px;
   display: inline-flex;
   align-items: center;
+}
+
+.lastInstruction {
+  margin-bottom: 30px;
 }
 
 instruction.completed {
