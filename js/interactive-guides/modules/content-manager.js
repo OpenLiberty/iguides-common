@@ -281,6 +281,27 @@ var contentManager = (function() {
         }
     };
 
+    var hideBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            browser.contentRootElement.addClass("hidden");
+        }
+    };
+
+    var showBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            browser.contentRootElement.removeClass("hidden");
+        }
+    }
+
+    var addRightSlideClassToBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            browser.contentRootElement.addClass("pod-animation-slide-from-right");
+        }
+    }
+
 // ==== Pod Functions ====
     var setPodContent = function(stepName, content, instanceNumber) {
         var pod = __getPodInstance(stepName, instanceNumber);
@@ -627,6 +648,9 @@ var contentManager = (function() {
         getBrowserURL: getBrowserURL,
         setBrowserURLFocus: setBrowserURLFocus,
         refreshBrowser: refreshBrowser,
+        hideBrowser: hideBrowser,
+        showBrowser: showBrowser,
+        addRightSlideClassToBrowser: addRightSlideClassToBrowser,
 
         setPodContent: setPodContent,
         setPodContentWithRightSlide: setPodContentWithRightSlide,
