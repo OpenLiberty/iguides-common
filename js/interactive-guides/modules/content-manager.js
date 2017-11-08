@@ -21,6 +21,9 @@ var contentManager = (function() {
     var setEditor = function(stepName, editor, index) {
         __setModule(stepName, editor, 'fileEditor', index);
     };
+    var setTabbedEditor = function(stepName, tabbedEditor, index) {
+        __setModule(stepName, tabbedEditor, 'tabbedEditor', index);
+    }
     var setCommandPrompt = function(stepName, cmdPrompt, index) {
         __setModule(stepName, cmdPrompt, 'commandPrompt', index);
     };
@@ -36,7 +39,8 @@ var contentManager = (function() {
     /** Generic method to add modules to their respective step
      * @param {String} stepName - stepName where module is located
      * @param {Module Object} module - the module object
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 
+     *                              'commandPrompt', 'pod', or 'tabbedEditor'
      * @param {Integer} index - Index in which the module should be stored to preserve order with async loading of modules
      */
     var __setModule = function(stepName, module, moduleType, index) {
@@ -64,6 +68,12 @@ var contentManager = (function() {
                     stepContent.editors = [];
                 }
                 moduleList = stepContent.editors;
+                break;
+            case 'tabbedEditor':
+                if (!stepContent.tabbedEditors) {
+                    stepContent.tabbedEditors = [];
+                }
+                moduleList = stepContent.tabbedEditors;
                 break;
             case 'commandPrompt':
                 if(!stepContent.terminals){
@@ -100,6 +110,9 @@ var contentManager = (function() {
     var __getFileEditors = function(stepName) {
         return __getModules(stepName, 'fileEditor');
     };
+    var __getTabbedEditors = function(stepName) {
+        return __getModules(stepName, 'tabbedEditor');
+    };
     var __getWebBrowsers = function(stepName) {
         return __getModules(stepName, 'webBrowser');
     };
@@ -111,7 +124,8 @@ var contentManager = (function() {
     };
     /** Generic method to get Array of a single module type in a given step
      * @param {String} stepName - step name to get modules from
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 'commandPrompt',
+     *                              'pod', or 'tabbedEditor'
      */
     var __getModules = function(stepName, moduleType) {
         var moduleList = null;
@@ -127,6 +141,9 @@ var contentManager = (function() {
                 case 'fileEditor':
                     moduleList = stepContent.editors;
                     break;
+                case 'tabbedEditor':
+                    moduleList = stepContent.tabbedEditors;
+                    break;
                 case 'commandPrompt':
                     moduleList = stepContent.terminals;
                     break;
@@ -141,17 +158,20 @@ var contentManager = (function() {
         return moduleList;
     };
 
-     /** Returns a specific instance of FileBrowser
+     /** Returns a specific instance of requested type
      * @param {*} stepName
      * @param {*} instanceNumber
      *
-     * @returns - FileBrowser instance, or FALSY (null or undefined) if nothing found.
+     * @returns - <type> instance, or FALSY (null or undefined) if nothing found.
      */
     var __getFileBrowserInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'fileBrowser', instanceNumber);
     };
     var __getEditorInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'fileEditor', instanceNumber);
+    };
+    var __getTabbedEditorInstance = function(stepName, instanceNumber) {
+        return __getModuleInstance(stepName, 'tabbedEditor', instanceNumber);
     };
     var __getWebBrowserInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'webBrowser', instanceNumber);
@@ -167,7 +187,8 @@ var contentManager = (function() {
     }
     /** Returns specific instance of given module type
      * @param {String} stepName - name of step to get module from
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 'commandPrompt',
+     *                              'pod', or 'tabbedEditor'
      * @param {Integer} instanceNumber - instance of module type in given step
      *
      * @returns - instance of given module tpe, or FALSY (null or undefined) if nothing found.
@@ -407,6 +428,43 @@ var contentManager = (function() {
 
     };
 
+
+// ==== Tabbed Editor Functions ====
+    /** Add a browser to the tabbed editor in a new tab.
+     *  @param {String} stepName
+     *  @param {*} file editor creation object
+     *      ex: {
+     *            "displayType":"fileEditor",
+     *            "fileName": "TestOut.java",
+     *            "preload": [
+     *                         "This is my Test editor.",
+     *                         "Another line in the editor."
+     *             ],
+     *             "save": true
+     *          }
+     *  @param {Integer} instanceNumber (optional) zero-indexed instance number of TabbedEditor
+     */
+    var addEditorToTabs = function(stepName, editorObject, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            tabbedEditor.addEditor(editorObject);
+        }
+    };
+
+    /**
+     * Using the file name specified in the tab for the particular file editor,
+     * focus the editor.
+     * @param {String} stepName
+     * @param {String} fileName as specified on the tab
+     * @param {Integer} instanceNumber (optional) zero-indexed instance number of TabbedEditor
+     */
+    var focusEditorByName = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            tabbedEditor.focusTabByFileName(fileName);
+        }
+    };
+    
 // ==== Instruction Functions ====
     /** Store the instructions for the given step
      * @param {String} stepName
@@ -614,6 +672,7 @@ var contentManager = (function() {
     return {
         setFileBrowser: setFileBrowser,
         setEditor: setEditor,
+        setTabbedEditor: setTabbedEditor,
         setWebBrowser: setWebBrowser,
         setCommandPrompt: setCommandPrompt,
         setPod: setPod,
@@ -641,6 +700,9 @@ var contentManager = (function() {
         replaceEditorContents: replaceEditorContents,
         saveEditor: saveEditor,
         markEditorReadOnlyLines: markEditorReadOnlyLines,
+
+        addEditorToTabs: addEditorToTabs,
+        focusEditorByName: focusEditorByName,
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,
