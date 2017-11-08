@@ -31,5 +31,6 @@ var messages = {
   "runButton": "Run",
   "editorErrorLink": "Error detected. Click {0} to fix the error.",
   "hereButton": "here",
-  "closeButton": "close"
+  "closeButton": "close",
+  "tabbedEditorContainer": "Tabbed container for file editors."
 };

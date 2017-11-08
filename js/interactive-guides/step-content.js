@@ -434,7 +434,7 @@ var stepContent = (function() {
           }
 
           // Create an id for the subContainer using the displayType, starting with 0 for each displayType
-          if(!displayTypeCounts[content.displayType]){
+          if(displayTypeCounts[content.displayType] === undefined){
             displayTypeCounts[content.displayType] = 0;
           }
           else{
@@ -458,6 +458,11 @@ var stepContent = (function() {
                 contentManager.setEditor(step.name, newEditor, displayTypeNum);
               });                
               break;
+            case 'tabbedEditor':
+              tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
+                contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
+              });
+              break; 
             case 'commandPrompt':
               cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
                 contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
