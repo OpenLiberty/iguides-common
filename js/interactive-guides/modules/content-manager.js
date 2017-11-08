@@ -451,7 +451,7 @@ var contentManager = (function() {
 
 
 // ==== Tabbed Editor Functions ====
-    /** Add a browser to the tabbed editor in a new tab.
+    /** Add an editor to the tabbed editor in a new tab.
      *  @param {String} stepName
      *  @param {*} file editor creation object
      *      ex: {
