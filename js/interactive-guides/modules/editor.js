@@ -100,6 +100,9 @@ var editor = (function() {
             if ($.isArray(readonlyLines)) {
                 __markTextForReadOnly(this, __adjustReadOnlyLines(readonlyLines));
             }
+        },
+        markEditorReadOnly: function() {
+            __markEditorReadOnly(this);
         }
     };
 
@@ -142,7 +145,7 @@ var editor = (function() {
             isReadOnly = true;
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
-        }
+        } 
         thisEditor.editor = CodeMirror(document.getElementById(id), {
             lineNumbers: true,
             autoRefresh: true,
@@ -167,10 +170,8 @@ var editor = (function() {
             var callback = eval(content.callback);
             callback(thisEditor);
         }
-        // mark any readOnly lines
-        thisEditor.markText = markText;
-         __markTextForReadOnly(thisEditor, thisEditor.markText);
 
+        thisEditor.editorButtonFrame = container.find(".editorButtonFrame");
         var saveButton = container.find(".editorSaveButton");
         saveButton.attr('title', messages.saveButton);
         var resetButton = container.find(".editorResetButton");
@@ -187,13 +188,19 @@ var editor = (function() {
         } else if ((content.save === true || content.save === "true")) {
             runButton.addClass("hidden");
         }
-        //console.log($('#' + id.substring(0, id.indexOf('-codeeditor')) + ' .editorSaveButton'));
-        //__addOnClickListener(thisEditor, $('#' + id.substring(0, id.indexOf('-codeeditor')) + ' .editorSaveButton'));
-        __addSaveOnClickListener(thisEditor, saveButton);
-        __addResetOnClickListener(thisEditor, resetButton);
-        __addUndoOnClickListener(thisEditor, undoButton);
-        __addRedoOnClickListener(thisEditor, redoButton);
-        __addSaveOnClickListener(thisEditor, runButton);
+
+        // mark any readOnly lines
+        if (isReadOnly) {
+            __markEditorReadOnly(thisEditor);
+        } else {
+            thisEditor.markText = markText;
+            __markTextForReadOnly(thisEditor, thisEditor.markText);
+            __addSaveOnClickListener(thisEditor, saveButton);
+            __addResetOnClickListener(thisEditor, resetButton);
+            __addUndoOnClickListener(thisEditor, undoButton);
+            __addRedoOnClickListener(thisEditor, redoButton);
+            __addSaveOnClickListener(thisEditor, runButton);
+        }
 
         __editors[stepName] = thisEditor.editor;
     };
@@ -229,6 +236,33 @@ var editor = (function() {
              thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});
          });
      };
+
+    var __markEditorReadOnly = function(thisEditor) {
+        thisEditor.markText = [];
+        thisEditor.markText.push({
+            from: -1,
+            to: thisEditor.editor.lineCount() - 1
+        });
+        // apply the css for readonly lines
+        __markTextForReadOnly(thisEditor, thisEditor.markText);
+        __disableAllButtons(thisEditor, true);
+    };
+
+    var __disableAllButtons = function(thisEditor, toDisabled) {
+        if (toDisabled) {
+            thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", true);
+        } else {
+            thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", false);
+        }
+    };
 
     var __addSaveOnClickListener = function(thisEditor, $elem) {
         $elem.on("keydown", function (event) {
