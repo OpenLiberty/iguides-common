@@ -30,8 +30,8 @@ var contentManager = (function() {
     var setPod = function(stepName, pod, index) {
         __setModule(stepName, pod, 'pod', index);
     };
-    var setCircuitBreaker = function(stepName, circuitBreaker, index){
-        __setModule(stepName, circuitBreaker, 'circuitBreaker', index);
+    var setPlayground = function(stepName, playground, index){
+        __setModule(stepName, playground, 'playground', index);
     };
     /** Generic method to add modules to their respective step
      * @param {String} stepName - stepName where module is located
@@ -77,11 +77,11 @@ var contentManager = (function() {
                 }
                 moduleList = stepContent.pods;
                 break;
-            case 'circuitBreaker':
-                if(!stepContent.circuitBreaker){
-                    stepContent.circuitBreaker = [];
+            case 'playground':
+                if(!stepContent.playground){
+                    stepContent.playground = [];
                 }
-                moduleList = stepContent.circuitBreaker;
+                moduleList = stepContent.playground;
                 break;
         }
         if (moduleList) {
@@ -133,8 +133,8 @@ var contentManager = (function() {
                 case 'pod':
                     moduleList = stepContent.pods;
                     break;
-                case 'circuitBreaker':
-                    moduleList = stepContent.circuitBreaker;
+                case 'playground':
+                    moduleList = stepContent.playground;
                     break;
             }
         }
@@ -162,8 +162,8 @@ var contentManager = (function() {
     var __getPodInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'pod', instanceNumber);
     };
-    var __getCircuitBreakerInstance = function(stepName, instanceNumber) {
-        return __getModuleInstance(stepName, 'circuitBreaker', instanceNumber);
+    var __getPlaygroundInstance = function(stepName, instanceNumber) {
+        return __getModuleInstance(stepName, 'playground', instanceNumber);
     }
     /** Returns specific instance of given module type
      * @param {String} stepName - name of step to get module from
@@ -638,7 +638,7 @@ var contentManager = (function() {
         setWebBrowser: setWebBrowser,
         setCommandPrompt: setCommandPrompt,
         setPod: setPod,
-        setCircuitBreaker: setCircuitBreaker,
+        setPlayground: setPlayground,
 
         addFileToBrowserFromEditor: addFileToBrowserFromEditor,
         addFileToBrowser: addFileToBrowser,
@@ -655,7 +655,7 @@ var contentManager = (function() {
         setPodContent: setPodContent,
         setPodContentWithRightSlide: setPodContentWithRightSlide,
         getPod: __getPodInstance,
-        getCircuitBreaker: __getCircuitBreakerInstance,
+        getPlayground: __getPlaygroundInstance,
 
         getEditorContents: getEditorContents,
         setEditorContents: setEditorContents,
