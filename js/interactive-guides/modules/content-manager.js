@@ -405,7 +405,7 @@ var contentManager = (function() {
         }
     };
 
-    /** Append content after a certain line in a specified FileEditor instance
+    /** Replace content on specified line numbers in a specified FileEditor instance
      * @param {String} stepName - name of step where FileEditor is located
      * @param {Integer} fromLineNumber - starting line number to replace content
      * @param {Integer} toLineNumber - ending line number to replace content
@@ -445,10 +445,6 @@ var contentManager = (function() {
         }
     }
 
-    var sendCommandToTerminal = function() {
-
-    };
-
 
 // ==== Tabbed Editor Functions ====
     /** Add an editor to the tabbed editor in a new tab.
@@ -479,12 +475,150 @@ var contentManager = (function() {
      * @param {String} fileName as specified on the tab
      * @param {Integer} instanceNumber (optional) zero-indexed instance number of TabbedEditor
      */
-    var focusEditorByName = function(stepName, fileName, instanceNumber) {
+    var focusTabbedEditorByName = function(stepName, fileName, instanceNumber) {
         var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
         if (tabbedEditor) {
             tabbedEditor.focusTabByFileName(fileName);
         }
     };
+
+    /** Returns the content from a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var getTabbedEditorContents = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                return teditor.getEditorContent();
+            }           
+        }
+    };
+
+    /** Set (replace) the content in a specified FileEditor instance within a 
+     *  TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var setTabbedEditorContents = function(stepName, fileName, content, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.setEditorContent(content);
+            }           
+        }        
+    };
+
+    /** Reset the content in a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var resetTabbedEditorContents = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.resetEditorContent();
+            }           
+        }        
+    };
+
+    /** Insert content before a certain line in a specified FileEditor instance
+     *  within a TabbedEditor.
+     * @param {String} stepName - name of step where TabbedEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} lineNumber - line number to insert content above
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {String} numberOfLines - (optional) number of lines in the new content; required only if inserting more than 1 line
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var insertTabbedEditorContents = function(stepName, fileName, lineNumber, content, numberOfLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.insertContent(lineNumber, content, numberOfLines);
+            }
+        }
+    };
+
+    /** Append content after a certain line in a specified FileEditor instance
+     *  within a TabbedEditor.
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} lineNumber - line number to append content below
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {String} numberOfLines - (optional) number of lines in the new content; required only if appending more than 1 line.
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var appendTabbedEditorContents = function(stepName, fileName, lineNumber, content, numberOfLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.appendContent(lineNumber, content, numberOfLines);
+            }
+        }
+    };
+
+    /** Replace content on specified line numbers in a specified FileEditor instance
+     *  within a Tabbed Editor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} fromLineNumber - starting line number to replace content
+     * @param {Integer} toLineNumber - ending line number to replace content
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {String} numberOfLines - (optional) number of lines in the new content; required only if different from number of lines replacing.
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var replaceTabbedEditorContents = function(stepName, fileName, fromLineNumber, toLineNumber, content, numberOfLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.replaceContent(fromLineNumber, toLineNumber, content, numberOfLines);
+            }
+        }
+    };
+
+    /** Simulate the save click in a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var saveTabbedEditor = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.saveEditor();
+            }
+        }
+    };
+
+    /** Set readonly lines in a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as, 
+     * readonly, example to mark lines 1 thru 4 and lines 8 thru 12 readonly:
+     *      [ {from: 1, to: 4} {from: 8, to: 12} ]
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var markTabbedEditorReadOnlyLines = function(stepName, fileName, readOnlyLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.markTextForReadOnly(readOnlyLines);
+            }
+        }
+    }
     
 // ==== Instruction Functions ====
     /** Store the instructions for the given step
@@ -726,7 +860,15 @@ var contentManager = (function() {
         markEditorReadOnlyLines: markEditorReadOnlyLines,
 
         addEditorToTabs: addEditorToTabs,
-        focusEditorByName: focusEditorByName,
+        focusTabbedEditorByName: focusTabbedEditorByName,
+        getTabbedEditorContents: getTabbedEditorContents,
+        setTabbedEditorContents: setTabbedEditorContents,
+        resetTabbedEditorContents: resetTabbedEditorContents,
+        insertTabbedEditorContents: insertTabbedEditorContents,
+        appendTabbedEditorContents: appendTabbedEditorContents,
+        replaceTabbedEditorContents: replaceTabbedEditorContents,
+        saveTabbedEditor: saveTabbedEditor,
+        markTabbedEditorReadOnlyLines: markTabbedEditorReadOnlyLines,
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,

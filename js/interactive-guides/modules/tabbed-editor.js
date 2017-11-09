@@ -12,10 +12,50 @@ var tabbedEditor = (function() {
     var __editors = [];
 
     var tabbedEditorType = function(container, stepName, content) {
+        /**
+         * This widget forms a tabbed editor.  It contains an arraay of fileEditor widgets as the editorList element
+         * of its content. 
+         * 
+         * To Create Example JSON:  
+         *         {
+         *             "name": "MyStep",
+         *             "title": Test Step",
+         *             "description": [
+         *                 "Trying out tabbed editor."
+         *             ],
+         *             "content": [
+         *                 {
+         *                     "displayType": "tabbedEditor",
+         *                     "editorList": [
+         *                         {
+         *                             "displayType": "fileEditor",
+         *                             "fileName": "server.xml",
+         *                             "preload": [
+         *                               "<?xml version=\"1.0\"?>",
+         *                               "<server description=\"Sample Liberty server\">",
+         *                               "   <featureManager>",
+         *                               "      <feature>cdi-1.2</feature>",
+         *                               "   </featureManager>",
+         *                               "</server>"
+         *                             ],
+         *                             "save": true
+         *                         },
+         *                         {
+         *                             "displayType":"fileEditor",
+         *                             "fileName": "BankService.txt",
+         *                             "preload": [
+         *                                 "Just some junk on the Bank Service."
+         *                             ],
+         *                             "save": true
+         *                         }
+         *                     ]
+         *                 }
+         * 
+         */
         var deferred = new $.Deferred();
 
         this.stepName = stepName;
-        this.editorList = content.editorList || [];
+        this.editorList = {};           // Tracks editor widget objects by tab id
 
         __loadAndCreate(this, container, stepName, content).done(function(result){
             deferred.resolve(result);
@@ -25,6 +65,11 @@ var tabbedEditor = (function() {
     
     tabbedEditorType.prototype = {
 
+        /**
+         * Adds a new editor to the END of the TabbedEditor.
+         * 
+         * @param {} editorInfo - object to create a FileEditor widget. 
+         */
         addEditor: function(editorInfo) {
             // New tabs will be added to the end of the existing tabs
             var numTabs = this.$teTabList.find('a').length;
@@ -68,22 +113,92 @@ var tabbedEditor = (function() {
             var $tabContent = $("<div id='" + editorName + "' class='teTabContent'  role='tabpanel'></div>");
             this.$teTabContents.append($tabContent);
             // Add the editor to the div
-            editor.create($tabContent, this.stepName, editorInfo);
-            // Remove the editor's file name that appears above a single editor
-            $tabContent.find('.editorFileName').parent().remove();            
+            editor.create($tabContent, this.stepName, editorInfo).done(function(newEditor) {
+                // Remove the editor's file name that appears above a single editor
+                $tabContent.find('.editorFileName').parent().remove();
+                thisTabbedEditor.editorList[editorName] = newEditor;
+            });
         },
 
-        focusTabByFileName: function(fileName) {
+        /**
+         * Tabs are created as part of a list such as...
+         *          <ul>
+         *              <li><a>File.name</a></li>
+         *              <li><a>File2.name</a></li>
+         *          </ul>
+         * 
+         * This method returns the JQuery object representing the <a> tag
+         * associated with the tab for the provided fileName.
+         * 
+         * @param {String} fileName of an editor within the TabbedEditor
+         * @returns {} JQuery object representing the <a> tag of the tab
+         */
+        findEditorTabByFileName: function(fileName) {
             var tabList = this.$teTabList.find('li');
             var tab = undefined;
             for (var i=0; i<tabList.length; i++) {
                 if (tabList[i].textContent === fileName) {
-                    tab = tabList[i];
+                    tab = $(tabList[i]).find('a');
                     break;
                 }
             }
+            return tab;   // JQuery object of the 'a' element of the tab || undefined
+        },
+
+        /**
+         * Tabs are created as part of a list such as...
+         *          <ul>
+         *              <li><a href='#tab1'>File.name</a></li>
+         *              <li><a href='#tab2'>File2.name</a></li>
+         *          </ul>
+         * 
+         * The href associated with each <a> tag has a corresponding
+         * <div> tag with the same id as the href. 
+         *          <div id='tab'> Tab Editor Contents </div>
+         * 
+         * This method returns this id value.   
+         * 
+         * NOTE: Each tabbed-editor object has a editorList object whose
+         * members are these id values and their values are a pointer
+         * to the FileEditor widget object. 
+         * 
+         * @param {String} fileName of an editor within the TabbedEditor
+         * @returns {String} id value of the tab associated with the 
+         *          provided filename or undefined.
+         */
+        getEditorTabIdByFileName: function(fileName) {
+            var tab = this.findEditorTabByFileName(fileName);
+            if (tab) {      // Tab is the JQuery object of the 'a' element of the tab
+                return (tab[0].hash.substring(1));  // Remove '#' char in front to just return the ID
+            }
+            return undefined;
+        },
+
+        /**
+         * Returns the FileEditor widget object for the specified 
+         * file name within this tabbed editor.
+         * 
+         * @param {String} fileName
+         * @returns {} FileEditor object associated with provided fileName
+         */
+        getEditorByFileName: function(fileName) {
+            var id = this.getEditorTabIdByFileName(fileName);
+            if (id) {
+                return this.editorList[id];
+            }
+            return undefined;
+        },
+
+        /**
+         * Issues a click event for the tab associated with the specified
+         * fileName to bring it into focus.
+         * 
+         * @param {String} fileName of an editor within the TabbedEditor
+         */
+        focusTabByFileName: function(fileName) {
+            var tab = this.findEditorTabByFileName(fileName);
             if (tab) {
-                $(tab).find('a').click();
+                tab.click();
             }
         }
     };            
@@ -107,9 +222,10 @@ var tabbedEditor = (function() {
             thisTabbedEditor.displayTypeNum = containerID.substring(containerID.lastIndexOf('-')+1);
 
             // Fill in the editors for this Tabbed Editor in different tabs
-            if (thisTabbedEditor.editorList.length > 0) {
-                for (var i=0; i<thisTabbedEditor.editorList.length; i++) {
-                    var tEditor = thisTabbedEditor.editorList[i];
+            var editors = content.editorList || [];
+            if (editors.length > 0) {
+                for (var i=0; i<editors.length; i++) {
+                    var tEditor = editors[i];
                     thisTabbedEditor.addEditor(tEditor);
                 }
                 
