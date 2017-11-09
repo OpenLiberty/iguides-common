@@ -60,7 +60,6 @@ var webBrowser = (function(){
       var extension = content.substring(content.length - 4).toLowerCase();
       var file =  extension === 'html' || extension === 'htm' ? true: false;
       if (file) {
-        //var fileLocation = '/guides/iguide-circuit-breaker/src/main/content/html/interactive-guides/' + content;
         var fileLocation = content;
         var $iframe = $webContentElement.find('iframe');
         $iframe.attr('src', fileLocation);
