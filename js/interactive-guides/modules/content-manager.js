@@ -405,7 +405,7 @@ var contentManager = (function() {
         }
     };
 
-    /** Append content after a certain line in a specified FileEditor instance
+    /** Replace content on specified line numbers in a specified FileEditor instance
      * @param {String} stepName - name of step where FileEditor is located
      * @param {Integer} fromLineNumber - starting line number to replace content
      * @param {Integer} toLineNumber - ending line number to replace content
@@ -567,7 +567,7 @@ var contentManager = (function() {
         }
     };
 
-    /** Append content after a certain line in a specified FileEditor instance
+    /** Replace content on specified line numbers in a specified FileEditor instance
      *  within a Tabbed Editor
      * @param {String} stepName - name of step where FileEditor is located
      * @param {String} fileName - file name of editor within TabbedEditor
