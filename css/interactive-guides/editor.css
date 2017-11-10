@@ -46,7 +46,7 @@
   overflow: hidden;
 }
 
-.editorSaveButton, .editorResetButton, .editorUndoButton, .editorRedoButton {
+.editorSaveButton, .editorResetButton, .editorCopyButton, .editorUndoButton, .editorRedoButton {
   display: block;
   float: left;
   /* line-height: 0; */

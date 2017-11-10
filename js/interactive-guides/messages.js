@@ -26,6 +26,7 @@ var messages = {
   "cmdNotSupport": "The command \"{0}\" was not support.",
   "saveButton": "Save",
   "resetButton": "Reset",
+  "copyButton": "Copy",
   "undoButton": "Undo",
   "redoButton": "Redo",
   "runButton": "Run",
