@@ -346,14 +346,15 @@ var editor = (function() {
     };
 
     var __handleCopyClick = function(thisEditor, $elem){
-        if (thisEditor.editor.contentValue !== undefined) {
+        var content = thisEditor.editor.getValue();
+        if (content) {
             if (window.clipboardData && window.clipboardData.setData) {
                 // IE specific code path to prevent textarea being shown while dialog is visible.
                 return clipboardData.setData("Text", text); 
         
             } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
                 var textarea = document.createElement("textarea");
-                textarea.textContent = thisEditor.editor.contentValue;
+                textarea.textContent = content;
                 textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
                 document.body.appendChild(textarea);
                 textarea.select();
