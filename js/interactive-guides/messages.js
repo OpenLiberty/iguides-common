@@ -31,6 +31,7 @@ var messages = {
   "redoButton": "Redo",
   "runButton": "Run",
   "editorErrorLink": "Error detected. Click {0} to fix the error.",
+  "editorErrorCopying" : "Failed to copy the contents to clipboard. Copy the contents manually.",
   "hereButton": "here",
   "closeButton": "close",
   "tabbedEditorContainer": "Tabbed container for file editors."

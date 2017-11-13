@@ -103,6 +103,83 @@ var editor = (function() {
         },
         markEditorReadOnly: function() {
             __markEditorReadOnly(this);
+        },
+        createEditorErrorButton: function(buttonId, buttonName, className, method, ariaLabel) {
+            return $('<button/>', {
+                type: 'button',
+                text: buttonName,
+                id: buttonId,
+                class: className,
+                click: method,
+                'aria-label': ariaLabel
+            });
+        },
+        closeEditorErrorBox: function(stepName) {
+            var step = $("[data-step=" + stepName + "]");
+            var editorError = step.find(".alertFrame").first();
+
+            if (editorError.length) {
+                editorError.addClass("hidden");
+            }
+        },
+        /*
+            Create the error message pane for an invalid entry in the editor.
+            stepName: Name of the step from the JSON
+            isSave: true/false if the editor should have a save button or not
+            correctErrorCallback: Callback function to run once they click the 'here' fix it button.
+        */
+        createErrorLinkForCallBack: function(stepName, isSave, correctErrorCallback) {
+            var thisEditor = this;
+            var idHere = "here_button_error_editor_" + stepName;
+            var idClose = "close_button_error_editor_" + stepName;
+            var idError = "error_" + stepName;
+
+            var thisStepName = stepName;
+            var thisIsSave = isSave;           
+
+            var handleOnClickFixContent = function() {
+                thisEditor.correctEditorError(thisStepName, thisIsSave, correctErrorCallback);
+            };
+
+            var handleOnClickClose = function() {
+                thisEditor.closeEditorErrorBox(thisStepName);
+            };
+
+            var step = $("[data-step=" + stepName + "]");
+            var editorError = step.find(".alertFrame").first();
+            if (editorError.length) {
+                editorError.removeClass("hidden");
+
+                var errorLink = editorError.find("#" + idError).first();
+                if (errorLink.length) {
+                    // button exists
+                    // unbind the previous click of this button id
+                    // before bind it to a new onclick
+                    $("#" + idHere).unbind("click");
+                    $("#" + idHere).bind("click", handleOnClickFixContent);
+                } else {
+
+                    var hereButton = this.createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
+                    var closeButton = this.createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
+                    var strMsg = "Error detected. To fix the error click ";
+                    //var strMsg = utils.formatString(messages.editorErrorLink, [hereButton]);
+
+                    var spanStr = '<span id=\"' + idError + '\">' + strMsg;
+                    editorError.append(spanStr);
+                    editorError.append(hereButton);
+                    editorError.append(closeButton);
+                    editorError.append('</span>');
+                }
+            }
+        },
+        correctEditorError: function(stepName, isSave, correctErrorCallback) {
+            correctErrorCallback(stepName);
+            // hide the error box
+            this.closeEditorErrorBox(stepName);
+            // call save editor
+            if (isSave === true) {
+                contentManager.saveEditor(stepName);
+            }
         }
     };
 
@@ -334,7 +411,7 @@ var editor = (function() {
 
     var __handleSaveClick = function(thisEditor, $elem) {
         if (thisEditor.saveListenerCallback) {
-            thisEditor.saveListenerCallback();
+            thisEditor.saveListenerCallback(thisEditor);
         }
     };
 
@@ -354,7 +431,7 @@ var editor = (function() {
         
             } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
                 var textarea = document.createElement("textarea");
-                textarea.textContent = content;
+                textarea.textContent = thisEditor.editor.getValue();
                 textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
                 document.body.appendChild(textarea);
                 textarea.select();
