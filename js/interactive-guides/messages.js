@@ -26,10 +26,12 @@ var messages = {
   "cmdNotSupport": "The command \"{0}\" was not support.",
   "saveButton": "Save",
   "resetButton": "Reset",
+  "copyButton": "Copy",
   "undoButton": "Undo",
   "redoButton": "Redo",
   "runButton": "Run",
   "editorErrorLink": "Error detected. Click {0} to fix the error.",
+  "editorErrorCopying" : "The contents failed to copy to the clipboard. Copy the contents manually.",
   "hereButton": "here",
   "closeButton": "close",
   "tabbedEditorContainer": "Tabbed container for file editors."

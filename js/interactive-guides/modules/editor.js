@@ -103,6 +103,80 @@ var editor = (function() {
         },
         markEditorReadOnly: function() {
             __markEditorReadOnly(this);
+        },
+        createEditorErrorButton: function(buttonId, buttonName, className, method, ariaLabel) {
+            return $('<button/>', {
+                type: 'button',
+                text: buttonName,
+                id: buttonId,
+                class: className,
+                click: method,
+                'aria-label': ariaLabel
+            });
+        },
+        closeEditorErrorBox: function(stepName) {
+            var step = $("[data-step=" + stepName + "]");
+            var editorError = step.find(".alertFrame").first();
+
+            if (editorError.length) {
+                editorError.addClass("hidden");
+            }
+        },
+
+        createErrorLinkForCallBack: function(stepName, isSave, correctErrorCallback) {
+            var errorMsg = "Error detected. To fix the error click ";
+            this.createErrorAlertPane(stepName, isSave, errorMsg, correctErrorCallback);
+        },
+
+        /*
+         *   Create the error message pane for an invalid entry in the editor.
+         *   @param stepName: Name of the step from the JSON
+         *   @param isSave: true/false if the editor needs to be saved after correcting it
+         *   @param errorMsg: Message to display in the alert pane
+         *   @param correctErrorCallback: Callback function to run once they click the 'here' fix it button.
+        */
+        createErrorAlertPane: function(stepName, isSave, errorMsg, correctErrorCallback) {
+            var thisEditor = this;
+            var idHere = "here_button_error_editor_" + stepName;
+            var idClose = "close_button_error_editor_" + stepName;
+            var idError = "error_" + stepName;
+
+            var handleOnClickClose = function() {
+                thisEditor.closeEditorErrorBox(stepName);
+            };
+
+            var step = $("[data-step=" + stepName + "]");
+            var editorError = step.find(".alertFrame").first();
+            if (editorError.length) {
+                editorError.removeClass("hidden");
+                editorError.empty(); // Clear previous errors in the error pane
+                            
+                var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
+                editorError.append(spanStr);
+                if(correctErrorCallback){
+                    var handleOnClickFixContent = function() {
+                        thisEditor.correctEditorError(stepName, isSave, correctErrorCallback);
+                    };
+                    var hereButton = this.createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
+                    editorError.append(hereButton);
+                }                
+                var closeButton = this.createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
+                editorError.append(closeButton);
+                editorError.append('</span>');            
+            }
+        },
+        createCopyButtonError: function(stepName){
+            var errorMsg = messages.editorErrorCopying;
+            this.createErrorAlertPane(stepName, false, errorMsg);
+        },
+        correctEditorError: function(stepName, isSave, correctErrorCallback) {
+            correctErrorCallback(stepName);
+            // hide the error box
+            this.closeEditorErrorBox(stepName);
+            // call save editor
+            if (isSave === true) {
+                contentManager.saveEditor(stepName);
+            }
         }
     };
 
@@ -176,6 +250,8 @@ var editor = (function() {
         saveButton.attr('title', messages.saveButton);
         var resetButton = container.find(".editorResetButton");
         resetButton.attr('title', messages.resetButton);
+        var copyButton = container.find('.editorCopyButton');
+        copyButton.attr('title', messages.copyButton);
         var undoButton = container.find(".editorUndoButton");
         undoButton.attr('title', messages.undoButton);
         var redoButton = container.find(".editorRedoButton");
@@ -197,6 +273,7 @@ var editor = (function() {
             __markTextForReadOnly(thisEditor, thisEditor.markText);
             __addSaveOnClickListener(thisEditor, saveButton);
             __addResetOnClickListener(thisEditor, resetButton);
+            __addCopyOnClickListener(thisEditor, copyButton);
             __addUndoOnClickListener(thisEditor, undoButton);
             __addRedoOnClickListener(thisEditor, redoButton);
             __addSaveOnClickListener(thisEditor, runButton);
@@ -289,6 +366,19 @@ var editor = (function() {
             __handleResetClick(thisEditor, $elem);
         });
     };
+    
+    var __addCopyOnClickListener = function(thisEditor, $elem){
+        $elem.on("keydown", function (event) {
+            event.stopPropagation();
+            if (event.which === 13 || event.which === 32) { // Enter key, Space key
+                __handleCopyClick(thisEditor, $elem);
+            }
+        });
+        $elem.on("click", function (event) {
+            event.stopPropagation();
+            __handleCopyClick(thisEditor, $elem);
+        });
+    };
 
     var __addUndoOnClickListener = function(thisEditor, $elem) {
         $elem.on("keydown", function (event) {
@@ -318,7 +408,7 @@ var editor = (function() {
 
     var __handleSaveClick = function(thisEditor, $elem) {
         if (thisEditor.saveListenerCallback) {
-            thisEditor.saveListenerCallback();
+            thisEditor.saveListenerCallback(thisEditor);
         }
     };
 
@@ -328,6 +418,32 @@ var editor = (function() {
             __markTextForReadOnly(thisEditor, thisEditor.markText);
         }
     };
+
+    var __handleCopyClick = function(thisEditor, $elem){
+        var content = thisEditor.editor.getValue();
+        if (content) {
+            if (window.clipboardData && window.clipboardData.setData) {
+                // IE specific code path to prevent textarea being shown while dialog is visible.
+                return clipboardData.setData("Text", text); 
+        
+            } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+                var textarea = document.createElement("textarea");
+                textarea.textContent = thisEditor.editor.getValue();
+                textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+                } catch (ex) {
+                    console.warn("Copy to clipboard failed.", ex);
+                    thisEditor.createCopyButtonError(thisEditor.stepName);
+                    return false;
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
+        }
+    }
 
     var __handleUndoClick = function(thisEditor, $elem) {
         if (thisEditor.editor.contentValue !== undefined) {
