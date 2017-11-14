@@ -13,10 +13,13 @@ var tabbedEditor = (function() {
 
     var tabbedEditorType = function(container, stepName, content) {
         /**
-         * This widget forms a tabbed editor.  It contains an arraay of fileEditor widgets as the editorList element
-         * of its content. 
+         * This widget forms a tabbed editor.  It contains an array of fileEditor
+         * widgets as the "editorList" element of its content.  Content may also
+         * contain an "activeTab" element whose value is the fileName of the editor
+         * that you want to be active, or have focus.  If "activeTab" is not specified,
+         * then we default to the first tab as the active tab.
          * 
-         * To Create Example JSON:  
+         * To Create Example JSON:
          *         {
          *             "name": "MyStep",
          *             "title": Test Step",
@@ -48,9 +51,11 @@ var tabbedEditor = (function() {
          *                             ],
          *                             "save": true
          *                         }
-         *                     ]
+         *                     ],
+         *                     "activeTab": "BankService.txt"
          *                 }
-         * 
+         *             ]
+         *         }
          */
         var deferred = new $.Deferred();
 
@@ -68,7 +73,7 @@ var tabbedEditor = (function() {
         /**
          * Adds a new editor to the END of the TabbedEditor.
          * 
-         * @param {} editorInfo - object to create a FileEditor widget. 
+         * @param {} editorInfo - object to create a FileEditor widget.
          */
         addEditor: function(editorInfo) {
             // New tabs will be added to the end of the existing tabs
@@ -83,32 +88,32 @@ var tabbedEditor = (function() {
 
             // Create the dom elements for the new editor
             var editorName = 'teTab-editor' + this.displayTypeNum + '-tab' + numTabs;    // or should this be the filename?
-                     
+
             // Tab....
             var $tabItem = $("<li role='presentation'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "'>" + editorInfo.fileName + "</a></li>");
             var thisTabbedEditor = this;
             $tabItem.on('click', 'a', function(e){
                 // Make the old tab inactive.
                 if (thisTabbedEditor.$active) {
-                    thisTabbedEditor.$active.removeClass('active');                    
+                    thisTabbedEditor.$active.removeClass('active');
                 }
                 if (thisTabbedEditor.$content) {
-                    thisTabbedEditor.$content.hide();                    
+                    thisTabbedEditor.$content.hide();
                 }
-                     
+
                 // Update the variables with the new link and content
                 thisTabbedEditor.$active = $(this);
                 thisTabbedEditor.$content = $(this.hash);
-                     
+
                 // Make the tab active.
                 thisTabbedEditor.$active.addClass('active');
                 thisTabbedEditor.$content.show();
-                     
+
                 // Prevent the anchor's default click action
                 e.preventDefault();
             });
             this.$teTabList.append($tabItem);
-                     
+
             // Content.....create hidden
             var $tabContent = $("<div id='" + editorName + "' class='teTabContent'  role='tabpanel'></div>");
             this.$teTabContents.append($tabContent);
@@ -136,7 +141,7 @@ var tabbedEditor = (function() {
         findEditorTabByFileName: function(fileName) {
             var tabList = this.$teTabList.find('li');
             var tab = undefined;
-            for (var i=0; i<tabList.length; i++) {
+            for(var i=0; i<tabList.length; i++) {
                 if (tabList[i].textContent === fileName) {
                     tab = $(tabList[i]).find('a');
                     break;
@@ -153,17 +158,17 @@ var tabbedEditor = (function() {
          *          </ul>
          * 
          * The href associated with each <a> tag has a corresponding
-         * <div> tag with the same id as the href. 
+         * <div> tag with the same id as the href.
          *          <div id='tab'> Tab Editor Contents </div>
          * 
-         * This method returns this id value.   
+         * This method returns this id value.
          * 
          * NOTE: Each tabbed-editor object has a editorList object whose
          * members are these id values and their values are a pointer
-         * to the FileEditor widget object. 
+         * to the FileEditor widget object.
          * 
          * @param {String} fileName of an editor within the TabbedEditor
-         * @returns {String} id value of the tab associated with the 
+         * @returns {String} id value of the tab associated with the
          *          provided filename or undefined.
          */
         getEditorTabIdByFileName: function(fileName) {
@@ -175,7 +180,7 @@ var tabbedEditor = (function() {
         },
 
         /**
-         * Returns the FileEditor widget object for the specified 
+         * Returns the FileEditor widget object for the specified
          * file name within this tabbed editor.
          * 
          * @param {String} fileName
@@ -194,14 +199,17 @@ var tabbedEditor = (function() {
          * fileName to bring it into focus.
          * 
          * @param {String} fileName of an editor within the TabbedEditor
+         * @returns {} JQuery object representing the <a> tag of the tab ||
+         *             undefined if it was not found.
          */
         focusTabByFileName: function(fileName) {
             var tab = this.findEditorTabByFileName(fileName);
             if (tab) {
                 tab.click();
             }
+            return tab;
         }
-    };            
+    };
 
     var __loadAndCreate = function(thisTabbedEditor, container, stepName, content) {
         var deferred = new $.Deferred();
@@ -217,7 +225,7 @@ var tabbedEditor = (function() {
             thisTabbedEditor.tabsRootElement.attr('aria-label', messages.tabbedEditorContainer);
             thisTabbedEditor.$teTabList = thisTabbedEditor.tabsRootElement.find('.teTabs');
             thisTabbedEditor.$teTabContents = thisTabbedEditor.tabsRootElement.find('.teContents');
-  
+
             var containerID = container[0].id;
             thisTabbedEditor.displayTypeNum = containerID.substring(containerID.lastIndexOf('-')+1);
 
@@ -228,9 +236,18 @@ var tabbedEditor = (function() {
                     var tEditor = editors[i];
                     thisTabbedEditor.addEditor(tEditor);
                 }
-                
-                // Set the first tab initially active
-                thisTabbedEditor.$teTabList.find('a').first().click();
+
+                if (content.activeTab) {
+                    // Content specifies exactly which tab should be active after creation
+                    var tab = thisTabbedEditor.focusTabByFileName(content.activeTab);
+                    if (!tab) {     // fileName specified was not found in tabbed editor
+                        // Set the first tab initially active
+                        thisTabbedEditor.$teTabList.find('a').first().click();
+                    }
+                } else {
+                    // Set the first tab initially active
+                    thisTabbedEditor.$teTabList.find('a').first().click();
+                }
 
             }
 
@@ -242,13 +259,13 @@ var tabbedEditor = (function() {
           }
         });
         return deferred;
-    };          
+    };
 
     var __create = function(container, stepName, content) {
         return new tabbedEditorType(container, stepName, content);
     };
-        
+
     return {
         create: __create
-      };    
+      };
 })();
