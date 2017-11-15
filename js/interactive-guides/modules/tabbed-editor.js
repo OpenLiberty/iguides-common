@@ -14,10 +14,15 @@ var tabbedEditor = (function() {
     var tabbedEditorType = function(container, stepName, content) {
         /**
          * This widget forms a tabbed editor.  It contains an array of fileEditor
-         * widgets as the "editorList" element of its content.  Content may also
-         * contain an "activeTab" element whose value is the fileName of the editor
-         * that you want to be active, or have focus.  If "activeTab" is not specified,
-         * then we default to the first tab as the active tab.
+         * widgets as the "editorList" element of its content.  
+         * 
+         * Content may also contain
+         *  - "activeTab"- the fileName of the editor that you want to be active, 
+         *                 or have focus.  If "activeTab" is not specified,
+         *                 then we default to the first tab as the active tab.
+         *  - "callback" - callback method invoked during tabbedEditor creation to 
+         *                 register method for the following event
+         *                      - addActiveTabChangeListener - invoked when the active tab changes.
          * 
          * To Create Example JSON:
          *         {
@@ -52,7 +57,8 @@ var tabbedEditor = (function() {
          *                             "save": true
          *                         }
          *                     ],
-         *                     "activeTab": "BankService.txt"
+         *                     "activeTab": "BankService.txt",
+         *                     "callback": "(function test(tabbedEditor) {guideXXXCallBack.listenToTabEditorChange(tabbedEditor); })"
          *                 }
          *             ]
          *         }
@@ -60,7 +66,9 @@ var tabbedEditor = (function() {
         var deferred = new $.Deferred();
 
         this.stepName = stepName;
-        this.editorList = {};           // Tracks editor widget objects by tab id
+        this.editorList = {};                 // Tracks editor widget objects by tab id
+        this.activeTabChangeCallback = null;  // User-defined callback function
+                                              // invoked when the URL is updated
 
         __loadAndCreate(this, container, stepName, content).done(function(result){
             deferred.resolve(result);
@@ -93,10 +101,24 @@ var tabbedEditor = (function() {
             var $tabItem = $("<li role='presentation'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "'>" + editorInfo.fileName + "</a></li>");
             var thisTabbedEditor = this;
             $tabItem.on('click', 'a', function(e){
-                // Make the old tab inactive.
+                var originalActiveFileName;
+                var newActiveFileName = this.innerHTML;
+                var activeTabChanged = false;
+
                 if (thisTabbedEditor.$active) {
-                    thisTabbedEditor.$active.removeClass('active');
+                    currentActiveFileName = thisTabbedEditor.$active[0].innerHTML;
+                    if (currentActiveFileName !== newActiveFileName) {
+                        // Tab and contents are changing....
+                        activeTabChanged = true;
+                        // Make the old tab inactive.
+                        thisTabbedEditor.$active.removeClass('active');
+                    } else {
+                        // User clicked currently active tab.  No need to switch anything.
+                        return;
+                    }
                 }
+
+                // Hide the old tab contents.
                 if (thisTabbedEditor.$content) {
                     thisTabbedEditor.$content.hide();
                 }
@@ -105,9 +127,13 @@ var tabbedEditor = (function() {
                 thisTabbedEditor.$active = $(this);
                 thisTabbedEditor.$content = $(this.hash);
 
-                // Make the tab active.
+                // Make the new tab active.
                 thisTabbedEditor.$active.addClass('active');
                 thisTabbedEditor.$content.show();
+
+                if (activeTabChanged && thisTabbedEditor.activeTabChangeCallback) {
+                    thisTabbedEditor.activeTabChangeCallback(newActiveFileName);
+                }
 
                 // Prevent the anchor's default click action
                 e.preventDefault();
@@ -208,7 +234,32 @@ var tabbedEditor = (function() {
                 tab.click();
             }
             return tab;
+        },
+
+        /**
+         * Returns the fileName of the currently active tab.
+         * 
+         * @returns {String} fileName
+         */
+        getActiveTabFileName: function() {
+            if (this.$active) {
+                return this.$active[0].innerHTML;
+            } else {
+                return undefined;
+            }                
+        },
+
+        getStepName: function() {
+            return this.stepName;
+        },
+      
+        // Registers a callback method with this tabbedEditor
+        // instance.  It will be invoked when the active tab
+        // is changed.
+        addActiveTabChangeListener: function(callback) {
+           this.activeTabChangeCallback = callback;
         }
+      
     };
 
     var __loadAndCreate = function(thisTabbedEditor, container, stepName, content) {
@@ -250,6 +301,13 @@ var tabbedEditor = (function() {
                 }
 
             }
+
+            if (content.callback) {
+                var callback = eval(content.callback);
+                // Identify this tabbedEditor with the activeTabChangeListener
+                // function specified by the user.
+                callback(thisTabbedEditor);
+            }    
 
             deferred.resolve(thisTabbedEditor);
           },

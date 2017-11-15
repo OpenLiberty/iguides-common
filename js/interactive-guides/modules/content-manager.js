@@ -482,10 +482,25 @@ var contentManager = (function() {
         }
     };
 
+    /**
+     * Get the active Tab fileName in the Tabbed Editor.
+     * 
+     * @returns {String} fileName of active Tab || undefined.
+     */
+    var getActiveTabFileName = function(stepName, instanceNumber) {
+        var fileName = undefined;
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            fileName = tabbedEditor.getActiveTabFileName();
+        }
+        return fileName;
+    }
+
     /** Returns the content from a specified FileEditor instance within a TabbedEditor
      * @param {String} stepName - name of step where FileEditor is located
      * @param {String} fileName - name of editor within TabbedEditor
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     * @return editor contents
      */
     var getTabbedEditorContents = function(stepName, fileName, instanceNumber) {
         var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
@@ -861,6 +876,7 @@ var contentManager = (function() {
 
         addEditorToTabs: addEditorToTabs,
         focusTabbedEditorByName: focusTabbedEditorByName,
+        getActiveTabFileName: getActiveTabFileName,
         getTabbedEditorContents: getTabbedEditorContents,
         setTabbedEditorContents: setTabbedEditorContents,
         resetTabbedEditorContents: resetTabbedEditorContents,
