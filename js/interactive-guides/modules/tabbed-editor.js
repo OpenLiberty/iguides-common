@@ -95,7 +95,7 @@ var tabbedEditor = (function() {
             }
 
             // Create the dom elements for the new editor
-            var editorName = 'teTab-editor' + this.displayTypeNum + '-tab' + numTabs;    // or should this be the filename?
+            var editorName = 'teTab-' + this.stepName + '-editor' + this.displayTypeNum + '-tab' + numTabs;
 
             // Tab....
             var $tabItem = $("<li role='presentation'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "'>" + editorInfo.fileName + "</a></li>");
