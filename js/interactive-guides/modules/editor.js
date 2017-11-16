@@ -41,7 +41,10 @@ var editor = (function() {
             if (numberOfLines !== undefined) {
                 markTextToLineNumber = lineNumber - 2 + numberOfLines;
             }
-            this.editor.replaceRange('\n' + content, {line: lineNumber-2});
+            if(lineNumber > 1){
+                content = '\n' + content;
+            }
+            this.editor.replaceRange(content, {line: lineNumber-2});
             this.editor.markText({line: lineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
         },
         // append content after the specified line number
@@ -50,13 +53,19 @@ var editor = (function() {
             if (numberOfLines !== undefined) {
                 markTextToLineNumber = lineNumber - 1 + numberOfLines;
             }
-            this.editor.replaceRange('\n' + content, {line: lineNumber-1});
+            if(lineNumber > 1){
+                content = '\n' + content;
+            }
+            this.editor.replaceRange(content, {line: lineNumber-1});
             this.editor.markText({line: lineNumber-1}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
         },
         // replace content from and to the specified line number
         replaceContent: function(fromLineNumber, toLineNumber, content, numberOfLines) {
-            var markTextToLineNumber = fromLineNumber - 1 + (toLineNumber - fromLineNumber )
-            this.editor.replaceRange('\n' + content, {line: fromLineNumber-2}, {line: toLineNumber-1});
+            var markTextToLineNumber = fromLineNumber - 1 + (toLineNumber - fromLineNumber );
+            if(fromLineNumber > 1){
+                content = '\n' + content;
+            }
+            this.editor.replaceRange(content, {line: fromLineNumber-2}, {line: toLineNumber-1});
             if (numberOfLines !== undefined) {
                 markTextToLineNumber = fromLineNumber - 2 + numberOfLines;
             }
