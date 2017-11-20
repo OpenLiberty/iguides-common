@@ -459,6 +459,10 @@ var stepContent = (function() {
               });                
               break;
             case 'tabbedEditor':
+              // NOTE! tabbedEditors may not display well in less than 1/2 screen.
+              content.bootstrapColSize = contentBootstrapColSize;  // The tabbedEditor needs to know
+                                                                   // the width of its containr to
+                                                                   // determine the size of its tabs.
               tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
                 contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
               });

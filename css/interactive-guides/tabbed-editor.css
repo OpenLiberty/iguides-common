@@ -8,12 +8,26 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-.teContainer>.nav-tabs>li>a.active {
+ .teContainer>.nav-tabs>li>a {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 1vw;
+    padding: 5px 2px;          /* Minimize Bootstrap's padding for tabs              */
+    border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
+    margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
+}
+
+ .teContainer>.nav-tabs>li>a.active {
     background-color: #eee;
 }
 
 .teTabContent {
     display: none;  /* Default to hidden contents until tab selected */
+}
+
+.teTabContent div.editorButtonFrame {
+    border-top: none;
 }
 
 .teContents {
