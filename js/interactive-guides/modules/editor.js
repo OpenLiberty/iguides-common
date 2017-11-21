@@ -113,79 +113,18 @@ var editor = (function() {
         markEditorReadOnly: function() {
             __markEditorReadOnly(this);
         },
-        createEditorErrorButton: function(buttonId, buttonName, className, method, ariaLabel) {
-            return $('<button/>', {
-                type: 'button',
-                text: buttonName,
-                id: buttonId,
-                class: className,
-                click: method,
-                'aria-label': ariaLabel
-            });
-        },
-        closeEditorErrorBox: function(stepName) {
-            var step = $("[data-step=" + stepName + "]");
-            var editorError = step.find(".alertFrame").first();
-
-            if (editorError.length) {
-                editorError.addClass("hidden");
+        closeEditorErrorBox: function() {
+            if (this.alertFrame.length) {
+                this.alertFrame.addClass("hidden");
             }
         },
-
-        createErrorLinkForCallBack: function(stepName, isSave, correctErrorCallback) {
+        createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
             var errorMsg = "Error detected. To fix the error click ";
-            this.createErrorAlertPane(stepName, isSave, errorMsg, correctErrorCallback);
+            __createErrorAlertPane(this, isSave, errorMsg, correctErrorCallback);
         },
-
-        /*
-         *   Create the error message pane for an invalid entry in the editor.
-         *   @param stepName: Name of the step from the JSON
-         *   @param isSave: true/false if the editor needs to be saved after correcting it
-         *   @param errorMsg: Message to display in the alert pane
-         *   @param correctErrorCallback: Callback function to run once they click the 'here' fix it button.
-        */
-        createErrorAlertPane: function(stepName, isSave, errorMsg, correctErrorCallback) {
-            var thisEditor = this;
-            var idHere = "here_button_error_editor_" + stepName;
-            var idClose = "close_button_error_editor_" + stepName;
-            var idError = "error_" + stepName;
-
-            var handleOnClickClose = function() {
-                thisEditor.closeEditorErrorBox(stepName);
-            };
-
-            var step = $("[data-step=" + stepName + "]");
-            var editorError = step.find(".alertFrame").first();
-            if (editorError.length) {
-                editorError.removeClass("hidden");
-                editorError.empty(); // Clear previous errors in the error pane
-                            
-                var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
-                editorError.append(spanStr);
-                if(correctErrorCallback){
-                    var handleOnClickFixContent = function() {
-                        thisEditor.correctEditorError(stepName, isSave, correctErrorCallback);
-                    };
-                    var hereButton = this.createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
-                    editorError.append(hereButton);
-                }                
-                var closeButton = this.createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
-                editorError.append(closeButton);
-                editorError.append('</span>');            
-            }
-        },
-        createCopyButtonError: function(stepName){
+        createCopyButtonError: function(){
             var errorMsg = messages.editorErrorCopying;
-            this.createErrorAlertPane(stepName, false, errorMsg);
-        },
-        correctEditorError: function(stepName, isSave, correctErrorCallback) {
-            correctErrorCallback(stepName);
-            // hide the error box
-            this.closeEditorErrorBox(stepName);
-            // call save editor
-            if (isSave === true) {
-                contentManager.saveEditor(stepName);
-            }
+            __createErrorAlertPane(this, false, errorMsg);
         }
     };
 
@@ -268,6 +207,8 @@ var editor = (function() {
         var runButton = container.find(".editorRunButton");
         runButton.attr('title', messages.runButton);
 
+        thisEditor.alertFrame = container.find(".alertFrame");
+
         if ((content.save === false || content.save === "false")) {
             saveButton.addClass("hidden");
         } else if ((content.save === true || content.save === "true")) {
@@ -332,6 +273,65 @@ var editor = (function() {
         // apply the css for readonly lines
         __markTextForReadOnly(thisEditor, thisEditor.markText);
         __disableAllButtons(thisEditor, true);
+    };
+
+    var __createEditorErrorButton = function(buttonId, buttonName, className, method, ariaLabel) {
+        return $('<button/>', {
+            type: 'button',
+            text: buttonName,
+            id: buttonId,
+            class: className,
+            click: method,
+            'aria-label': ariaLabel
+        });
+    };
+
+    /*
+     *   Create the error message pane for an invalid entry in the editor.
+     *   @param isSave: true/false if the editor needs to be saved after correcting it
+     *   @param errorMsg: Message to display in the alert pane
+     *   @param correctErrorCallback: Callback function to run once they click the 'here' fix it button.
+    */
+    var __createErrorAlertPane = function (thisEditor, isSave, errorMsg, correctErrorCallback) {
+        var idHere = "here_button_error_editor_" + thisEditor.stepName;
+        var idClose = "close_button_error_editor_" + thisEditor.stepName;
+        var idError = "error_" + thisEditor.stepName;
+
+        var handleOnClickClose = function () {
+            thisEditor.closeEditorErrorBox();
+        };
+
+        // With the tabbedEditor, use the cached alertFrame.
+        var editorError = thisEditor.alertFrame;
+        if (editorError.length) {
+            editorError.removeClass("hidden");
+            editorError.empty(); // Clear previous errors in the error pane
+
+            var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
+            editorError.append(spanStr);
+            if (correctErrorCallback) {
+                var handleOnClickFixContent = function () {
+                    __correctEditorError(thisEditor, isSave, correctErrorCallback);
+                    // close the alert frame so that each step doesn't have to call the close
+                    thisEditor.closeEditorErrorBox();
+                };
+                var hereButton = __createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
+                editorError.append(hereButton);
+            }
+            var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
+            editorError.append(closeButton);
+            editorError.append('</span>');
+        }
+    };
+
+    var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
+        correctErrorCallback(thisEditor.stepName);
+        // hide the error box
+        thisEditor.closeEditorErrorBox();
+        // call save editor
+        if (isSave === true) {
+            thisEditor.saveEditor();
+        }
     };
 
     var __disableAllButtons = function(thisEditor, toDisabled) {
@@ -445,7 +445,7 @@ var editor = (function() {
                     return document.execCommand("copy");  // Security exception may be thrown by some browsers.
                 } catch (ex) {
                     console.warn("Copy to clipboard failed.", ex);
-                    thisEditor.createCopyButtonError(thisEditor.stepName);
+                    thisEditor.createCopyButtonError();
                     return false;
                 } finally {
                     document.body.removeChild(textarea);
