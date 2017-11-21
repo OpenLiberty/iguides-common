@@ -95,12 +95,17 @@ var tabbedEditor = (function() {
             }
 
             // Create the dom elements for the new editor
+
+            // Unique editor ID
             var editorName = 'teTab-' + this.stepName + '-editor' + this.displayTypeNum + '-tab' + numTabs;
 
             // Tab....
-            var $tabItem = $("<li role='presentation'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "'>" + editorInfo.fileName + "</a></li>");
+            var $tabItem = $("<li role='presentation' style='max-width: " + this.tabSize + ";'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "'>" + editorInfo.fileName + "</a></li>");
             var thisTabbedEditor = this;
             $tabItem.on('click', 'a', function(e){
+                // Prevent the anchor's default click action
+                e.preventDefault();
+
                 var originalActiveFileName;
                 var newActiveFileName = this.innerHTML;
                 var activeTabChanged = false;
@@ -111,7 +116,8 @@ var tabbedEditor = (function() {
                         // Tab and contents are changing....
                         activeTabChanged = true;
                         // Make the old tab inactive.
-                        thisTabbedEditor.$active.removeClass('active');
+                        thisTabbedEditor.$active.removeClass('active');   // <a> element
+                        thisTabbedEditor.$active.parent().css('max-width', thisTabbedEditor.tabSize );  // <li> element
                     } else {
                         // User clicked currently active tab.  No need to switch anything.
                         return;
@@ -124,19 +130,17 @@ var tabbedEditor = (function() {
                 }
 
                 // Update the variables with the new link and content
-                thisTabbedEditor.$active = $(this);
+                thisTabbedEditor.$active = $(this);   // <a> element
                 thisTabbedEditor.$content = $(this.hash);
 
                 // Make the new tab active.
-                thisTabbedEditor.$active.addClass('active');
+                thisTabbedEditor.$active.addClass('active');     // <a> element
+                thisTabbedEditor.$active.parent().css('max-width', thisTabbedEditor.activeTabSize);  // <li> element
                 thisTabbedEditor.$content.show();
 
                 if (activeTabChanged && thisTabbedEditor.activeTabChangeCallback) {
                     thisTabbedEditor.activeTabChangeCallback(newActiveFileName);
                 }
-
-                // Prevent the anchor's default click action
-                e.preventDefault();
             });
             this.$teTabList.append($tabItem);
 
@@ -282,6 +286,24 @@ var tabbedEditor = (function() {
 
             // Fill in the editors for this Tabbed Editor in different tabs
             var editors = content.editorList || [];
+
+            // Determine the width of the tabs based on the bootstrapColSize
+            // that the tabbed editor is given.
+            var numNonActiveEditors = editors.length - 1;
+            if (numNonActiveEditors < 2) {     
+                numNonActiveEditors = 1;
+                thisTabbedEditor.activeTabSize = '100%';
+            } else {
+                thisTabbedEditor.activeTabSize = '50%';
+            }
+            if (content.bootstrapColSize === "col-sm-12") {
+                // full page width tabbed editor
+                thisTabbedEditor.tabSize = Math.floor(100/numNonActiveEditors) + '%';
+            } else {
+                // 1/2 page width tabbed editor 
+                thisTabbedEditor.tabSize = Math.floor(50/numNonActiveEditors) + '%';                
+            }
+
             if (editors.length > 0) {
                 for (var i=0; i<editors.length; i++) {
                     var tEditor = editors[i];
