@@ -11,11 +11,22 @@
  .teContainer>.nav-tabs>li>a {
     text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;
+    white-space: nowrap;   
+}
+
+/* Half screen editor tab formatting. Maximize the space taken up in the tabs so the filename will be shown */
+.subContainerDiv.col-sm-6 > .teContainer>.nav-tabs>li>a {
     font-size: 1vw;
-    padding: 5px 2px;          /* Minimize Bootstrap's padding for tabs              */
+    padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
     border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
     margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
+}
+
+@media all and (max-width:768px)
+{
+    .subContainerDiv.col-sm-6 > .teContainer>.nav-tabs>li>a {
+        font-size: 2.5vw;
+    }
 }
 
  .teContainer>.nav-tabs>li>a.active {
