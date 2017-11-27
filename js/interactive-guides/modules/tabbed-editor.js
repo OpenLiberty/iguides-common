@@ -100,7 +100,7 @@ var tabbedEditor = (function() {
             var editorName = 'teTab-' + this.stepName + '-editor' + this.displayTypeNum + '-tab' + numTabs;
 
             // Tab....
-            var $tabItem = $("<li role='presentation' style='max-width: " + this.tabSize + ";'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "'>" + editorInfo.fileName + "</a></li>");
+            var $tabItem = $("<li role='presentation' style='max-width: " + this.tabSize + ";'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "' title='" + editorInfo.fileName + "' >" + editorInfo.fileName + "</a></li>");
             var thisTabbedEditor = this;
             $tabItem.on('click', 'a', function(e){
                 // Prevent the anchor's default click action
@@ -290,8 +290,8 @@ var tabbedEditor = (function() {
             // Determine the width of the tabs based on the bootstrapColSize
             // that the tabbed editor is given.
             var numNonActiveEditors = editors.length - 1;
-            if (numNonActiveEditors < 2) {     
-                numNonActiveEditors = 1;
+            if (numNonActiveEditors <= 0) {     
+                numNonActiveEditors = 1; // To avoid division by zero, and to give future tabs added a size.
                 thisTabbedEditor.activeTabSize = '100%';
             } else {
                 thisTabbedEditor.activeTabSize = '50%';
