@@ -41,7 +41,10 @@ var editor = (function() {
             if (numberOfLines !== undefined) {
                 markTextToLineNumber = lineNumber - 2 + numberOfLines;
             }
-            this.editor.replaceRange('\n' + content, {line: lineNumber-2});
+            if(lineNumber > 1){
+                content = '\n' + content;
+            }
+            this.editor.replaceRange(content, {line: lineNumber-2});
             this.editor.markText({line: lineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
         },
         // append content after the specified line number
@@ -50,13 +53,19 @@ var editor = (function() {
             if (numberOfLines !== undefined) {
                 markTextToLineNumber = lineNumber - 1 + numberOfLines;
             }
-            this.editor.replaceRange('\n' + content, {line: lineNumber-1});
+            if(lineNumber > 1){
+                content = '\n' + content;
+            }
+            this.editor.replaceRange(content, {line: lineNumber-1});
             this.editor.markText({line: lineNumber-1}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
         },
         // replace content from and to the specified line number
         replaceContent: function(fromLineNumber, toLineNumber, content, numberOfLines) {
-            var markTextToLineNumber = fromLineNumber - 1 + (toLineNumber - fromLineNumber )
-            this.editor.replaceRange('\n' + content, {line: fromLineNumber-2}, {line: toLineNumber-1});
+            var markTextToLineNumber = fromLineNumber - 1 + (toLineNumber - fromLineNumber );
+            if(fromLineNumber > 1){
+                content = '\n' + content;
+            }
+            this.editor.replaceRange(content, {line: fromLineNumber-2}, {line: toLineNumber-1});
             if (numberOfLines !== undefined) {
                 markTextToLineNumber = fromLineNumber - 2 + numberOfLines;
             }
@@ -100,6 +109,22 @@ var editor = (function() {
             if ($.isArray(readonlyLines)) {
                 __markTextForReadOnly(this, __adjustReadOnlyLines(readonlyLines));
             }
+        },
+        markEditorReadOnly: function() {
+            __markEditorReadOnly(this);
+        },
+        closeEditorErrorBox: function() {
+            if (this.alertFrame.length) {
+                this.alertFrame.addClass("hidden");
+            }
+        },
+        createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
+            var errorMsg = "Error detected. To fix the error click ";
+            __createErrorAlertPane(this, isSave, errorMsg, correctErrorCallback);
+        },
+        createCopyButtonError: function(){
+            var errorMsg = messages.editorErrorCopying;
+            __createErrorAlertPane(this, false, errorMsg);
         }
     };
 
@@ -142,7 +167,7 @@ var editor = (function() {
             isReadOnly = true;
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
-        }
+        } 
         thisEditor.editor = CodeMirror(document.getElementById(id), {
             lineNumbers: true,
             autoRefresh: true,
@@ -167,14 +192,14 @@ var editor = (function() {
             var callback = eval(content.callback);
             callback(thisEditor);
         }
-        // mark any readOnly lines
-        thisEditor.markText = markText;
-         __markTextForReadOnly(thisEditor, thisEditor.markText);
 
+        thisEditor.editorButtonFrame = container.find(".editorButtonFrame");
         var saveButton = container.find(".editorSaveButton");
         saveButton.attr('title', messages.saveButton);
         var resetButton = container.find(".editorResetButton");
         resetButton.attr('title', messages.resetButton);
+        var copyButton = container.find('.editorCopyButton');
+        copyButton.attr('title', messages.copyButton);
         var undoButton = container.find(".editorUndoButton");
         undoButton.attr('title', messages.undoButton);
         var redoButton = container.find(".editorRedoButton");
@@ -182,18 +207,27 @@ var editor = (function() {
         var runButton = container.find(".editorRunButton");
         runButton.attr('title', messages.runButton);
 
+        thisEditor.alertFrame = container.find(".alertFrame");
+
         if ((content.save === false || content.save === "false")) {
             saveButton.addClass("hidden");
         } else if ((content.save === true || content.save === "true")) {
             runButton.addClass("hidden");
         }
-        //console.log($('#' + id.substring(0, id.indexOf('-codeeditor')) + ' .editorSaveButton'));
-        //__addOnClickListener(thisEditor, $('#' + id.substring(0, id.indexOf('-codeeditor')) + ' .editorSaveButton'));
-        __addSaveOnClickListener(thisEditor, saveButton);
-        __addResetOnClickListener(thisEditor, resetButton);
-        __addUndoOnClickListener(thisEditor, undoButton);
-        __addRedoOnClickListener(thisEditor, redoButton);
-        __addSaveOnClickListener(thisEditor, runButton);
+
+        // mark any readOnly lines
+        if (isReadOnly) {
+            __markEditorReadOnly(thisEditor);
+        } else {
+            thisEditor.markText = markText;
+            __markTextForReadOnly(thisEditor, thisEditor.markText);
+            __addSaveOnClickListener(thisEditor, saveButton);
+            __addResetOnClickListener(thisEditor, resetButton);
+            __addCopyOnClickListener(thisEditor, copyButton);
+            __addUndoOnClickListener(thisEditor, undoButton);
+            __addRedoOnClickListener(thisEditor, redoButton);
+            __addSaveOnClickListener(thisEditor, runButton);
+        }
 
         __editors[stepName] = thisEditor.editor;
     };
@@ -230,6 +264,92 @@ var editor = (function() {
          });
      };
 
+    var __markEditorReadOnly = function(thisEditor) {
+        thisEditor.markText = [];
+        thisEditor.markText.push({
+            from: -1,
+            to: thisEditor.editor.lineCount() - 1
+        });
+        // apply the css for readonly lines
+        __markTextForReadOnly(thisEditor, thisEditor.markText);
+        __disableAllButtons(thisEditor, true);
+    };
+
+    var __createEditorErrorButton = function(buttonId, buttonName, className, method, ariaLabel) {
+        return $('<button/>', {
+            type: 'button',
+            text: buttonName,
+            id: buttonId,
+            class: className,
+            click: method,
+            'aria-label': ariaLabel
+        });
+    };
+
+    /*
+     *   Create the error message pane for an invalid entry in the editor.
+     *   @param isSave: true/false if the editor needs to be saved after correcting it
+     *   @param errorMsg: Message to display in the alert pane
+     *   @param correctErrorCallback: Callback function to run once they click the 'here' fix it button.
+    */
+    var __createErrorAlertPane = function (thisEditor, isSave, errorMsg, correctErrorCallback) {
+        var idHere = "here_button_error_editor_" + thisEditor.stepName;
+        var idClose = "close_button_error_editor_" + thisEditor.stepName;
+        var idError = "error_" + thisEditor.stepName;
+
+        var handleOnClickClose = function () {
+            thisEditor.closeEditorErrorBox();
+        };
+
+        // With the tabbedEditor, use the cached alertFrame.
+        var editorError = thisEditor.alertFrame;
+        if (editorError.length) {
+            editorError.removeClass("hidden");
+            editorError.empty(); // Clear previous errors in the error pane
+
+            var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
+            editorError.append(spanStr);
+            if (correctErrorCallback) {
+                var handleOnClickFixContent = function () {
+                    __correctEditorError(thisEditor, isSave, correctErrorCallback);
+                    // close the alert frame so that each step doesn't have to call the close
+                    thisEditor.closeEditorErrorBox();
+                };
+                var hereButton = __createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
+                editorError.append(hereButton);
+            }
+            var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
+            editorError.append(closeButton);
+            editorError.append('</span>');
+        }
+    };
+
+    var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
+        correctErrorCallback(thisEditor.stepName);
+        // hide the error box
+        thisEditor.closeEditorErrorBox();
+        // call save editor
+        if (isSave === true) {
+            thisEditor.saveEditor();
+        }
+    };
+
+    var __disableAllButtons = function(thisEditor, toDisabled) {
+        if (toDisabled) {
+            thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", true);
+        } else {
+            thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", false);
+        }
+    };
+
     var __addSaveOnClickListener = function(thisEditor, $elem) {
         $elem.on("keydown", function (event) {
             event.stopPropagation();
@@ -253,6 +373,19 @@ var editor = (function() {
         $elem.on("click", function (event) {
             event.stopPropagation();
             __handleResetClick(thisEditor, $elem);
+        });
+    };
+    
+    var __addCopyOnClickListener = function(thisEditor, $elem){
+        $elem.on("keydown", function (event) {
+            event.stopPropagation();
+            if (event.which === 13 || event.which === 32) { // Enter key, Space key
+                __handleCopyClick(thisEditor, $elem);
+            }
+        });
+        $elem.on("click", function (event) {
+            event.stopPropagation();
+            __handleCopyClick(thisEditor, $elem);
         });
     };
 
@@ -284,7 +417,7 @@ var editor = (function() {
 
     var __handleSaveClick = function(thisEditor, $elem) {
         if (thisEditor.saveListenerCallback) {
-            thisEditor.saveListenerCallback();
+            thisEditor.saveListenerCallback(thisEditor);
         }
     };
 
@@ -294,6 +427,32 @@ var editor = (function() {
             __markTextForReadOnly(thisEditor, thisEditor.markText);
         }
     };
+
+    var __handleCopyClick = function(thisEditor, $elem){
+        var content = thisEditor.editor.getValue();
+        if (content) {
+            if (window.clipboardData && window.clipboardData.setData) {
+                // IE specific code path to prevent textarea being shown while dialog is visible.
+                return clipboardData.setData("Text", text); 
+        
+            } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+                var textarea = document.createElement("textarea");
+                textarea.textContent = thisEditor.editor.getValue();
+                textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+                } catch (ex) {
+                    console.warn("Copy to clipboard failed.", ex);
+                    thisEditor.createCopyButtonError();
+                    return false;
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
+        }
+    }
 
     var __handleUndoClick = function(thisEditor, $elem) {
         if (thisEditor.editor.contentValue !== undefined) {

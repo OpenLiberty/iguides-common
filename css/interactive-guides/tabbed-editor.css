@@ -1,0 +1,50 @@
+/*******************************************************************************
+ * Copyright (c) 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+ .teContainer>.nav-tabs>li>a {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;   
+}
+
+/* Half screen editor tab formatting. Maximize the space taken up in the tabs so the filename will be shown */
+.subContainerDiv.col-sm-6 > .teContainer>.nav-tabs>li>a {
+    font-size: 0.75vw;
+    padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
+    border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
+    margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
+}
+
+@media all and (max-width:768px)
+{
+    /* Always shrink the padding and margins in mobile view even if the subcontainer is 12 columns wide since mobile is much smaller */
+    .teContainer>.nav-tabs>li>a {
+        font-size: 2.5vw !important; /* Override the font-size from non-mobile view */
+        padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
+        border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
+        margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
+    }
+}
+
+ .teContainer>.nav-tabs>li>a.active {
+    background-color: #eee;
+}
+
+.teTabContent {
+    display: none;  /* Default to hidden contents until tab selected */
+}
+
+.teTabContent div.editorButtonFrame {
+    border-top: none;
+}
+
+.teContents {
+    clear: left;    /* Clear the float from the tab <li> elements */
+}

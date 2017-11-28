@@ -21,6 +21,9 @@ var contentManager = (function() {
     var setEditor = function(stepName, editor, index) {
         __setModule(stepName, editor, 'fileEditor', index);
     };
+    var setTabbedEditor = function(stepName, tabbedEditor, index) {
+        __setModule(stepName, tabbedEditor, 'tabbedEditor', index);
+    }
     var setCommandPrompt = function(stepName, cmdPrompt, index) {
         __setModule(stepName, cmdPrompt, 'commandPrompt', index);
     };
@@ -30,13 +33,14 @@ var contentManager = (function() {
     var setPod = function(stepName, pod, index) {
         __setModule(stepName, pod, 'pod', index);
     };
-    var setCircuitBreaker = function(stepName, circuitBreaker, index){
-        __setModule(stepName, circuitBreaker, 'circuitBreaker', index);
+    var setPlayground = function(stepName, playground, index){
+        __setModule(stepName, playground, 'playground', index);
     };
     /** Generic method to add modules to their respective step
      * @param {String} stepName - stepName where module is located
      * @param {Module Object} module - the module object
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 
+     *                              'commandPrompt', 'pod', or 'tabbedEditor'
      * @param {Integer} index - Index in which the module should be stored to preserve order with async loading of modules
      */
     var __setModule = function(stepName, module, moduleType, index) {
@@ -65,6 +69,12 @@ var contentManager = (function() {
                 }
                 moduleList = stepContent.editors;
                 break;
+            case 'tabbedEditor':
+                if (!stepContent.tabbedEditors) {
+                    stepContent.tabbedEditors = [];
+                }
+                moduleList = stepContent.tabbedEditors;
+                break;
             case 'commandPrompt':
                 if(!stepContent.terminals){
                     stepContent.terminals = [];
@@ -77,11 +87,11 @@ var contentManager = (function() {
                 }
                 moduleList = stepContent.pods;
                 break;
-            case 'circuitBreaker':
-                if(!stepContent.circuitBreaker){
-                    stepContent.circuitBreaker = [];
+            case 'playground':
+                if(!stepContent.playground){
+                    stepContent.playground = [];
                 }
-                moduleList = stepContent.circuitBreaker;
+                moduleList = stepContent.playground;
                 break;
         }
         if (moduleList) {
@@ -100,6 +110,9 @@ var contentManager = (function() {
     var __getFileEditors = function(stepName) {
         return __getModules(stepName, 'fileEditor');
     };
+    var __getTabbedEditors = function(stepName) {
+        return __getModules(stepName, 'tabbedEditor');
+    };
     var __getWebBrowsers = function(stepName) {
         return __getModules(stepName, 'webBrowser');
     };
@@ -111,7 +124,8 @@ var contentManager = (function() {
     };
     /** Generic method to get Array of a single module type in a given step
      * @param {String} stepName - step name to get modules from
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 'commandPrompt',
+     *                              'pod', or 'tabbedEditor'
      */
     var __getModules = function(stepName, moduleType) {
         var moduleList = null;
@@ -127,31 +141,37 @@ var contentManager = (function() {
                 case 'fileEditor':
                     moduleList = stepContent.editors;
                     break;
+                case 'tabbedEditor':
+                    moduleList = stepContent.tabbedEditors;
+                    break;
                 case 'commandPrompt':
                     moduleList = stepContent.terminals;
                     break;
                 case 'pod':
                     moduleList = stepContent.pods;
                     break;
-                case 'circuitBreaker':
-                    moduleList = stepContent.circuitBreaker;
+                case 'playground':
+                    moduleList = stepContent.playground;
                     break;
             }
         }
         return moduleList;
     };
 
-     /** Returns a specific instance of FileBrowser
+     /** Returns a specific instance of requested type
      * @param {*} stepName
      * @param {*} instanceNumber
      *
-     * @returns - FileBrowser instance, or FALSY (null or undefined) if nothing found.
+     * @returns - <type> instance, or FALSY (null or undefined) if nothing found.
      */
     var __getFileBrowserInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'fileBrowser', instanceNumber);
     };
     var __getEditorInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'fileEditor', instanceNumber);
+    };
+    var __getTabbedEditorInstance = function(stepName, instanceNumber) {
+        return __getModuleInstance(stepName, 'tabbedEditor', instanceNumber);
     };
     var __getWebBrowserInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'webBrowser', instanceNumber);
@@ -162,12 +182,13 @@ var contentManager = (function() {
     var __getPodInstance = function(stepName, instanceNumber) {
         return __getModuleInstance(stepName, 'pod', instanceNumber);
     };
-    var __getCircuitBreakerInstance = function(stepName, instanceNumber) {
-        return __getModuleInstance(stepName, 'circuitBreaker', instanceNumber);
+    var __getPlaygroundInstance = function(stepName, instanceNumber) {
+        return __getModuleInstance(stepName, 'playground', instanceNumber);
     }
     /** Returns specific instance of given module type
      * @param {String} stepName - name of step to get module from
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', or 'commandPrompt'
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 'commandPrompt',
+     *                              'pod', or 'tabbedEditor'
      * @param {Integer} instanceNumber - instance of module type in given step
      *
      * @returns - instance of given module tpe, or FALSY (null or undefined) if nothing found.
@@ -281,6 +302,27 @@ var contentManager = (function() {
         }
     };
 
+    var hideBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            browser.contentRootElement.addClass("hidden");
+        }
+    };
+
+    var showBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            browser.contentRootElement.removeClass("hidden");
+        }
+    }
+
+    var addRightSlideClassToBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            browser.contentRootElement.addClass("pod-animation-slide-from-right");
+        }
+    }
+
 // ==== Pod Functions ====
     var setPodContent = function(stepName, content, instanceNumber) {
         var pod = __getPodInstance(stepName, instanceNumber);
@@ -363,7 +405,7 @@ var contentManager = (function() {
         }
     };
 
-    /** Append content after a certain line in a specified FileEditor instance
+    /** Replace content on specified line numbers in a specified FileEditor instance
      * @param {String} stepName - name of step where FileEditor is located
      * @param {Integer} fromLineNumber - starting line number to replace content
      * @param {Integer} toLineNumber - ending line number to replace content
@@ -403,10 +445,196 @@ var contentManager = (function() {
         }
     }
 
-    var sendCommandToTerminal = function() {
 
+// ==== Tabbed Editor Functions ====
+    /** Add an editor to the tabbed editor in a new tab.
+     *  @param {String} stepName
+     *  @param {*} file editor creation object
+     *      ex: {
+     *            "displayType":"fileEditor",
+     *            "fileName": "TestOut.java",
+     *            "preload": [
+     *                         "This is my Test editor.",
+     *                         "Another line in the editor."
+     *             ],
+     *             "save": true
+     *          }
+     *  @param {Integer} instanceNumber (optional) zero-indexed instance number of TabbedEditor
+     */
+    var addEditorToTabs = function(stepName, editorObject, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            tabbedEditor.addEditor(editorObject);
+        }
     };
 
+    /**
+     * Using the file name specified in the tab for the particular file editor,
+     * focus the editor.
+     * @param {String} stepName
+     * @param {String} fileName as specified on the tab
+     * @param {Integer} instanceNumber (optional) zero-indexed instance number of TabbedEditor
+     */
+    var focusTabbedEditorByName = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            tabbedEditor.focusTabByFileName(fileName);
+        }
+    };
+
+    /**
+     * Get the active Tab fileName in the Tabbed Editor.
+     * 
+     * @returns {String} fileName of active Tab || undefined.
+     */
+    var getActiveTabFileName = function(stepName, instanceNumber) {
+        var fileName = undefined;
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            fileName = tabbedEditor.getActiveTabFileName();
+        }
+        return fileName;
+    }
+
+    /** Returns the content from a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     * @return editor contents
+     */
+    var getTabbedEditorContents = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                return teditor.getEditorContent();
+            }           
+        }
+    };
+
+    /** Set (replace) the content in a specified FileEditor instance within a 
+     *  TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var setTabbedEditorContents = function(stepName, fileName, content, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.setEditorContent(content);
+            }           
+        }        
+    };
+
+    /** Reset the content in a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var resetTabbedEditorContents = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.resetEditorContent();
+            }           
+        }        
+    };
+
+    /** Insert content before a certain line in a specified FileEditor instance
+     *  within a TabbedEditor.
+     * @param {String} stepName - name of step where TabbedEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} lineNumber - line number to insert content above
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {String} numberOfLines - (optional) number of lines in the new content; required only if inserting more than 1 line
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var insertTabbedEditorContents = function(stepName, fileName, lineNumber, content, numberOfLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.insertContent(lineNumber, content, numberOfLines);
+            }
+        }
+    };
+
+    /** Append content after a certain line in a specified FileEditor instance
+     *  within a TabbedEditor.
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} lineNumber - line number to append content below
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {String} numberOfLines - (optional) number of lines in the new content; required only if appending more than 1 line.
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var appendTabbedEditorContents = function(stepName, fileName, lineNumber, content, numberOfLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.appendContent(lineNumber, content, numberOfLines);
+            }
+        }
+    };
+
+    /** Replace content on specified line numbers in a specified FileEditor instance
+     *  within a Tabbed Editor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} fromLineNumber - starting line number to replace content
+     * @param {Integer} toLineNumber - ending line number to replace content
+     * @param {String?} content - the content to put into the FileEditor
+     * @param {String} numberOfLines - (optional) number of lines in the new content; required only if different from number of lines replacing.
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var replaceTabbedEditorContents = function(stepName, fileName, fromLineNumber, toLineNumber, content, numberOfLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.replaceContent(fromLineNumber, toLineNumber, content, numberOfLines);
+            }
+        }
+    };
+
+    /** Simulate the save click in a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var saveTabbedEditor = function(stepName, fileName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.saveEditor();
+            }
+        }
+    };
+
+    /** Set readonly lines in a specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as, 
+     * readonly, example to mark lines 1 thru 4 and lines 8 thru 12 readonly:
+     *      [ {from: 1, to: 4} {from: 8, to: 12} ]
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var markTabbedEditorReadOnlyLines = function(stepName, fileName, readOnlyLines, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.markTextForReadOnly(readOnlyLines);
+            }
+        }
+    }
+    
 // ==== Instruction Functions ====
     /** Store the instructions for the given step
      * @param {String} stepName
@@ -614,10 +842,11 @@ var contentManager = (function() {
     return {
         setFileBrowser: setFileBrowser,
         setEditor: setEditor,
+        setTabbedEditor: setTabbedEditor,
         setWebBrowser: setWebBrowser,
         setCommandPrompt: setCommandPrompt,
         setPod: setPod,
-        setCircuitBreaker: setCircuitBreaker,
+        setPlayground: setPlayground,
 
         addFileToBrowserFromEditor: addFileToBrowserFromEditor,
         addFileToBrowser: addFileToBrowser,
@@ -627,11 +856,14 @@ var contentManager = (function() {
         getBrowserURL: getBrowserURL,
         setBrowserURLFocus: setBrowserURLFocus,
         refreshBrowser: refreshBrowser,
+        hideBrowser: hideBrowser,
+        showBrowser: showBrowser,
+        addRightSlideClassToBrowser: addRightSlideClassToBrowser,
 
         setPodContent: setPodContent,
         setPodContentWithRightSlide: setPodContentWithRightSlide,
         getPod: __getPodInstance,
-        getCircuitBreaker: __getCircuitBreakerInstance,
+        getPlayground: __getPlaygroundInstance,
 
         getEditorContents: getEditorContents,
         setEditorContents: setEditorContents,
@@ -641,6 +873,18 @@ var contentManager = (function() {
         replaceEditorContents: replaceEditorContents,
         saveEditor: saveEditor,
         markEditorReadOnlyLines: markEditorReadOnlyLines,
+
+        addEditorToTabs: addEditorToTabs,
+        focusTabbedEditorByName: focusTabbedEditorByName,
+        getActiveTabFileName: getActiveTabFileName,
+        getTabbedEditorContents: getTabbedEditorContents,
+        setTabbedEditorContents: setTabbedEditorContents,
+        resetTabbedEditorContents: resetTabbedEditorContents,
+        insertTabbedEditorContents: insertTabbedEditorContents,
+        appendTabbedEditorContents: appendTabbedEditorContents,
+        replaceTabbedEditorContents: replaceTabbedEditorContents,
+        saveTabbedEditor: saveTabbedEditor,
+        markTabbedEditorReadOnlyLines: markTabbedEditorReadOnlyLines,
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,
