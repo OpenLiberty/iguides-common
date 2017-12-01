@@ -100,7 +100,7 @@ var tabbedEditor = (function() {
             var editorName = 'teTab-' + this.stepName + '-editor' + this.displayTypeNum + '-tab' + numTabs;
 
             // Tab....
-            var $tabItem = $("<li role='presentation' style='max-width: " + this.tabSize + ";'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "' title='" + editorInfo.fileName + "' >" + editorInfo.fileName + "</a></li>");
+            var $tabItem = $("<li role='presentation' style='" + this.cssWidthValue + ": " + this.tabSize + ";'><a role='tab' href='#" + editorName + "' aria-label='" + editorInfo.fileName + "' title='" + editorInfo.fileName + "' >" + editorInfo.fileName + "</a></li>");
             var thisTabbedEditor = this;
             $tabItem.on('click', 'a', function(e){
                 // Prevent the anchor's default click action
@@ -117,7 +117,7 @@ var tabbedEditor = (function() {
                         activeTabChanged = true;
                         // Make the old tab inactive.
                         thisTabbedEditor.$active.removeClass('active');   // <a> element
-                        thisTabbedEditor.$active.parent().css('max-width', thisTabbedEditor.tabSize );  // <li> element
+                        thisTabbedEditor.$active.parent().css(thisTabbedEditor.cssWidthValue, thisTabbedEditor.tabSize );  // <li> element
                     } else {
                         // User clicked currently active tab.  No need to switch anything.
                         return;
@@ -135,7 +135,7 @@ var tabbedEditor = (function() {
 
                 // Make the new tab active.
                 thisTabbedEditor.$active.addClass('active');     // <a> element
-                thisTabbedEditor.$active.parent().css('max-width', thisTabbedEditor.activeTabSize);  // <li> element
+                thisTabbedEditor.$active.parent().css(thisTabbedEditor.cssWidthValue, thisTabbedEditor.activeTabSize);  // <li> element
                 thisTabbedEditor.$content.show();
 
                 if (activeTabChanged && thisTabbedEditor.activeTabChangeCallback) {
@@ -290,19 +290,17 @@ var tabbedEditor = (function() {
             // Determine the width of the tabs based on the bootstrapColSize
             // that the tabbed editor is given.
             var numNonActiveEditors = editors.length - 1;
-            if (numNonActiveEditors <= 0) {     
+            if (numNonActiveEditors <= 0  ||  
+                content.bootstrapColSize === "col-sm-12") {     
                 numNonActiveEditors = 1; // To avoid division by zero, and to give future tabs added a size.
                 thisTabbedEditor.activeTabSize = '100%';
+                thisTabbedEditor.cssWidthValue = "max-width";   // Display full name of active editor 
+                                                                // when we have the room!
             } else {
                 thisTabbedEditor.activeTabSize = '50%';
+                thisTabbedEditor.cssWidthValue = "width";
             }
-            if (content.bootstrapColSize === "col-sm-12") {
-                // full page width tabbed editor
-                thisTabbedEditor.tabSize = Math.floor(100/numNonActiveEditors) + '%';
-            } else {
-                // 1/2 page width tabbed editor 
-                thisTabbedEditor.tabSize = Math.floor(50/numNonActiveEditors) + '%';                
-            }
+            thisTabbedEditor.tabSize = Math.floor(50/numNonActiveEditors) + '%';                
 
             if (editors.length > 0) {
                 for (var i=0; i<editors.length; i++) {

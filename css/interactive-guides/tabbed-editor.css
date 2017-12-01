@@ -11,15 +11,16 @@
  .teContainer>.nav-tabs>li>a {
     text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;   
+    white-space: nowrap;
+    text-align: center;   
+    padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
+    border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
+    margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
 }
 
 /* Half screen editor tab formatting. Maximize the space taken up in the tabs so the filename will be shown */
 .subContainerDiv.col-sm-6 > .teContainer>.nav-tabs>li>a {
-    font-size: 0.75vw;
-    padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
-    border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
-    margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
+    font-size: 0.85vw;
 }
 
 @media all and (max-width:768px)
@@ -27,9 +28,6 @@
     /* Always shrink the padding and margins in mobile view even if the subcontainer is 12 columns wide since mobile is much smaller */
     .teContainer>.nav-tabs>li>a {
         font-size: 2.5vw !important; /* Override the font-size from non-mobile view */
-        padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
-        border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
-        margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
     }
 }
 
@@ -43,6 +41,9 @@
 
 .teTabContent div.editorButtonFrame {
     border-top: none;
+    border-left-color: #ddd;    /* Change the border color of the menu bar in */
+    border-right-color: #ddd;   /* the editor to soften the transition from   */ 
+    border-bottom-color: #aaa;  /* the tabs to the editor frame.              */
 }
 
 .teContents {
