@@ -98,7 +98,7 @@ var webBrowser = (function(){
 
     setBrowserStatusBar:  function(statusBarText) {
       if (statusBarText) {
-        this.contentRootElement.find('.wbStatusBar').removeClass('hidden');
+        this.contentRootElement.find('.wbStatusBar').removeClass('invisible');
         this.contentRootElement.find('.wbStatusBar').empty();
         this.contentRootElement.find('.wbStatusBar').append(statusBarText);
       }
