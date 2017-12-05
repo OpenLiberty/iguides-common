@@ -17,6 +17,7 @@ var messages = {
   "browserContentIdentifier": "Sample browser display window",
   "browserRefreshButton": "Refresh sample browser page",
   "navigationButtons": "Guide navigation buttons",
+  "browserStatusBar": "Sample browser status bar",
   "prevButton": "Previous",
   "nextButton": "Next",
   "cmdPromptSample": "Terminal window",

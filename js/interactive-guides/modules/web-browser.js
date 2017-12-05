@@ -28,7 +28,13 @@ var webBrowser = (function(){
     } else {
       this.webContent = "";
     }
-    
+
+    if (content.statusBarText) {
+      this.webStatusBar = content.statusBarText;
+    } else {
+      this.webStatusBar = "";
+    }
+
     __loadAndCreate(this, container, stepName, content).done(function(result){
       deferred.resolve(result);
     });
@@ -64,9 +70,9 @@ var webBrowser = (function(){
         var $iframe = $webContentElement.find('iframe');
         $iframe.attr('src', fileLocation);
 
-        /* Do we need to try to see if the file is available? 
+        /* Do we need to try to see if the file is available?
            We should know 'content' is available as an author of the guide.
-           This basically fetches the same data twice....a waste?  
+           This basically fetches the same data twice....a waste?
         $(function(){
           $.ajax({
             type: "HEAD",
@@ -90,13 +96,22 @@ var webBrowser = (function(){
       return iFrameDOM;
     },
 
+    setBrowserStatusBar:  function(statusBarText) {
+      if (statusBarText) {
+        this.contentRootElement.find('.wbStatusBar').removeClass('hidden');
+        this.contentRootElement.find('.wbStatusBar').empty();
+        this.contentRootElement.find('.wbStatusBar').append(statusBarText);
+      }
+    },
+
     simulateBrowserRefresh: function() {
       if (this.updatedURLCallback) {
         this.updatedURLCallback(this.getURL());
       } else {   // This webBrowser does not support URL changes.  Redisplay current HTML.
         this.setURL(this.webURL);
         this.setBrowserContent(this.webContent);
-      }      
+        this.setStatusBar(this.webStatusBar);
+      }
     },
 
     getStepName: function() {
@@ -105,8 +120,8 @@ var webBrowser = (function(){
 
     // Registers a callback method with this webBrowser
     // instance.  It will be invoked when the URL is updated
-    // or the Refresh button is selected and will receive the 
-    // navbar URL value as a parameter.  The function can 
+    // or the Refresh button is selected and will receive the
+    // navbar URL value as a parameter.  The function can
     // then identify the browser contents associated with the
     // URL value.
     addUpdatedURLListener: function(callback) {
@@ -122,7 +137,7 @@ var webBrowser = (function(){
           this.contentRootElement.find('.wbRefreshButton').prop('disabled', false);
       } else {
           this.contentRootElement.find('.wbRefreshButton').prop('disabled', true);
-      } 
+      }
     }
 
   };
@@ -140,11 +155,13 @@ var webBrowser = (function(){
           thisWebBrowser.contentRootElement = container.find('.wb');
           var $wbNavURL = thisWebBrowser.contentRootElement.find('.wbNavURL');
           var $wbContent = thisWebBrowser.contentRootElement.find('.wbContent');
+          var $wbStatusBar = thisWebBrowser.contentRootElement.find('.wbStatusBar');
 
           // set aria labels
           thisWebBrowser.contentRootElement.attr('aria-label', messages.browserSample);
           $wbNavURL.attr('aria-label', messages.browserAddressBar);
           $wbContent.attr('aria-label', messages.browserContentIdentifier);
+          $wbStatusBar.attr('aria-label', messages.browserStatusBar);
           thisWebBrowser.contentRootElement.find('.wbRefreshButton').attr('aria-label', messages.browserRefreshButton);
           thisWebBrowser.contentRootElement.find('.wbRefreshButton').attr('title', messages.browserRefreshButton);
 
@@ -163,8 +180,9 @@ var webBrowser = (function(){
           __addBrowserListeners(thisWebBrowser);
 
           // fill in contents
-          thisWebBrowser.setURL(thisWebBrowser.webURL);        
+          thisWebBrowser.setURL(thisWebBrowser.webURL);
           thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
+          thisWebBrowser.setBrowserStatusBar(thisWebBrowser.webStatusBar);
           deferred.resolve(thisWebBrowser);
         },
         error: function(result) {
@@ -186,6 +204,7 @@ var webBrowser = (function(){
           // not support URL changes.
           thisWebBrowser.setURL(thisWebBrowser.webURL);
           thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
+          thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
         }
       }
     });
@@ -202,6 +221,7 @@ var webBrowser = (function(){
       refreshButton.on("click", function(event) {
         thisWebBrowser.setURL(thisWebBrowser.webURL);
         thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
+        thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
       });
     }
   };
