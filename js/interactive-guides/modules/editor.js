@@ -129,6 +129,9 @@ var editor = (function() {
         createReadonlyAlert: function(){
             var errorMsg = messages.editorReadonlyAlert;
             __createErrorAlertPane(this, 'alert-warning', false, false, errorMsg);
+        },
+        createCustomErrorMessage: function(errorMsg){
+            __createErrorAlertPane(this, 'alert-danger', false, true, errorMsg);
         }
     };
 
