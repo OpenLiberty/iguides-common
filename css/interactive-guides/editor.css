@@ -21,8 +21,12 @@
   font-size: 12px;
 }
 
-.editorContainer {
-  
+#guide_content .editorContainer{
+  height: 448px;
+}
+
+#guide_content .teContainer .editorContainer{
+  height: 423px;
 }
 
 .editorContainer .CodeMirror-linenumber {
