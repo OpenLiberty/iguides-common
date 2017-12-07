@@ -27,14 +27,24 @@ var blueprint = (function(){
                                 "<br><a target='_blank' href='" + repo + "'>View this guide on github.</a>"]
             };
             steps.push(contributeStep);
-          }
 
+            var relateGuides = $("#related-guides");
+            if (relateGuides.length > 0) {
+              var relateGuidesStep = {
+                "name": "RelateGuides",
+                "title": "Relate Guides",
+                "description": ["<div id=\"relateGuidesContent\"/>"]
+              };
+              steps.push(relateGuidesStep);
+            }          
+          }
+     
           // Hide the #blueprint_title as it is not used in the interactive guides
           $(ID.blueprintTitle).hide();      
           
           stepContent.setSteps(steps);
           var toc_title = jsonGuide.getGuideDisplayTitle(blueprintName);
-          tableofcontents.create(toc_title, steps);
+          tableofcontents.create(toc_title, steps);        
       
           if (window.location.hash === "") {
             // No step specified in the URL, so display the first page.
