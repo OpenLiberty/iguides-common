@@ -147,7 +147,10 @@ var editor = (function() {
                         container.find('.editorFileName').text(content.fileName);
                         thisEditor.fileName = content.fileName;
                         //$(".editorContainer").css("margin-top", "-20px");
-                        container.find(".editorContainer").css("margin-top", "-20px");
+                        container.find(".editorContainer").css({
+                            "margin-top": "-20px",
+                            "margin-bottom": "50px"
+                        });
                     }
                     var editor = container.find('.codeeditor');
                     //console.log("container id", container[0].id);
@@ -302,7 +305,7 @@ var editor = (function() {
     var __createErrorAlertPane = function (thisEditor, alertClass, isSave, allowClose, errorMsg, correctErrorCallback) {
         var idHere = "here_button_error_editor_" + thisEditor.stepName;
         var idClose = "close_button_error_editor_" + thisEditor.stepName;
-        var idError = "error_" + thisEditor.stepName;
+        var idError = "error_" + thisEditor.stepName;      
 
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
@@ -334,7 +337,6 @@ var editor = (function() {
             editorError.append(closeButton);
         }        
         editorError.append('</span>');
-        
     };
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {

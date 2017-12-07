@@ -108,7 +108,7 @@ var tabbedEditor = (function() {
 
                 var originalActiveFileName;
                 var newActiveFileName = this.innerHTML;
-                var activeTabChanged = false;
+                var activeTabChanged = false;                
 
                 if (thisTabbedEditor.$active) {
                     currentActiveFileName = thisTabbedEditor.$active[0].innerHTML;
@@ -300,13 +300,13 @@ var tabbedEditor = (function() {
                 thisTabbedEditor.activeTabSize = '50%';
                 thisTabbedEditor.cssWidthValue = "width";
             }
-            thisTabbedEditor.tabSize = Math.floor(50/numNonActiveEditors) + '%';                
+            thisTabbedEditor.tabSize = (50/numNonActiveEditors) + '%';                
 
             if (editors.length > 0) {
                 for (var i=0; i<editors.length; i++) {
                     var tEditor = editors[i];
                     thisTabbedEditor.addEditor(tEditor);
-                }
+                }                
 
                 if (content.activeTab) {
                     // Content specifies exactly which tab should be active after creation

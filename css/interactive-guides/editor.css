@@ -8,19 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-.codeeditor .CodeMirror {
-  border-left: 1px solid black;
-  border-right: 1px solid black;
+.codeeditor {
+  height: 100%;
   border-bottom: 1px solid black;
-  font-size: 12px;
-  height: 448px;
+  overflow: hidden;
 }
 
-.teContainer .CodeMirror{
-  height: 397px;
+.codeeditor .CodeMirror {
+  height: 100%;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  font-size: 12px;
 }
 
 .editorContainer {
+  
 }
 
 .editorContainer .CodeMirror-linenumber {

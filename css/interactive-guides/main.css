@@ -218,3 +218,7 @@ note {
   display: block;
   padding: 4px;
 }
+
+.invisible {
+  visibility: hidden;
+}
