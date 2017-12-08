@@ -161,6 +161,24 @@ var stepContent = (function() {
     newDescription.attr('data-step', step.name);
     newDescription.html(jointDescription);
     $("#contentContainer").append(newDescription);
+
+    if (step.name === "RelateGuides") {
+      insertRelateGuidesContent();  
+    }
+  };
+
+  var insertRelateGuidesContent = function() {
+    // Kin's code put the relate guides content in the wrong place
+    // there's no way for him to know where to insert correctly
+    // and there's no way for us to get the content and insert where we can
+    // we copy the contents from Kin's and do a clone, remove the hidden and insert it to the right place
+    var relateGuides = $("#related-guides");
+    if (relateGuides.length > 0) {
+      var newRG = $("#related-guides").clone().removeClass("hidden")
+      var rGDiv = $("#relateGuidesContent");
+      rGDiv.append(newRG);
+      relateGuides.empty();
+    }
   };
 
   // Update the step instruction text
