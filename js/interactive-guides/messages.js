@@ -17,6 +17,7 @@ var messages = {
   "browserContentIdentifier": "Sample browser display window",
   "browserRefreshButton": "Refresh sample browser page",
   "navigationButtons": "Guide navigation buttons",
+  "browserStatusBar": "Sample browser status bar",
   "prevButton": "Previous",
   "nextButton": "Next",
   "cmdPromptSample": "Terminal window",
@@ -32,6 +33,7 @@ var messages = {
   "runButton": "Run",
   "editorErrorLink": "Error detected. Click {0} to fix the error.",
   "editorErrorCopying" : "The contents failed to copy to the clipboard. Copy the contents manually.",
+  "editorReadonlyAlert": "Read-only mode",
   "hereButton": "here",
   "closeButton": "close",
   "tabbedEditorContainer": "Tabbed container for file editors."

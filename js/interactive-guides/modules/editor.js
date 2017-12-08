@@ -120,11 +120,18 @@ var editor = (function() {
         },
         createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
             var errorMsg = "Error detected. To fix the error click ";
-            __createErrorAlertPane(this, isSave, errorMsg, correctErrorCallback);
+            __createErrorAlertPane(this, 'alert-danger', isSave, true, errorMsg, correctErrorCallback);
         },
         createCopyButtonError: function(){
             var errorMsg = messages.editorErrorCopying;
-            __createErrorAlertPane(this, false, errorMsg);
+            __createErrorAlertPane(this, 'alert-danger', false, true, errorMsg);
+        },
+        createReadonlyAlert: function(){
+            var errorMsg = messages.editorReadonlyAlert;
+            __createErrorAlertPane(this, 'alert-warning', false, false, errorMsg);
+        },
+        createCustomErrorMessage: function(errorMsg){
+            __createErrorAlertPane(this, 'alert-danger', false, true, errorMsg);
         }
     };
 
@@ -164,7 +171,7 @@ var editor = (function() {
         var isReadOnly = false;
         var markText = [];
         if (content.readonly === true || content.readonly === "true") {
-            isReadOnly = true;
+            isReadOnly = true;            
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
         } 
@@ -218,6 +225,7 @@ var editor = (function() {
         // mark any readOnly lines
         if (isReadOnly) {
             __markEditorReadOnly(thisEditor);
+            thisEditor.createReadonlyAlert();
         } else {
             thisEditor.markText = markText;
             __markTextForReadOnly(thisEditor, thisEditor.markText);
@@ -288,40 +296,48 @@ var editor = (function() {
 
     /*
      *   Create the error message pane for an invalid entry in the editor.
+     *   @param alertClass: Bootstrap class for what the alert pane's class should be. It can be alert-success(green), alert-info(blue), alert-warning(yellow), or alert-danger(red).
      *   @param isSave: true/false if the editor needs to be saved after correcting it
+     *   @param allowClose: true/false to specify if the user can dismiss the alert pane
      *   @param errorMsg: Message to display in the alert pane
      *   @param correctErrorCallback: Callback function to run once they click the 'here' fix it button.
     */
-    var __createErrorAlertPane = function (thisEditor, isSave, errorMsg, correctErrorCallback) {
+    var __createErrorAlertPane = function (thisEditor, alertClass, isSave, allowClose, errorMsg, correctErrorCallback) {
         var idHere = "here_button_error_editor_" + thisEditor.stepName;
         var idClose = "close_button_error_editor_" + thisEditor.stepName;
         var idError = "error_" + thisEditor.stepName;
-
-        var handleOnClickClose = function () {
-            thisEditor.closeEditorErrorBox();
-        };
 
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
         if (editorError.length) {
             editorError.removeClass("hidden");
             editorError.empty(); // Clear previous errors in the error pane
+        }
 
-            var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
-            editorError.append(spanStr);
-            if (correctErrorCallback) {
-                var handleOnClickFixContent = function () {
-                    __correctEditorError(thisEditor, isSave, correctErrorCallback);
-                    // close the alert frame so that each step doesn't have to call the close
-                    thisEditor.closeEditorErrorBox();
-                };
-                var hereButton = __createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
-                editorError.append(hereButton);
-            }
+        // Change the class of the alertFrame to the correct bootstrap class passed in as alertClass. This allows the alert to be yellow for warnings and red for error messages.
+        editorError.removeClass('alert-success alert-info alert-warning alert-danger');
+        editorError.addClass(alertClass);
+
+        var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
+        editorError.append(spanStr);
+        if (correctErrorCallback) {
+            var handleOnClickFixContent = function () {
+                __correctEditorError(thisEditor, isSave, correctErrorCallback);
+                // close the alert frame so that each step doesn't have to call the close
+                thisEditor.closeEditorErrorBox();
+            };
+            var hereButton = __createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
+            editorError.append(hereButton);
+        }
+        if(allowClose){
+            var handleOnClickClose = function () {
+                thisEditor.closeEditorErrorBox();
+            };
             var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
             editorError.append(closeButton);
-            editorError.append('</span>');
-        }
+        }        
+        editorError.append('</span>');
+        
     };
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {

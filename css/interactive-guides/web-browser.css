@@ -22,6 +22,15 @@
     white-space: nowrap;
 }
 
+.wbStatusBar {
+    background-color: lightgrey;
+    height: 25px;
+    width: 100%;
+    padding: 10px;
+    color: black;
+    line-height: 8px;
+}
+
 .wbNavButton {
     padding: 2px;
     background-color: transparent;
@@ -46,4 +55,8 @@
 
 .wbContent {
     height: 400px;
+}
+
+.invisible {
+    visibility: hidden;
 }

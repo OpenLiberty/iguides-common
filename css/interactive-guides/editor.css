@@ -13,6 +13,11 @@
   border-right: 1px solid black;
   border-bottom: 1px solid black;
   font-size: 12px;
+  height: 448px;
+}
+
+.teContainer .CodeMirror{
+  height: 397px;
 }
 
 .editorContainer {
@@ -64,6 +69,7 @@
   padding: 2px;
   border: none;
   background-color: transparent;
+  width: 42px;
 }
 
 .editorSaveButton:focus, .editorResetButton:focus, .editorUndoButton:focus, .editorRedoButton:focus, .editorRunButton:focus {
