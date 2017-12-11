@@ -32,7 +32,7 @@ var blueprint = (function(){
             if (relateGuides.length > 0) {
               var relateGuidesStep = {
                 "name": "RelateGuides",
-                "title": "Relate Guides",
+                "title": "Related guides",
                 "description": ["<div id=\"relateGuidesContent\"/>"]
               };
               steps.push(relateGuidesStep);
