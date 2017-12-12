@@ -312,14 +312,15 @@ var editor = (function() {
 
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
-        if (editorError.length) {
+        if (editorError.length) {            
             editorError.removeClass("hidden");
             editorError.empty(); // Clear previous errors in the error pane
         }
+        editorError.attr('tabindex', '0');
 
         // Change the class of the alertFrame to the correct bootstrap class passed in as alertClass. This allows the alert to be yellow for warnings and red for error messages.
         editorError.removeClass('alert-success alert-info alert-warning alert-danger');
-        editorError.addClass(alertClass);
+        editorError.addClass(alertClass);        
 
         var spanStr = '<span id=\"' + idError + '\">' + errorMsg;
         editorError.append(spanStr);
@@ -333,8 +334,11 @@ var editor = (function() {
             editorError.append(hereButton);
         }
         if(allowClose){
-            var handleOnClickClose = function () {
+            var handleOnClickClose = function (event) {
+                event.preventDefault();
+                event.stopPropagation();
                 thisEditor.closeEditorErrorBox();
+                editorError.attr('tabindex', '-1');
             };
             var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
             editorError.append(closeButton);
