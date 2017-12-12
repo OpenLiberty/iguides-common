@@ -11,6 +11,11 @@
  *******************************************************************************/
 var utils = (function() {
 
+    /**
+     * 
+     * @param {String} value - String with value {0} to replace
+     * @param {Array} args - an array containing strings to replace {i}
+     */
     var __formatString = function(value, args) {     
         for (var i = 0; i < args.length; i++) {
             var regexp = new RegExp('\\{'+i+'\\}', 'gi');
