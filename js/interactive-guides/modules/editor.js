@@ -308,7 +308,7 @@ var editor = (function() {
     var __createErrorAlertPane = function (thisEditor, alertClass, isSave, allowClose, errorMsg, correctErrorCallback) {
         var idHere = "here_button_error_editor_" + thisEditor.stepName;
         var idClose = "close_button_error_editor_" + thisEditor.stepName;
-        var idError = "error_" + thisEditor.stepName + thisEditor.fileName; //added filenName to id to avoid duplicate ids
+        var idError = "error_" + thisEditor.stepName + "_" + thisEditor.fileName; //added filenName to id to avoid duplicate ids
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
         if (editorError.length) {
