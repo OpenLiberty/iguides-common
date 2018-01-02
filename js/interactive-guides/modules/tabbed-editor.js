@@ -322,6 +322,40 @@ var tabbedEditor = (function() {
 
             }
 
+            var resizeEditor = function(){
+                var browser = $('.subContainerDiv:visible').get(1);
+                var viewportWidth = $(this).width();
+                if(browser){
+                    // Get height of the tabbedEditor container and the browser
+                    var teContainer = thisTabbedEditor.tabsRootElement;
+                    var browserHeight = $(browser).height();                   
+
+                    // Adjust the height of the editorContent to match the browser
+                    var editorContainer = thisTabbedEditor.tabsRootElement.find('.editorContainer:visible');
+                    var editorHeight = editorContainer.height();
+
+                    // Store original height if not set yet.
+                    if(!editorContainer.prop('data-originalHeight')){
+                        editorContainer.prop('data-originalHeight', editorContainer.height());
+                    }                   
+
+                    // var newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - (teContainer[0].scrollHeight - teContainer[0].offsetHeight);
+                    var overflow = teContainer[0].scrollHeight - teContainer[0].offsetHeight;
+                    if(viewportWidth < 1030){                        
+                        var newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - overflow;                        
+                    } else {
+                        // Restore the original height for larger browser widths.
+                        var newHeight = editorContainer.prop('data-originalHeight');
+                    }
+
+                    editorContainer.css('height', newHeight);  
+                }   
+            }            
+
+            $(window).on('resize', function(event){            
+                resizeEditor();
+            });            
+
             if (content.callback) {
                 var callback = eval(content.callback);
                 // Identify this tabbedEditor with the activeTabChangeListener
