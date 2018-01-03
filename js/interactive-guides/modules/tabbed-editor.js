@@ -262,8 +262,38 @@ var tabbedEditor = (function() {
         // is changed.
         addActiveTabChangeListener: function(callback) {
            this.activeTabChangeCallback = callback;
-        }
-      
+        },
+
+        resize: function() {
+            var browser = $('.subContainerDiv:visible').get(1);
+            if(browser){
+                // Get height of the tabbedEditor container and the browser
+                var teContainer = this.tabsRootElement;
+                var browserHeight = $(browser).height();                   
+
+                // Adjust the height of the editorContent to match the browser
+                var editorContainer = this.tabsRootElement.find('.editorContainer:visible');
+                var editorHeight = editorContainer.height();
+
+                // Store original height if not set yet.
+                if(!editorContainer.prop('data-originalHeight')){
+                    editorContainer.prop('data-originalHeight', editorContainer.height());
+                }                   
+
+                var newHeight;
+                var overflow = teContainer[0].scrollHeight - teContainer[0].offsetHeight;
+                var editorButtonsHeight = teContainer.find('.editorButtonFrame:visible').height();
+                // If the editor buttons is greater than 1 row, then need to calculate the difference between the editor and browser because it has changed height.
+                if(editorButtonsHeight > 30){                        
+                    newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - overflow;                        
+                } else {
+                    // Restore the original height of the editor for when there is only a single row of editor buttons.
+                    newHeight = editorContainer.prop('data-originalHeight');
+                }
+
+                editorContainer.css('height', newHeight);  
+            } 
+        }      
     };
 
     var __loadAndCreate = function(thisTabbedEditor, container, stepName, content) {
@@ -320,43 +350,17 @@ var tabbedEditor = (function() {
                     thisTabbedEditor.$teTabList.find('a').first().click();
                 }
 
-            }
-
-            var resizeEditor = function(){
-                var browser = $('.subContainerDiv:visible').get(1);
-                if(browser){
-                    // Get height of the tabbedEditor container and the browser
-                    var teContainer = thisTabbedEditor.tabsRootElement;
-                    var browserHeight = $(browser).height();                   
-
-                    // Adjust the height of the editorContent to match the browser
-                    var editorContainer = thisTabbedEditor.tabsRootElement.find('.editorContainer:visible');
-                    var editorHeight = editorContainer.height();
-
-                    // Store original height if not set yet.
-                    if(!editorContainer.prop('data-originalHeight')){
-                        editorContainer.prop('data-originalHeight', editorContainer.height());
-                    }                   
-
-                    var newHeight;
-                    var overflow = teContainer[0].scrollHeight - teContainer[0].offsetHeight;
-                    var editorButtonsHeight = teContainer.find('.editorButtonFrame:visible').height();
-                    // If the editor buttons is greater than 1 row, then need to calculate the difference between the editor and browser because it has changed height.
-                    if(editorButtonsHeight > 30){                        
-                        newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - overflow;                        
-                    } else {
-                        // Restore the original height of the editor for when there is only a single row of editor buttons.
-                        newHeight = editorContainer.prop('data-originalHeight');
-                    }
-
-                    editorContainer.css('height', newHeight);  
-                }   
-            }            
+            }       
 
             $(window).on('resize', function(event){
                 event.preventDefault();           
-                resizeEditor();
+                thisTabbedEditor.resize();
             });            
+
+            // Initial resize to adjust the height of this tabbedEditor to match the browser if there is one.
+            setTimeout(function(){
+                thisTabbedEditor.resize();
+            }, 500);
 
             if (content.callback) {
                 var callback = eval(content.callback);
