@@ -324,7 +324,6 @@ var tabbedEditor = (function() {
 
             var resizeEditor = function(){
                 var browser = $('.subContainerDiv:visible').get(1);
-                var viewportWidth = $(this).width();
                 if(browser){
                     // Get height of the tabbedEditor container and the browser
                     var teContainer = thisTabbedEditor.tabsRootElement;
@@ -339,20 +338,23 @@ var tabbedEditor = (function() {
                         editorContainer.prop('data-originalHeight', editorContainer.height());
                     }                   
 
-                    // var newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - (teContainer[0].scrollHeight - teContainer[0].offsetHeight);
+                    var newHeight;
                     var overflow = teContainer[0].scrollHeight - teContainer[0].offsetHeight;
-                    if(viewportWidth < 1030){                        
-                        var newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - overflow;                        
+                    var editorButtonsHeight = teContainer.find('.editorButtonFrame:visible').height();
+                    // If the editor buttons is greater than 1 row, then need to calculate the difference between the editor and browser because it has changed height.
+                    if(editorButtonsHeight > 30){                        
+                        newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - overflow;                        
                     } else {
-                        // Restore the original height for larger browser widths.
-                        var newHeight = editorContainer.prop('data-originalHeight');
+                        // Restore the original height of the editor for when there is only a single row of editor buttons.
+                        newHeight = editorContainer.prop('data-originalHeight');
                     }
 
                     editorContainer.css('height', newHeight);  
                 }   
             }            
 
-            $(window).on('resize', function(event){            
+            $(window).on('resize', function(event){
+                event.preventDefault();           
                 resizeEditor();
             });            
 
