@@ -291,7 +291,9 @@ var tabbedEditor = (function() {
                     newHeight = editorContainer.prop('data-originalHeight');
                 }
 
-                editorContainer.css('height', newHeight);  
+                if(newHeight > 0){
+                    editorContainer.css('height', newHeight);  
+                }                
             } 
         }     
     };
