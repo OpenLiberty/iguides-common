@@ -268,7 +268,7 @@ var tabbedEditor = (function() {
             var browser = $('.subContainerDiv:visible').get(1);
             if(browser){
                 // Get height of the tabbedEditor container and the browser
-                var teContainer = this.tabsRootElement;
+                var tabbedEditorContainer = this.tabsRootElement;
                 var browserHeight = $(browser).height();                   
 
                 // Adjust the height of the editorContent to match the browser
@@ -281,11 +281,11 @@ var tabbedEditor = (function() {
                 }                   
 
                 var newHeight;
-                var overflow = teContainer[0].scrollHeight - teContainer[0].offsetHeight;
-                var editorButtonsHeight = teContainer.find('.editorButtonFrame:visible').height();
+                var overflow = tabbedEditorContainer[0].scrollHeight - tabbedEditorContainer[0].offsetHeight;
+                var editorButtonsHeight = tabbedEditorContainer.find('.editorButtonFrame:visible').height();
                 // If the editor buttons is greater than 1 row, then need to calculate the difference between the editor and browser because it has changed height.
                 if(editorButtonsHeight > 30){                        
-                    newHeight = editorHeight + (browserHeight - teContainer.outerHeight()) - overflow;                        
+                    newHeight = editorHeight + (browserHeight - tabbedEditorContainer.outerHeight()) - overflow;                        
                 } else {
                     // Restore the original height of the editor for when there is only a single row of editor buttons.
                     newHeight = editorContainer.prop('data-originalHeight');
