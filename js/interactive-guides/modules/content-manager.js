@@ -737,6 +737,14 @@ var contentManager = (function() {
         actions.prop('tabindex', '-1');
         actions.off('click');
         actions.off('keypress');
+
+        // If there are tabbedEditors, resize them according to the widget next to it.
+        var tabbedEditors = __getTabbedEditors(stepName);
+        if(tabbedEditors){
+            tabbedEditors.forEach(function(tabbedEditor){
+                tabbedEditor.resize();
+            });
+        }
     };
 
     var markInstructionDisable = function() {
