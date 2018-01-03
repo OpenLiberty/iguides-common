@@ -14,16 +14,16 @@ var tabbedEditor = (function() {
     var tabbedEditorType = function(container, stepName, content) {
         /**
          * This widget forms a tabbed editor.  It contains an array of fileEditor
-         * widgets as the "editorList" element of its content.  
-         * 
+         * widgets as the "editorList" element of its content.
+         *
          * Content may also contain
-         *  - "activeTab"- the fileName of the editor that you want to be active, 
+         *  - "activeTab"- the fileName of the editor that you want to be active,
          *                 or have focus.  If "activeTab" is not specified,
          *                 then we default to the first tab as the active tab.
-         *  - "callback" - callback method invoked during tabbedEditor creation to 
+         *  - "callback" - callback method invoked during tabbedEditor creation to
          *                 register method for the following event
          *                      - addActiveTabChangeListener - invoked when the active tab changes.
-         * 
+         *
          * To Create Example JSON:
          *         {
          *             "name": "MyStep",
@@ -75,12 +75,12 @@ var tabbedEditor = (function() {
         });
         return deferred;
     };
-    
+
     tabbedEditorType.prototype = {
 
         /**
          * Adds a new editor to the END of the TabbedEditor.
-         * 
+         *
          * @param {} editorInfo - object to create a FileEditor widget.
          */
         addEditor: function(editorInfo) {
@@ -108,7 +108,7 @@ var tabbedEditor = (function() {
 
                 var originalActiveFileName;
                 var newActiveFileName = this.innerHTML;
-                var activeTabChanged = false;                
+                var activeTabChanged = false;
 
                 if (thisTabbedEditor.$active) {
                     currentActiveFileName = thisTabbedEditor.$active[0].innerHTML;
@@ -145,7 +145,7 @@ var tabbedEditor = (function() {
             this.$teTabList.append($tabItem);
 
             // Content.....create hidden
-            var $tabContent = $("<div id='" + editorName + "' class='teTabContent'  role='tabpanel'></div>");
+            var $tabContent = $("<div id='" + editorName + "' class='teTabContent'  role='tabpanel' aria-label='" + editorInfo.fileName + " editor.'></div>");
             this.$teTabContents.append($tabContent);
             // Add the editor to the div
             editor.create($tabContent, this.stepName, editorInfo).done(function(newEditor) {
@@ -161,10 +161,10 @@ var tabbedEditor = (function() {
          *              <li><a>File.name</a></li>
          *              <li><a>File2.name</a></li>
          *          </ul>
-         * 
+         *
          * This method returns the JQuery object representing the <a> tag
          * associated with the tab for the provided fileName.
-         * 
+         *
          * @param {String} fileName of an editor within the TabbedEditor
          * @returns {} JQuery object representing the <a> tag of the tab
          */
@@ -186,17 +186,17 @@ var tabbedEditor = (function() {
          *              <li><a href='#tab1'>File.name</a></li>
          *              <li><a href='#tab2'>File2.name</a></li>
          *          </ul>
-         * 
+         *
          * The href associated with each <a> tag has a corresponding
          * <div> tag with the same id as the href.
          *          <div id='tab'> Tab Editor Contents </div>
-         * 
+         *
          * This method returns this id value.
-         * 
+         *
          * NOTE: Each tabbed-editor object has a editorList object whose
          * members are these id values and their values are a pointer
          * to the FileEditor widget object.
-         * 
+         *
          * @param {String} fileName of an editor within the TabbedEditor
          * @returns {String} id value of the tab associated with the
          *          provided filename or undefined.
@@ -212,7 +212,7 @@ var tabbedEditor = (function() {
         /**
          * Returns the FileEditor widget object for the specified
          * file name within this tabbed editor.
-         * 
+         *
          * @param {String} fileName
          * @returns {} FileEditor object associated with provided fileName
          */
@@ -227,7 +227,7 @@ var tabbedEditor = (function() {
         /**
          * Issues a click event for the tab associated with the specified
          * fileName to bring it into focus.
-         * 
+         *
          * @param {String} fileName of an editor within the TabbedEditor
          * @returns {} JQuery object representing the <a> tag of the tab ||
          *             undefined if it was not found.
@@ -242,7 +242,7 @@ var tabbedEditor = (function() {
 
         /**
          * Returns the fileName of the currently active tab.
-         * 
+         *
          * @returns {String} fileName
          */
         getActiveTabFileName: function() {
@@ -250,13 +250,13 @@ var tabbedEditor = (function() {
                 return this.$active[0].innerHTML;
             } else {
                 return undefined;
-            }                
+            }
         },
 
         getStepName: function() {
             return this.stepName;
         },
-      
+
         // Registers a callback method with this tabbedEditor
         // instance.  It will be invoked when the active tab
         // is changed.
@@ -293,7 +293,7 @@ var tabbedEditor = (function() {
 
                 editorContainer.css('height', newHeight);  
             } 
-        }      
+        }     
     };
 
     var __loadAndCreate = function(thisTabbedEditor, container, stepName, content) {
@@ -320,23 +320,23 @@ var tabbedEditor = (function() {
             // Determine the width of the tabs based on the bootstrapColSize
             // that the tabbed editor is given.
             var numNonActiveEditors = editors.length - 1;
-            if (numNonActiveEditors <= 0  ||  
-                content.bootstrapColSize === "col-sm-12") {     
+            if (numNonActiveEditors <= 0  ||
+                content.bootstrapColSize === "col-sm-12") {
                 numNonActiveEditors = 1; // To avoid division by zero, and to give future tabs added a size.
                 thisTabbedEditor.activeTabSize = '100%';
-                thisTabbedEditor.cssWidthValue = "max-width";   // Display full name of active editor 
+                thisTabbedEditor.cssWidthValue = "max-width";   // Display full name of active editor
                                                                 // when we have the room!
             } else {
                 thisTabbedEditor.activeTabSize = '50%';
                 thisTabbedEditor.cssWidthValue = "width";
             }
-            thisTabbedEditor.tabSize = (50/numNonActiveEditors) + '%';                
+            thisTabbedEditor.tabSize = (50/numNonActiveEditors) + '%';
 
             if (editors.length > 0) {
                 for (var i=0; i<editors.length; i++) {
                     var tEditor = editors[i];
                     thisTabbedEditor.addEditor(tEditor);
-                }                
+                }
 
                 if (content.activeTab) {
                     // Content specifies exactly which tab should be active after creation
@@ -367,7 +367,7 @@ var tabbedEditor = (function() {
                 // Identify this tabbedEditor with the activeTabChangeListener
                 // function specified by the user.
                 callback(thisTabbedEditor);
-            }    
+            }
 
             deferred.resolve(thisTabbedEditor);
           },
