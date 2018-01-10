@@ -141,6 +141,9 @@ var tabbedEditor = (function() {
                 if (activeTabChanged && thisTabbedEditor.activeTabChangeCallback) {
                     thisTabbedEditor.activeTabChangeCallback(newActiveFileName);
                 }
+
+                // Resize the editor to match the widget next to it.
+                thisTabbedEditor.resize();
             });
             this.$teTabList.append($tabItem);
 
