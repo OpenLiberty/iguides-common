@@ -83,12 +83,12 @@ var editor = (function() {
                 }
                 thisEditor.contentChanges.push(change);
                 if (thisEditor.contentChangeTimeout) {
-                    clearTimeout(thisEditor.contentChangeTimeout); 
+                    clearTimeout(thisEditor.contentChangeTimeout);
                     thisEditor.ccontentChangeTimeout = undefined;
                 }
                 thisEditor.contentChangeTimeout = setTimeout(function() {
                      // Wait until timeout to call callback so as to reduce the number of calls when
-                     // content is still changing. 
+                     // content is still changing.
                      // Pass to callback all the saved changes from the editor change event.
                      callback(thisEditor.editor, thisEditor.contentChanges);
                      thisEditor.contentChangeTimeout = undefined;
@@ -150,7 +150,10 @@ var editor = (function() {
                         container.find('.editorFileName').text(content.fileName);
                         thisEditor.fileName = content.fileName;
                         //$(".editorContainer").css("margin-top", "-20px");
-                        container.find(".editorContainer").css("margin-top", "-20px");
+                        container.find(".editorContainer").css({
+                            "margin-top": "-20px",
+                            "margin-bottom": "50px"
+                        });
                     }
                     var editor = container.find('.codeeditor');
                     //console.log("container id", container[0].id);
@@ -171,10 +174,10 @@ var editor = (function() {
         var isReadOnly = false;
         var markText = [];
         if (content.readonly === true || content.readonly === "true") {
-            isReadOnly = true;            
+            isReadOnly = true;
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
-        } 
+        }
         thisEditor.editor = CodeMirror(document.getElementById(id), {
             lineNumbers: true,
             autoRefresh: true,
@@ -305,14 +308,14 @@ var editor = (function() {
     var __createErrorAlertPane = function (thisEditor, alertClass, isSave, allowClose, errorMsg, correctErrorCallback) {
         var idHere = "here_button_error_editor_" + thisEditor.stepName;
         var idClose = "close_button_error_editor_" + thisEditor.stepName;
-        var idError = "error_" + thisEditor.stepName;
-
+        var idError = "error_" + thisEditor.stepName + "_" + thisEditor.fileName; //added filenName to id to avoid duplicate ids
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
         if (editorError.length) {
             editorError.removeClass("hidden");
             editorError.empty(); // Clear previous errors in the error pane
         }
+        editorError.attr('tabindex', '0');
 
         // Change the class of the alertFrame to the correct bootstrap class passed in as alertClass. This allows the alert to be yellow for warnings and red for error messages.
         editorError.removeClass('alert-success alert-info alert-warning alert-danger');
@@ -330,14 +333,16 @@ var editor = (function() {
             editorError.append(hereButton);
         }
         if(allowClose){
-            var handleOnClickClose = function () {
+            var handleOnClickClose = function (event) {
+                event.preventDefault();
+                event.stopPropagation();
                 thisEditor.closeEditorErrorBox();
+                editorError.attr('tabindex', '-1');
             };
             var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
             editorError.append(closeButton);
-        }        
+        }
         editorError.append('</span>');
-        
     };
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
@@ -391,7 +396,7 @@ var editor = (function() {
             __handleResetClick(thisEditor, $elem);
         });
     };
-    
+
     var __addCopyOnClickListener = function(thisEditor, $elem){
         $elem.on("keydown", function (event) {
             event.stopPropagation();
@@ -449,8 +454,8 @@ var editor = (function() {
         if (content) {
             if (window.clipboardData && window.clipboardData.setData) {
                 // IE specific code path to prevent textarea being shown while dialog is visible.
-                return clipboardData.setData("Text", text); 
-        
+                return clipboardData.setData("Text", text);
+
             } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
                 var textarea = document.createElement("textarea");
                 textarea.textContent = thisEditor.editor.getValue();

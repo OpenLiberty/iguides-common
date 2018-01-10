@@ -101,6 +101,7 @@ var webBrowser = (function(){
         this.contentRootElement.find('.wbStatusBar').removeClass('invisible');
         this.contentRootElement.find('.wbStatusBar').empty();
         this.contentRootElement.find('.wbStatusBar').append(statusBarText);
+        this.contentRootElement.find('.wbStatusBar').attr('title', statusBarText);
       }
     },
 

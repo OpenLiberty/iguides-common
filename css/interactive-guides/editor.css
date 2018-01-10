@@ -8,19 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+
 .codeeditor .CodeMirror {
   border-left: 1px solid black;
   border-right: 1px solid black;
   border-bottom: 1px solid black;
   font-size: 12px;
-  height: 448px;
-}
-
-.teContainer .CodeMirror{
-  height: 397px;
-}
-
-.editorContainer {
 }
 
 .editorContainer .CodeMirror-linenumber {
@@ -51,10 +44,9 @@
   overflow: hidden;
 }
 
-.editorSaveButton, .editorResetButton, .editorCopyButton, .editorUndoButton, .editorRedoButton {
+.editorButtonFrame .btn {
   display: block;
   float: left;
-  /* line-height: 0; */
   margin: 1px 0px 1px 8px;
   padding: 2px;
   border: none;
@@ -64,7 +56,6 @@
 .editorRunButton {
   display: block;
   float: right;
-  /* line-height: 0; */
   margin: 1px 8px 1px 0px;
   padding: 2px;
   border: none;
@@ -72,7 +63,7 @@
   width: 42px;
 }
 
-.editorSaveButton:focus, .editorResetButton:focus, .editorUndoButton:focus, .editorRedoButton:focus, .editorRunButton:focus {
+.editorButtonFrame .btn:focus {
    outline: 2px solid blue;
 }
 
