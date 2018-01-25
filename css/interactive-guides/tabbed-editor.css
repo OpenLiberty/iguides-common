@@ -23,7 +23,6 @@
     /* Move font between 10-14px when the browser width is between 768px     */
     /* and 1170px.  After this point the width of the guide row is constant. */
     font-size: calc(.70em + 4 * (100vw - 768px) / 402);
-    font-size: -webkit-calc(70% + 4 * (100vw - 768px) / 402);
 }
 
 @media only screen and (max-width:768px)
@@ -31,7 +30,6 @@
     /* In single column output, allow the font to adjust to maximize the amount of filename shown */
     .teContainer>.nav-tabs>li>a {
         font-size: calc(.70em + 4 * (100vw - 320px) / 447) !important;
-        font-size: -webkit-calc(70% + 4 * (100vw - 320px) / 447) !important;
     }
 }
 
