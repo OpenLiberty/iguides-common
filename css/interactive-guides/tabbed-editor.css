@@ -20,30 +20,18 @@
 
 /* Half screen editor tab formatting. Maximize the space taken up in the tabs so the filename will be shown */
 .subContainerDiv.col-sm-6 > .teContainer>.nav-tabs>li>a {
-    /* Move font between 10-14px when the browser width is between 768px     */
-    /* and 1170px.  After this point the width of the guide row is constant. */
-    font-size: calc(.70em + 4 * (100vw - 768px) / 402);
+    font-size: 0.85vw;
 }
 
-@media only screen and (max-width:768px)
+@media all and (max-width:768px)
 {
-    /* In single column output, allow the font to adjust to maximize the amount of filename shown */
+    /* Always shrink the padding and margins in mobile view even if the subcontainer is 12 columns wide since mobile is much smaller */
     .teContainer>.nav-tabs>li>a {
-        font-size: calc(.70em + 4 * (100vw - 320px) / 447) !important;
+        font-size: 2.5vw !important; /* Override the font-size from non-mobile view */
     }
 }
 
-@media only screen and (min-width:1170px)
-{
-    .teContainer>.nav-tabs>li>a {
-        /* The guide TOC and right side info has a max width of 1170px.  */
-        /* Further increases in the browser width should not change the  */
-        /* font size of the filenames in the tabs.                       */
-        font-size: 14px !important;
-    }
-}
-
-.teContainer>.nav-tabs>li>a.active {
+ .teContainer>.nav-tabs>li>a.active {
     background-color: #eee;
 }
 
