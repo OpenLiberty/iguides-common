@@ -23,7 +23,7 @@ var blueprint = (function(){
             var contributeStep = {
               "name": "Contribute",
               "title": "Contribute to this guide",
-              "description": [ "Is something missing or needs to be fixed? Raise an <a target='_blank' href='" + repoIssues + "'>issue</a>, or send us a <a target='_blank' href='" + repoPR + "'>pull request</a>.",
+              "description": [ "Is something missing or broken? Raise an <a target='_blank' href='" + repoIssues + "'>issue</a>, or send us a <a target='_blank' href='" + repoPR + "'>pull request</a>.",
                                 "<br><a target='_blank' href='" + repo + "'>View this guide on github.</a>"]
             };
             steps.push(contributeStep);
