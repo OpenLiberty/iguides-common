@@ -169,11 +169,22 @@ var utils = (function() {
         return resultStr;  
     };
 
+    var isElementActivated = function(event) {
+        if (event.type === "click" ||
+           (event.type === "keypress" && (event.which === 13 || event.which === 32))) {
+            // Click or 'Enter' or 'Space' key event...
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     return {
         formatString: __formatString,
         parseString: __parseString,
         replaceString: __replaceString,
-        parseActionTag: __parseActionTag
+        parseActionTag: __parseActionTag,
+        isElementActivated: isElementActivated
     };
 
 })();
