@@ -51,7 +51,7 @@ var utils = (function() {
         quote = str.substring(0, 1);
         //console.log("quote ", quote);
         return quote;
-    }
+    };
 
     var __getAttributeAction = function(strAction, attr) {
         var str, resultStr;
@@ -83,7 +83,7 @@ var utils = (function() {
         resultStr = {attr: str, action: strAction}; 
         
         return resultStr;   
-    }
+    };
 
     var __getTitleAction = function(strAction) {
         var title = __getAttributeAction(strAction, "title=");
@@ -95,19 +95,19 @@ var utils = (function() {
         var str = __getAttributeAction(strAction, "onclick=");
         //console.log("onclick=", str.attr);
         return str; 
-    }
+    };
 
     var __getOnKeyPressAction = function(strAction) {
         var str = __getAttributeAction(strAction, "onkeypress=");
         //console.log("onkeypress=", str.attr);
         return str;
-    }
+    };
 
     var __getAriaLabelAction = function(strAction) {
         var str = __getAttributeAction(strAction, "aria-label=");
         //console.log("aria-label=", str.attr);
         return str;
-    }
+    };
     
     var __getButtonName = function(strName) {
         var buttonName;
@@ -177,14 +177,20 @@ var utils = (function() {
         } else {
             return false;
         }
-    }
+    };
+
+    var isInteger = function(value) {
+        var testRE = /^[0-9]+$/;
+        return (testRE.test(value));
+    };
 
     return {
         formatString: __formatString,
         parseString: __parseString,
         replaceString: __replaceString,
         parseActionTag: __parseActionTag,
-        isElementActivated: isElementActivated
+        isElementActivated: isElementActivated,
+        isInteger: isInteger
     };
 
 })();
