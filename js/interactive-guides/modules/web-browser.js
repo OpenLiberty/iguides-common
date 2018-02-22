@@ -105,6 +105,10 @@ var webBrowser = (function(){
       }
     },
 
+    enableStatusBar: function(enable) {
+      __enableStatusBar(this, enable);
+    },
+
     simulateBrowserRefresh: function() {
       if (this.updatedURLCallback) {
         this.updatedURLCallback(this.getURL());
@@ -180,6 +184,10 @@ var webBrowser = (function(){
 
           __addBrowserListeners(thisWebBrowser);
 
+          if (content.enableStatusBar !== undefined) {
+            __enableStatusBar(thisWebBrowser, content.enableStatusBar);
+          }
+
           // fill in contents
           thisWebBrowser.setURL(thisWebBrowser.webURL);
           thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
@@ -224,6 +232,15 @@ var webBrowser = (function(){
         thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
         thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
       });
+    }
+  };
+
+  var __enableStatusBar = function(thisWebBrowser, enable) {
+    if (enable === true || enable === "true") {
+      thisWebBrowser.contentRootElement.find('.wbStatusBar').show();
+    } else {
+      // treat any other values to indicate a false value
+      thisWebBrowser.contentRootElement.find('.wbStatusBar').hide();
     }
   };
 
