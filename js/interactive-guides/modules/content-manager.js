@@ -250,6 +250,18 @@ var contentManager = (function() {
     };
 
 // ==== WebBrowser Functions ====
+    /** Returns the browser from a specified browser instance
+     * @param {String} stepName - name of step where WebBrowser is located
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of Browser
+     */
+    var getBrowser = function(stepName, instanceNumber) {
+        var browser = __getWebBrowserInstance(stepName, instanceNumber);
+        if (browser) {
+            //console.log("Getting the Web Browser ", browser);
+            return browser;
+        }
+    };
+
     /** Returns the URL from a specified Browser instance
      * @param {String} stepName - name of step where WebBrowser is located
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of Browser
@@ -875,6 +887,7 @@ var contentManager = (function() {
         addFileToBrowser: addFileToBrowser,
         addFolderToBrowser: addFolderToBrowser,
 
+        getBrowser: getBrowser,
         setBrowserURL: setBrowserURL,
         getBrowserURL: getBrowserURL,
         setBrowserURLFocus: setBrowserURLFocus,
