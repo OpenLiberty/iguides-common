@@ -20,7 +20,7 @@ script: >
 
     body='{
       "request": {
-      "message": "Override the commit message: This is an api request from iguides-common",
+      "message": "Build request: iguides-common",
       "branch":"development"
       }}'
     curl -s -X POST \
