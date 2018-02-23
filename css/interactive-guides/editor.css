@@ -89,3 +89,7 @@
   background-color: #f2dede;
   border: none;
 }
+
+.close_button_warning_editor {
+  background-color: #fcf8e3;
+}

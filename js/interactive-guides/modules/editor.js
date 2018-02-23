@@ -132,6 +132,9 @@ var editor = (function() {
         },
         createCustomErrorMessage: function(errorMsg){
             __createErrorAlertPane(this, 'alert-danger', false, true, errorMsg);
+        },
+        createCustomAlertMessage: function(alertMsg) {
+            __createErrorAlertPane(this, 'alert-warning', false, true, alertMsg);
         }
     };
 
@@ -339,7 +342,11 @@ var editor = (function() {
                 thisEditor.closeEditorErrorBox();
                 editorError.attr('tabindex', '-1');
             };
-            var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor", handleOnClickClose, "Close error");
+            var bkgcolor = "";
+            if (alertClass === 'alert-warning') {
+                bkgcolor = "close_button_warning_editor";
+            } 
+            var closeButton = __createEditorErrorButton(idClose, "", "glyphicon glyphicon-remove-circle close_button_error_editor " + bkgcolor, handleOnClickClose, "Close error");
             editorError.append(closeButton);
         }
         editorError.append('</span>');
