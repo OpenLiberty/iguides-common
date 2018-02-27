@@ -661,6 +661,18 @@ var contentManager = (function() {
             }
         }
     }
+
+    /** Resize the height of a TabbedEditor
+     *  @param {String} stepName
+     *  @param {Integer} instanceNumber (optional) zero-indexed instance number of TabbedEditor
+     */
+    var resizeTabbedEditor = function(stepName, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            tabbedEditor.resize();
+        }
+    };
+
     
 // ==== Instruction Functions ====
     /** Store the instructions for the given step
@@ -922,6 +934,7 @@ var contentManager = (function() {
         replaceTabbedEditorContents: replaceTabbedEditorContents,
         saveTabbedEditor: saveTabbedEditor,
         markTabbedEditorReadOnlyLines: markTabbedEditorReadOnlyLines,
+        resizeTabbedEditor: resizeTabbedEditor,
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,
