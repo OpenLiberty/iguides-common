@@ -289,7 +289,8 @@ var tabbedEditor = (function() {
                 var editorTabsHeight = this.tabsRootElement.find('.teTabs:visible').height();
                 var newHeight = widgetHeight - editorButtonsHeight - editorTabsHeight; 
 
-                if(newHeight > 0){
+                // If the original height is taller than the new calculated height, keep the original height
+                if(newHeight > 0 && newHeight > editorContainer.height()){
                     editorContainer.css('height', newHeight);  
                 }                
             } 
