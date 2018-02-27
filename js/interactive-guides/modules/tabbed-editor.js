@@ -268,15 +268,15 @@ var tabbedEditor = (function() {
         },
 
         resize: function() {
-            var browser = $('.subContainerDiv:visible').get(1);
-            if(browser){
-                // Get height of the browser
-                var browserHeight = $(browser).height();
-                if ($(browser).find(".podContainer").length === 1) {
-                    browserHeight = browserHeight - 30;  // minus the podContainer padding bottom
+            var widget = $('.subContainerDiv:visible').get(1);
+            if(widget){
+                // Get height of widget next to the tabbed editor
+                var widgetHeight = $(widget).height();
+                if ($(widget).find(".podContainer").length === 1) {
+                    widgetHeight = widgetHeight - 30;  // minus the podContainer padding bottom
                 }               
 
-                // Adjust the height of the editorContent to match the browser
+                // Adjust the height of the editorContent to match the pod/browser
                 var editorContainer = this.tabsRootElement.find('.editorContainer:visible');
 
                 // Store original height if not set yet.
@@ -284,10 +284,10 @@ var tabbedEditor = (function() {
                     editorContainer.prop('data-originalHeight', editorContainer.height());
                 }                   
 
-                // editor's height = browser height - height of the tabbed editor's tabs - height of the editor buttons
+                // editor's height = pod/browser height - height of the tabbed editor's tabs - height of the editor buttons
                 var editorButtonsHeight = this.tabsRootElement.find('.editorButtonFrame:visible').height();
                 var editorTabsHeight = this.tabsRootElement.find('.teTabs:visible').height();
-                var newHeight = browserHeight - editorButtonsHeight - editorTabsHeight; 
+                var newHeight = widgetHeight - editorButtonsHeight - editorTabsHeight; 
 
                 if(newHeight > 0){
                     editorContainer.css('height', newHeight);  
