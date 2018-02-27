@@ -268,33 +268,29 @@ var tabbedEditor = (function() {
         },
 
         resize: function() {
-            var browser = $('.subContainerDiv:visible').get(1);
-            if(browser){
-                // Get height of the tabbedEditor container and the browser
-                var tabbedEditorContainer = this.tabsRootElement;
-                var browserHeight = $(browser).height();                   
+            var widget = $('.subContainerDiv:visible').get(1);
+            if(widget){
+                // Get height of widget next to the tabbed editor
+                var widgetHeight = $(widget).height();
+                if ($(widget).find(".podContainer").length === 1) {
+                    widgetHeight = widgetHeight - 30;  // minus the podContainer padding bottom
+                }               
 
-                // Adjust the height of the editorContent to match the browser
+                // Adjust the height of the editorContent to match the pod/browser
                 var editorContainer = this.tabsRootElement.find('.editorContainer:visible');
-                var editorHeight = editorContainer.height();
 
                 // Store original height if not set yet.
                 if(!editorContainer.prop('data-originalHeight')){
                     editorContainer.prop('data-originalHeight', editorContainer.height());
                 }                   
 
-                var newHeight;
-                var overflow = tabbedEditorContainer[0].scrollHeight - tabbedEditorContainer[0].offsetHeight;
-                var editorButtonsHeight = tabbedEditorContainer.find('.editorButtonFrame:visible').height();
-                // If the editor buttons is greater than 1 row, then need to calculate the difference between the editor and browser because it has changed height.
-                if(editorButtonsHeight > 30){                        
-                    newHeight = editorHeight + (browserHeight - tabbedEditorContainer.outerHeight()) - overflow;                        
-                } else {
-                    // Restore the original height of the editor for when there is only a single row of editor buttons.
-                    newHeight = editorContainer.prop('data-originalHeight');
-                }
+                // editor's height = pod/browser height - height of the tabbed editor's tabs - height of the editor buttons
+                var editorButtonsHeight = this.tabsRootElement.find('.editorButtonFrame:visible').height();
+                var editorTabsHeight = this.tabsRootElement.find('.teTabs:visible').height();
+                var newHeight = widgetHeight - editorButtonsHeight - editorTabsHeight; 
 
-                if(newHeight > 0){
+                // If the original height is taller than the new calculated height, keep the original height
+                if(newHeight > 0 && newHeight > editorContainer.height()){
                     editorContainer.css('height', newHeight);  
                 }                
             } 
