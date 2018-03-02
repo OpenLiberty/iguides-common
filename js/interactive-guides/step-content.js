@@ -156,9 +156,14 @@ var stepContent = (function() {
     if ($.isArray(description)) {
         $.each(description, function(i, desc) {
             if (desc) {
-                description[i] = $('<p>').html(desc); //Use .text instead of .html for debugging
+                //TODO: check for header or <li> tag and ignore these
+                if (__containsHTMLTag(desc)) {
+                } else {
+                    description[i] = $('<p>').html(desc).prop('outerHTML'); //Use .text instead of .html for debugging
+                }
             }
         });
+        description = description.join("");
     }
     var newDescription = $("<div class='description' tabindex='0'></div>");
     newDescription.attr('data-step', step.name);
@@ -168,6 +173,15 @@ var stepContent = (function() {
     if (step.name === "RelateGuides") {
       insertRelateGuidesContent();  
     }
+  };
+
+  var __containsHTMLTag = function(content) {
+    if (content.indexOf("<ul>") !== -1 || content.indexOf("</ul>") !== -1 ||
+        content.indexOf("<li>") !== -1 || content.indexOf("</li>") !== -1 ||
+        content.indexOf("<h4>") !== -1 || content.indexOf("</h4>") !== -1 ||
+        content.indexOf("<instruction>") !== -1 || content.indexOf("</instruction>") !== -1) {
+            return true;
+        }
   };
 
   var insertRelateGuidesContent = function() {
