@@ -153,13 +153,16 @@ var stepContent = (function() {
       return;
     }
     var description = step.description;    
-    var jointDescription = description;
     if ($.isArray(description)) {
-      jointDescription = description.join("<br/>");
+        $.each(description, function(i, desc) {
+            if (desc) {
+                description[i] = $('<p>').html(desc); //Use .text instead of .html for debugging
+            }
+        });
     }
     var newDescription = $("<div class='description' tabindex='0'></div>");
     newDescription.attr('data-step', step.name);
-    newDescription.html(jointDescription);
+    newDescription.html(description);
     $("#contentContainer").append(newDescription);
 
     if (step.name === "RelateGuides") {
