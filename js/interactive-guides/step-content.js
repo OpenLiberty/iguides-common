@@ -156,9 +156,7 @@ var stepContent = (function() {
     if ($.isArray(description)) {
         $.each(description, function(i, desc) {
             if (desc) {
-                //TODO: check for header or <li> tag and ignore these
-                if (__containsHTMLTag(desc)) {
-                } else {
+                if (!__containsHTMLTag(desc)) {
                     description[i] = $('<p>').html(desc).prop('outerHTML'); //Use .text instead of .html for debugging
                 }
             }
@@ -175,6 +173,8 @@ var stepContent = (function() {
     }
   };
 
+  //Used for the Description rendering (__addDescription) 
+  //Prevent certain description strings with these HTML tags that should not be wrapped in <p>
   var __containsHTMLTag = function(content) {
     if (content.indexOf("<ul>") !== -1 || content.indexOf("</ul>") !== -1 ||
         content.indexOf("<li>") !== -1 || content.indexOf("</li>") !== -1 ||
@@ -182,6 +182,7 @@ var stepContent = (function() {
         content.indexOf("<instruction>") !== -1 || content.indexOf("</instruction>") !== -1) {
             return true;
         }
+    return false;
   };
 
   var insertRelateGuidesContent = function() {
