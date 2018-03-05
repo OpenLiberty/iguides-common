@@ -153,18 +153,36 @@ var stepContent = (function() {
       return;
     }
     var description = step.description;    
-    var jointDescription = description;
     if ($.isArray(description)) {
-      jointDescription = description.join("<br/>");
+        $.each(description, function(i, desc) {
+            if (desc) {
+                if (!__containsHTMLTag(desc)) {
+                    description[i] = $('<p>').html(desc).prop('outerHTML'); //Use .text instead of .html for debugging
+                }
+            }
+        });
+        description = description.join("");
     }
     var newDescription = $("<div class='description' tabindex='0'></div>");
     newDescription.attr('data-step', step.name);
-    newDescription.html(jointDescription);
+    newDescription.html(description);
     $("#contentContainer").append(newDescription);
 
     if (step.name === "RelateGuides") {
       insertRelateGuidesContent();  
     }
+  };
+
+  //Used for the Description rendering (__addDescription) 
+  //Prevent certain description strings with these HTML tags that should not be wrapped in <p>
+  var __containsHTMLTag = function(content) {
+    if (content.indexOf("<ul>") !== -1 || content.indexOf("</ul>") !== -1 ||
+        content.indexOf("<li>") !== -1 || content.indexOf("</li>") !== -1 ||
+        content.indexOf("<h4>") !== -1 || content.indexOf("</h4>") !== -1 ||
+        content.indexOf("<instruction>") !== -1 || content.indexOf("</instruction>") !== -1) {
+            return true;
+        }
+    return false;
   };
 
   var insertRelateGuidesContent = function() {
