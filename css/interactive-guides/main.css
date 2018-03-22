@@ -24,10 +24,6 @@
   color: unset;
 }
 
-#guide_content #contentContainer h2.title, #guide_content #contentContainer h3.title {
-  margin-bottom: 30px;
-}
-
 #leftPane {
   height: 500px;
   margin-top: 28px;
