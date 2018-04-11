@@ -28,10 +28,7 @@ body {
     letter-spacing: 0;
     text-align: left;
     padding: 9px 0px 9px 18px;
-}
-
-.bankSeparatorLine {
-    border:1px solid #95c4f3;
+    border-bottom: 1px solid #95c4f3;
 }
 
 .stepIntro {
@@ -73,7 +70,6 @@ body {
     justify-content: center;
     margin: 24px 24px 0; 
     flex-grow: 1;
-    height: 100%;
 }
 
 .flexWarningContainer > div {
