@@ -151,12 +151,18 @@ var editor = (function() {
                     if (content.fileName) {
                         container.find('.editorContainer').attr("aria-label", content.fileName + " editor");
                         container.find('.editorFileName').text(content.fileName);
-                        thisEditor.fileName = content.fileName;
+                        thisEditor.fileName = content.fileName;              
                         //$(".editorContainer").css("margin-top", "-20px");
                         container.find(".editorContainer").css({
                             "margin-top": "-20px",
-                            "margin-bottom": "50px"
+                            "margin-bottom": "50px",
+                            "height": content.editorHeight
                         });
+                        if (content.editorHeight !== undefined) {                       
+                            container.find(".editorContainer").css({
+                                "height": content.editorHeight
+                            });
+                        }
                     }
                     var editor = container.find('.codeeditor');
                     //console.log("container id", container[0].id);
