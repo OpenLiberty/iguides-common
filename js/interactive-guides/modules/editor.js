@@ -155,8 +155,7 @@ var editor = (function() {
                         //$(".editorContainer").css("margin-top", "-20px");
                         container.find(".editorContainer").css({
                             "margin-top": "-20px",
-                            "margin-bottom": "50px",
-                            "height": content.editorHeight
+                            "margin-bottom": "50px"
                         });
                         if (content.editorHeight !== undefined) {                       
                             container.find(".editorContainer").css({
