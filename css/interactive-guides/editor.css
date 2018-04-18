@@ -16,6 +16,17 @@
   font-size: 12px;
 }
 
+#guide_content .codeeditor .CodeMirror {
+  height: 100%;
+  border-bottom: none;
+}
+
+.codeeditor {
+  height: 100%;
+  overflow: auto;
+  border-bottom: 1px solid black;
+}
+
 .editorContainer .CodeMirror-linenumber {
   color: dimgray;
 }
