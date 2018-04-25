@@ -84,16 +84,17 @@ function retrieveExternalizedStrings(rootDir) {
     var languageCode = getLanguageCode();
 
     var nlsFile = "messages.js";
+    rootDir = rootDir.endsWith("/") ? rootDir : rootDir + "/";
     var url = (languageCode !== "en") ? rootDir + languageCode + "/" + nlsFile :  rootDir + nlsFile;
     
     //Retrieve translations
-    httpSendRequest(url, replaceExternalizedStrings);  
+    httpSendRequest(url);  
 }
 
 /**
  * Send request to the server side base on the browser language to retrieve the translate messages.
  */
-function httpSendRequest(url, replaceExternalizedStrings) {
+function httpSendRequest(url) {
     'use strict';
     
     var httpReq = new XMLHttpRequest();
@@ -159,7 +160,7 @@ function appendDate(element, translateMsg) {
 }
 
 /**
- * Query for all data-externailzedString and replace the string for translate messages into key=value array
+ * Query for all data-externalizedString and replace the string for translate messages into key=value array
  */
 function replaceExternalizedStrings(responseText) {
     'use strict';  
