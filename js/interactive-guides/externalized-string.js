@@ -84,7 +84,6 @@ function retrieveExternalizedStrings(rootDir) {
     var languageCode = getLanguageCode();
 
     var nlsFile = "messages.js";
-    //var rootDir = "/guides/draft-iguide-retry-timeout/nls/";
     var url = (languageCode !== "en") ? rootDir + languageCode + "/" + nlsFile :  rootDir + nlsFile;
     
     //Retrieve translations
