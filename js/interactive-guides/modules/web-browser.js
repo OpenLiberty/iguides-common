@@ -187,7 +187,7 @@ var webBrowser = (function(){
           if (content.enableRefreshButton != undefined) {
             // The Refresh button is automatically enabled.  However at creation
             // you can select to disable the button for this web browser instance.
-            thisWebBrowser.enableRefreshButton(thisWebBrowser, content.enableRefreshButton);
+            thisWebBrowser.enableRefreshButton(content.enableRefreshButton);
           }
 
           if (content.enableStatusBar !== undefined) {
