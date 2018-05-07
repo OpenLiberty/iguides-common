@@ -219,7 +219,7 @@ var webBrowser = (function(){
           // not support URL changes.
           thisWebBrowser.setURL(thisWebBrowser.webURL);
           thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
-          thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
+          thisWebBrowser.setBrowserStatusBar(thisWebBrowser.webStatusBar);
         }
       }
     });
