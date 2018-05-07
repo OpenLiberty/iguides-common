@@ -115,7 +115,7 @@ var webBrowser = (function(){
       } else {   // This webBrowser does not support URL changes.  Redisplay current HTML.
         this.setURL(this.webURL);
         this.setBrowserContent(this.webContent);
-        this.setStatusBar(this.webStatusBar);
+        this.setBrowserStatusBar(this.webStatusBar);
       }
     },
 
@@ -236,7 +236,7 @@ var webBrowser = (function(){
       refreshButton.on("click", function(event) {
         thisWebBrowser.setURL(thisWebBrowser.webURL);
         thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
-        thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
+        thisWebBrowser.setBrowserStatusBar(thisWebBrowser.webStatusBar);
       });
     }
   };
