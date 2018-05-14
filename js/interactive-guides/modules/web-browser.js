@@ -105,6 +105,18 @@ var webBrowser = (function(){
       }
     },
 
+    enableBrowserOverlay: function(overlayText) {
+      this.contentRootElement.addClass("wbOverlay");
+      if (overlayText !== undefined) {
+        this.contentRootElement.find(".wbOverlayText").append(overlayText);
+      }
+    },
+
+    disableBrowserOverlay: function() {
+      this.contentRootElement.removeClass('wbOverlay');
+      this.contentRootElement.find(".wbOverlayText").empty();
+    },
+
     enableStatusBar: function(enable) {
       __enableStatusBar(this, enable);
     },
