@@ -84,7 +84,9 @@ function retrieveExternalizedStrings(rootDir) {
     var languageCode = getLanguageCode();
 
     var nlsFile = "messages.js";
-    rootDir = rootDir.endsWith("/") ? rootDir : rootDir + "/";
+    var lastIndex = (rootDir.length - 1);
+    var lastStr = rootDir.substring(lastIndex);
+    rootDir = (lastStr === "/") ? rootDir : rootDir + "/";
     var url = (languageCode !== "en") ? rootDir + languageCode + "/" + nlsFile :  rootDir + nlsFile;
     
     //Retrieve translations
