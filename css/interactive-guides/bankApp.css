@@ -10,7 +10,7 @@
  *******************************************************************************/
  @import url("https://fonts.googleapis.com/css?family=Asap:300,400,500");
 
- body {
+body {
     font-family: Asap;
     margin: 0 1px;
     overflow: hidden;
@@ -28,6 +28,7 @@
     letter-spacing: 0;
     text-align: left;
     padding: 9px 0px 9px 18px;
+    border-bottom: 1px solid #95c4f3;
 }
 
 .stepIntro {
@@ -54,6 +55,30 @@
     height: 40px;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
+}
+
+#fail {
+    display: flex;  /** Initially the spinner is showing so hide this div **/
+    height: calc(100% - 85px);    /** 85px is height of check balance + global ebank headers **/
+}
+
+.flexWarningContainer {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    background:rgba(231,29,50,0.07);
+    justify-content: center;
+    margin: 24px 24px 0; 
+    flex-grow: 1;
+}
+
+.flexWarningContainer > div {
+    text-align: center;
+    line-height: 26px;
+    font-size: 16px;
+    align-self: center;
+    color: #272727;
+    letter-spacing: 0;
 }
 
 @-webkit-keyframes spin {

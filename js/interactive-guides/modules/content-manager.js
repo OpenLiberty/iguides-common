@@ -891,6 +891,7 @@ var contentManager = (function() {
         setEditor: setEditor,
         setTabbedEditor: setTabbedEditor,
         setWebBrowser: setWebBrowser,
+        setBrowserContent: setBrowserContent,
         setCommandPrompt: setCommandPrompt,
         setPod: setPod,
         setPlayground: setPlayground,

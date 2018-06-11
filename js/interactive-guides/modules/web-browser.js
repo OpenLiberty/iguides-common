@@ -105,6 +105,18 @@ var webBrowser = (function(){
       }
     },
 
+    enableBrowserOverlay: function(overlayText) {
+      this.contentRootElement.addClass("wbOverlay");
+      if (overlayText !== undefined) {
+        this.contentRootElement.find(".wbOverlayText").append(overlayText);
+      }
+    },
+
+    disableBrowserOverlay: function() {
+      this.contentRootElement.removeClass('wbOverlay');
+      this.contentRootElement.find(".wbOverlayText").empty();
+    },
+
     enableStatusBar: function(enable) {
       __enableStatusBar(this, enable);
     },
@@ -115,7 +127,7 @@ var webBrowser = (function(){
       } else {   // This webBrowser does not support URL changes.  Redisplay current HTML.
         this.setURL(this.webURL);
         this.setBrowserContent(this.webContent);
-        this.setStatusBar(this.webStatusBar);
+        this.setBrowserStatusBar(this.webStatusBar);
       }
     },
 
@@ -187,7 +199,7 @@ var webBrowser = (function(){
           if (content.enableRefreshButton != undefined) {
             // The Refresh button is automatically enabled.  However at creation
             // you can select to disable the button for this web browser instance.
-            thisWebBrowser.enableRefreshButton(thisWebBrowser, content.enableRefreshButton);
+            thisWebBrowser.enableRefreshButton(content.enableRefreshButton);
           }
 
           if (content.enableStatusBar !== undefined) {
@@ -219,7 +231,7 @@ var webBrowser = (function(){
           // not support URL changes.
           thisWebBrowser.setURL(thisWebBrowser.webURL);
           thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
-          thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
+          thisWebBrowser.setBrowserStatusBar(thisWebBrowser.webStatusBar);
         }
       }
     });
@@ -236,7 +248,7 @@ var webBrowser = (function(){
       refreshButton.on("click", function(event) {
         thisWebBrowser.setURL(thisWebBrowser.webURL);
         thisWebBrowser.setBrowserContent(thisWebBrowser.webContent);
-        thisWebBrowser.setStatusBar(thisWebBrowser.webStatusBar);
+        thisWebBrowser.setBrowserStatusBar(thisWebBrowser.webStatusBar);
       });
     }
   };
