@@ -46,7 +46,10 @@
 }
 
 .teContainer>.nav-tabs>li>a.active {
-    background-color: #eee;
+    /*background-color: #eee;*/
+    /*font-size: 14px;*/
+    line-height: 26px;
+    background-color: #f1f4fe;
 }
 
 .teTabContent {
