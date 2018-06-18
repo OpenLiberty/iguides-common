@@ -16,11 +16,12 @@
   font-size: 12px;
 }
 
-.editorContainer .CodeMirror-linenumber {
-  color: dimgray;
+.codeeditor {
+  height: 100%;
 }
 
-.editorFileName {
+.editorContainer .CodeMirror-linenumber {
+  color: dimgray;
 }
 
 .readonlyLines {
