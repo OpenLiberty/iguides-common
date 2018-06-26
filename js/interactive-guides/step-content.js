@@ -27,9 +27,7 @@ var stepContent = (function() {
      for the step is created from its title.  Hashes must be created for 
      sections as well as steps. It is created for every entry that appears
      in the Table of Contents (TOC). The hash may be used as the
-     URL fragment identifier to go directly to a step or section.  They
-     also enable the browser's previous and next buttons since each page
-     is now identified by a hash value.
+     URL fragment identifier to go directly to a step or section.
 
      2) Create a reference to parent step for each section so it can load 
      the parent step when selected from the Table of Contents or identified
@@ -93,46 +91,12 @@ var stepContent = (function() {
     return hashStepNames[hash] ? hashStepNames[hash] : "";
   }
 
-  /*
-    Hide the previously selected step content by looking for data-step attributes
-    with the data-step not equal to the current step name.
-
-    stepName - the step name value.   An empty string or 'undefined' will clear
-               all steps from the display.
-  */
-  var __hideContents = function(stepName) {
-    if (stepName) {
-      var stepsToBeHidden = $("[data-step][data-step!=" + stepName + "]");
-      stepsToBeHidden.addClass("hidden");  
-    } else {
-      // clear all contents
-      $("[data-step]").addClass("hidden");
-    }
-  };
-
-  /*
-     Decide if the guide time duration label needs to be shown.
-
-     stepName - the step name value
-  */
-    var __handleFirstStepContent = function(stepName) {
-      var isFirstStep = tableofcontents.getStepIndex(stepName) === 0;
-
-      // Only show the duration on the first step
-      if(isFirstStep) {
-        $(ID.toc_guide_title).hide();
-        $(ID.first_step_header).show();               
-      } else {
-        $(ID.toc_guide_title).show();
-        $(ID.first_step_header).hide();
-      }
-    };
-
   // Append the element's title to the content
   var __addTitle = function(element) {
     if(!element.title){
       return;
     }
+
     var newTitle;
     // If the element has a parent, it is a section and should have a h3 tag
     if(element.parent){
@@ -145,6 +109,26 @@ var stepContent = (function() {
     newTitle.attr('data-step', element.name);
     newTitle.html(element.title);
     $("#contentContainer").append(newTitle);
+  };
+
+  // Append the element's title to the content
+  var __addTitle2 = function(element, $stepContent) {
+      if(!element.title){
+        return;
+      }
+      var hashIdentifier = __createStepHashIdentifier(element.title);
+      var newTitle;
+      // If the element has a parent, it is a section and should have a h3 tag
+      if(element.parent){
+        newTitle = $("<h3 class='title' id='" + hashIdentifier + "'></h3>");
+      }
+      else{
+        newTitle = $("<h2 class='title' id='" + hashIdentifier + "'></h2>");
+      }    
+      newTitle.attr('aria-label', element.title);
+      newTitle.attr('data-step', element.name);
+      newTitle.html(element.title);
+      $stepContent.append(newTitle);
   };
 
   // Append the step description text
@@ -167,10 +151,28 @@ var stepContent = (function() {
     newDescription.attr('data-step', step.name);
     newDescription.html(description);
     $("#contentContainer").append(newDescription);
+  };
 
-    if (step.name === "RelateGuides") {
-      insertRelateGuidesContent();  
+  // Append the step description text
+  var __addDescription2 = function(step, $stepContent) {
+    if(!step.description){
+      return;
     }
+    var description = step.description;    
+    if ($.isArray(description)) {
+        $.each(description, function(i, desc) {
+            if (desc) {
+                if (!__containsHTMLTag(desc)) {
+                    description[i] = $('<p>').html(desc).prop('outerHTML'); //Use .text instead of .html for debugging
+                }
+            }
+        });
+        description = description.join("");
+    }
+    var newDescription = $("<div class='description' tabindex='0'></div>");
+    newDescription.attr('data-step', step.name);
+    newDescription.html(description);
+    $stepContent.append(newDescription);
   };
 
   //Used for the Description rendering (__addDescription) 
@@ -183,20 +185,6 @@ var stepContent = (function() {
             return true;
         }
     return false;
-  };
-
-  var insertRelateGuidesContent = function() {
-    // Kin's code put the relate guides content in the wrong place
-    // there's no way for him to know where to insert correctly
-    // and there's no way for us to get the content and insert where we can
-    // we copy the contents from Kin's and do a clone, remove the hidden and insert it to the right place
-    var relateGuides = $("#related-guides");
-    if (relateGuides.length > 0) {
-      var newRG = $("#related-guides").clone().removeClass("hidden")
-      var rGDiv = $("#relateGuidesContent");
-      rGDiv.append(newRG);
-      relateGuides.empty();
-    }
   };
 
   // Update the step instruction text
@@ -249,6 +237,57 @@ var stepContent = (function() {
       }
     }        
   };
+
+    // Update the step instruction text
+    var __updateInstructions2 = function(step, $stepContent) {
+      var stepName = step.name;
+  
+      var index = 0;
+      // Check if any instructions exist for this step
+      if(!contentManager.checkIfInstructionsForStep(stepName)){
+        return;
+      }
+      var lastLoadedInstruction = contentManager.getCurrentInstructionIndex(stepName);
+      // Reached the end of the instructions, so get the last index
+      if(lastLoadedInstruction === -1){
+        lastLoadedInstruction = contentManager.getInstructionsLastIndex(stepName);
+      }
+      do {
+        var instruction = contentManager.getInstructionAtIndex(index, stepName);
+        instruction = __parseInstructionForActionTag(instruction);
+        //console.log("new instruction ", instruction);
+        // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
+        if(instruction && instruction.indexOf("NOSHOW") !== 0){
+          // If the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content. 
+          var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
+          if(instr.length > 0){
+            instr.show();
+          }
+          else{
+            instr = __addInstructionTag(stepName, instruction, index);
+            // Check if there is already an instruction for this step, and to append it after that one
+            var stepInstructions = $(".instructionContent[data-step='" + stepName + "']");
+            if(stepInstructions.length > 0){
+              stepInstructions.last().after(instr);
+            }
+            else{
+              $stepContent.append(instr);
+            }          
+          }            
+          
+          contentManager.addCheckmarkToInstruction(stepName, index);        
+        }
+        index++;      
+      } while (index <= lastLoadedInstruction);
+  
+      // Load this step's sections instructions
+      if(step.sections){
+        for(var i = 0; i < step.sections.length; i++){
+          var section = step.sections[i];
+          __updateInstructions2(section, $stepContent);
+        }
+      }        
+    };  
 
   var __addInstructionTag = function (stepName, instruction, index) {
     if (instruction != null) { // Some steps don't have instructions
@@ -392,6 +431,118 @@ var stepContent = (function() {
     }
   };
 
+  var createGuideContents = function() {
+    var $stepContent, step;
+
+    for(var i = 0; i < _steps.length; i++) {
+      step = _steps[i];
+
+      $stepContent = $("<div class='sect1'></div>");
+      $("#contentContainer").append($stepContent);
+
+      __buildContent2(step, $stepContent);
+      if(step.sections){
+        for(var j = 0; j < step.sections.length; j++){
+          __buildContent2(step.sections[j], $stepContent);
+        }
+      }
+    }
+    resizeGuideSections();
+    createEndOfGuideContent();
+  };
+
+  var __buildContent2 = function(step, $stepContent) {
+    contentManager.setInstructions(step.name, step.instruction);
+
+    __addTitle2(step, $stepContent);
+    __addDescription2(step, $stepContent);
+    __updateInstructions2(step, $stepContent);    
+
+//     if (step.content) {
+//       var content = step.content;        
+//       var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
+//       var defaultBootstrapColSize = "col-sm-12";
+//       // two contents will be side by side. Otherwise, it will be stack on top of each other.
+//       if (step.content.length == 2) {
+//         defaultBootstrapColSize = "col-sm-6";
+//       }
+//       $.each(step.content, function(index, content) {
+//         if (content.displayType) {
+//           var contentBootstrapColSize = defaultBootstrapColSize;
+//           if (content.size === "100%") {
+//             contentBootstrapColSize = "col-sm-12";
+//           } else if (content.size === "75%") {
+//             contentBootstrapColSize = "col-sm-9";
+//           } else if (content.size === "50%") {
+//             contentBootstrapColSize = "col-sm-6";
+//           } else if (content.size === "40%") {
+//             contentBootstrapColSize = "col-sm-5";
+//           } else if (content.size === "10%") {
+//             contentBootstrapColSize = "col-sm-1";
+//           }
+
+//           // Create an id for the subContainer using the displayType, starting with 0 for each displayType
+//           if(displayTypeCounts[content.displayType] === undefined){
+//             displayTypeCounts[content.displayType] = 0;
+//           }
+//           else{
+//             displayTypeCounts[content.displayType]++;
+//           }
+//           // create a new div under the main contentContainer to load the content of each display type 
+//           var displayTypeNum = displayTypeCounts[content.displayType];
+//           var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
+//           // data-step attribute is used to look for content of an existing step in __hideContents
+//           // and __lookForExistingContents.
+//           var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv ' + contentBootstrapColSize + '"></div>';
+// //          var mainContainer = $('#contentContainer');
+//           //console.log(mainContainer);
+// //          mainContainer.append(subContainerDiv);
+//           $stepContent.append(subContainerDiv);
+//           var subContainer = $("#" + subContainerDivId);            
+
+//           //console.log("displayType: ", content.displayType);
+//           switch (content.displayType) {
+//             case 'fileEditor':
+//               editor.create(subContainer, step.name, content).done(function(newEditor){
+//                 contentManager.setEditor(step.name, newEditor, displayTypeNum);
+//               });                
+//               break;
+//             case 'tabbedEditor':
+//               // NOTE! tabbedEditors may not display well in less than 1/2 screen.
+//               content.bootstrapColSize = contentBootstrapColSize;  // The tabbedEditor needs to know
+//                                                                    // the width of its containr to
+//                                                                    // determine the size of its tabs.
+//               tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
+//                 contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
+//               });
+//               break; 
+//             case 'commandPrompt':
+//               cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
+//                 contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
+//               });                
+//               break;
+//             case 'webBrowser':
+//               webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
+//                 contentManager.setWebBrowser(step.name, newWebBrowser, displayTypeNum);
+//               });                
+//               break;
+//             case 'fileBrowser':
+//               fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
+//                 contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
+//               });                
+//               break;
+//             case 'pod':
+//               pod.create(subContainer, step.name, content).done(function(newPod){
+//                 contentManager.setPod(step.name, newPod, displayTypeNum);
+//               });                
+//               break;
+//           }
+//         }
+//       });
+//     }
+  };
+
+
   /*
     Before create content for the selected step,
     - hide the content of the previous selected step
@@ -413,8 +564,6 @@ var stepContent = (function() {
     }
     else{
       currentStepName = step.name;
-      __hideContents(step.name);      // Hide other steps that are not for this step
-      __handleFirstStepContent(step.name);
             
       if (!__lookForExistingContents(step)) {
         __buildContent(step);
@@ -431,9 +580,8 @@ var stepContent = (function() {
         tableofcontents.selectStep(step);       
       } 
  
-      // Highlight the next button if all of the instructions are complete or there are
-      // no instructions
-      contentManager.enableNextWhenAllInstructionsComplete(step);
+      // Do we need the following statement for anything?
+//      var complete = contentManager.determineIfAllInstructionsComplete(step);
     }
     
     __addMarginToLastInstruction();
@@ -588,11 +736,11 @@ var stepContent = (function() {
   return {
     setSteps: setSteps,
     createContentsFromName: createContentsFromName,
-    createContentsFromHash: createContentsFromHash,    
+    createContentsFromHash: createContentsFromHash,
+    createGuideContents: createGuideContents,    
     createContents: createContents,
     getCurrentStepName: getCurrentStepName,
     createInstructionBlock: createInstructionBlock,
-    handleFirstStepContent: __handleFirstStepContent,
     updateURLfromStepName: updateURLfromStepName,
     updateURLfromStepTitle: updateURLfromStepTitle
   };

@@ -36,17 +36,15 @@ var tableofcontents = (function() {
 
     /*
         Creates the table of contents for the BluePrint based on the JSON representation.
-        Input: 
-          title - string - guide display title
+        Input:
           steps - array - the steps of the BluePrint represented as JSON
     */
-    var __create = function(title, steps){
+    var __create = function(steps){
         __steps = steps;   // Save a local pointer to the steps array, managed by step-content.js
 
         var container = $("#toc_container .sectlevel1");
         container.attr("role", "application");
         container.attr("aria-label", "Table of contents");
-        $(ID.tableOfContentsTitle).after(container);
 
         // Loop through the steps and append each one to the table of contents.
         for(var i = 0; i < steps.length; i++){
@@ -158,10 +156,6 @@ var tableofcontents = (function() {
           // Enter key or space key
           if(event.which === 13 || event.which === 32){
             span.click();
-
-            if(__getStepIndex(element.name) === 0){
-              $(ID.first_step_header).attr("tabindex","0");
-            }
           }
         });
 
@@ -187,7 +181,6 @@ var tableofcontents = (function() {
         Select the step in the table of contents and scroll to its contents.  
     */
     var __selectStep = function(stepObj){  
-      stepContent.handleFirstStepContent(stepObj.parent ? stepObj.parent.name : stepObj.name); // Handle hiding/showing the first step's title   
       __highlightTableOfContents(stepObj.name);
       __scrollToContent(stepObj.name);
     
@@ -217,16 +210,6 @@ var tableofcontents = (function() {
           return this.css('visibility', 'hidden');
       };
 
-      if (stepIndex == 0) {
-        $(ID.prevButton).invisible();
-      } else {
-        $(ID.prevButton).visible();
-      }
-      if (stepIndex == last) {
-        $(ID.nextButton).invisible();
-      } else {
-        $(ID.nextButton).visible();
-      }
     };
 
     return {

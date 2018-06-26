@@ -750,7 +750,6 @@ var contentManager = (function() {
                 }
                 else{
                     stepInstruction.currentInstructionIndex = -1;
-                    colorNextButton(true);
                 }
             }
         }
@@ -838,24 +837,11 @@ var contentManager = (function() {
       return stepInstruction ? stepInstruction.instructions.length-1 : -1;
     };
 
-    var colorNextButton = function(isComplete){
-        // Mark next button green if all instructions are complete
-        var nextButton = $('#next_button');
-        if(nextButton && nextButton.length > 0){
-            if(isComplete){
-                nextButton.addClass('green');
-            }     
-            else{
-                nextButton.removeClass('green');
-            }
-        }
-    };
-
     /*
         Check if all of the instructions for a given step are complete.
         Input: {stepName} Step name
     */
-    var enableNextWhenAllInstructionsComplete = function(step) {
+    var determineIfAllInstructionsComplete = function(step) {
         var stepName = step.name;
         var isComplete = true;
         var stepInstruction = __getStepInstruction(stepName);
@@ -876,8 +862,7 @@ var contentManager = (function() {
                     }
                 }                
             }
-        }        
-        colorNextButton(isComplete);        
+        }               
         return isComplete;        
     };
 
@@ -947,7 +932,7 @@ var contentManager = (function() {
         getCurrentInstructionIndex: getCurrentInstructionIndex,
         getInstructionAtIndex: getInstructionAtIndex,
         getInstructionsLastIndex: getInstructionsLastIndex,
-        enableNextWhenAllInstructionsComplete: enableNextWhenAllInstructionsComplete,
+        determineIfAllInstructionsComplete: determineIfAllInstructionsComplete,
         updateWithNewInstructionNoMarkComplete: updateWithNewInstructionNoMarkComplete
     };
 })();
