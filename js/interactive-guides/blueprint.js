@@ -36,25 +36,25 @@ var blueprint = (function(){
             stepContent.createContentsFromHash(hashValue);
           };
       
-          calculateBackgroundContainer();    
+//          calculateBackgroundContainer();    
       
-          $(window).resize(function(){
-            calculateBackgroundContainer();
-          });
+          // $(window).resize(function(){
+          //   calculateBackgroundContainer();
+          // });
     });    
   };
 
-  calculateBackgroundContainer = function(){
-    // Calculate the bottom of the table of contents
-    var tocParent = $("#toc_container").parent();
-    var backgroundMargin = parseInt($("#background_container").css('margin-top')) + parseInt($("#background_container").css('margin-bottom'));
-    var backgroundPadding = parseInt($("#background_container").css('padding-top')) + parseInt($("#background_container").css('padding-bottom'));
-    var minHeight = tocParent.offset().top + tocParent.height() + backgroundMargin + backgroundPadding;
+  // calculateBackgroundContainer = function(){
+  //   // Calculate the bottom of the table of contents
+  //   var tocParent = $("#toc_container").parent();
+  //   var backgroundMargin = parseInt($("#background_container").css('margin-top')) + parseInt($("#background_container").css('margin-bottom'));
+  //   var backgroundPadding = parseInt($("#background_container").css('padding-top')) + parseInt($("#background_container").css('padding-bottom'));
+  //   var minHeight = tocParent.offset().top + tocParent.height() + backgroundMargin + backgroundPadding;
 
-    // Extend the background container's min-height to cover the table of contents
-    $("#background_container").css('min-height', minHeight);
-    $("#background_container").css('background-size', "100% calc(100% - 50px)");
-  };
+  //   // Extend the background container's min-height to cover the table of contents
+  //   $("#background_container").css('min-height', minHeight);
+  //   $("#background_container").css('background-size', "100% calc(100% - 50px)");
+  // };
  
   var __load = function() {
     var deferred = new $.Deferred();
