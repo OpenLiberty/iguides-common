@@ -10,50 +10,79 @@
  *******************************************************************************/
 
 .codeeditor .CodeMirror {
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  border-bottom: 1px solid black;
-  font-size: 12px;
+  border-left: 1px solid #acb3c6;
+  border-right: 1px solid #acb3c6;
+  border-bottom: 1px solid #acb3c6;
+  font-size: 13px;
+  color: #3f465a;
+  letter-spacing: 0;
+  line-height: 21px;
+  text-align: left;
+  background-color: #f1f4fe;
 }
 
 .codeeditor {
-  height: 100%;
+  height: 100%; 
+}
+
+.editorContainer .CodeMirror-gutters {
+  background-color: #f1f4fe;
 }
 
 .editorContainer .CodeMirror-linenumber {
-  color: dimgray;
+  color: #3f465a;
+}
+
+.CodeMirror-linenumber {
+  padding: 0 3px 0 0px !important;
+}
+
+.CodeMirror-gutter-wrapper {
+  left: -26px !important;
 }
 
 .readonlyLines {
-  color: dimgray !important;
+  color: #3f564a !important;
   /* cursor: not-allowed; */
 }
-
+ 
 .insertTextColor {
-  background-color: #CED5E4;
-  color: #4B597D;
+  color: #3f465a;
+  background-color: #c7ccd9;
+  padding: 5px 0px 5px 0px;
 }
+/*
+.insertTextLine {
+  border: 4px solid #96bc32;
+  width: -2px;
+}*/
 
 .editorButtonFrame {
-  background: #eee none repeat scroll 0 0;
+  background: #c7ccd9 none repeat scroll 0 0;
+  height: 34px;
+  /*
   border-left: 1px solid black;
   border-right: 1px solid black;
   border-top: 1px solid black;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;*/
   position: relative;
-  min-height: 30px;
+  /*min-height: 30px;*/
   overflow: hidden;
 }
 
 .editorButtonFrame .btn {
   display: block;
   float: left;
-  margin: 1px 0px 1px 8px;
+  margin: 1px 8px 1px 8px;
   padding: 2px;
   border: none;
+  line-height: 26px;
+  letter-spacing: 0;
+  text-align: left;
+  color: #1b1c34; 
   background-color: transparent;
 }
-
+/*
 .editorRunButton {
   display: block;
   float: right;
@@ -62,7 +91,7 @@
   border: none;
   background-color: transparent;
   width: 42px;
-}
+}*/
 
 .editorButtonFrame .btn:focus {
    outline: 2px solid blue;
