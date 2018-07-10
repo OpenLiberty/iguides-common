@@ -92,7 +92,7 @@ var stepContent = (function() {
   }
 
   // Append the element's title to the content
-  var __addTitle = function(element) {
+  var __addTitleOLD = function(element) {
     if(!element.title){
       return;
     }
@@ -112,7 +112,7 @@ var stepContent = (function() {
   };
 
   // Append the element's title to the content
-  var __addTitle2 = function(element, $stepContent) {
+  var __addTitle = function(element, $stepContent) {
       if(!element.title){
         return;
       }
@@ -132,7 +132,7 @@ var stepContent = (function() {
   };
 
   // Append the step description text
-  var __addDescription = function(step) {
+  var __addDescriptionOLD = function(step) {
     if(!step.description){
       return;
     }
@@ -154,7 +154,7 @@ var stepContent = (function() {
   };
 
   // Append the step description text
-  var __addDescription2 = function(step, $stepContent) {
+  var __addDescription = function(step, $stepContent) {
     if(!step.description){
       return;
     }
@@ -188,7 +188,7 @@ var stepContent = (function() {
   };
 
   // Update the step instruction text
-  var __updateInstructions = function(step) {
+  var __updateInstructionsOLD = function(step) {
     var stepName = step.name;
 
     var index = 0;
@@ -233,13 +233,13 @@ var stepContent = (function() {
     if(step.sections){
       for(var i = 0; i < step.sections.length; i++){
         var section = step.sections[i];
-        __updateInstructions(section);
+        __updateInstructionsOLD(section);
       }
     }        
   };
 
     // Update the step instruction text
-    var __updateInstructions2 = function(step, $stepContent) {
+    var __updateInstructions = function(step, $stepContent) {
       var stepName = step.name;
   
       var index = 0;
@@ -284,7 +284,7 @@ var stepContent = (function() {
       if(step.sections){
         for(var i = 0; i < step.sections.length; i++){
           var section = step.sections[i];
-          __updateInstructions2(section, $stepContent);
+          __updateInstructions(section, $stepContent);
         }
       }        
     };  
@@ -440,10 +440,10 @@ var stepContent = (function() {
       $stepContent = $("<div class='sect1'></div>");
       $("#contentContainer").append($stepContent);
 
-      __buildContent2(step, $stepContent);
+      __buildContent(step, $stepContent);
       if(step.sections){
         for(var j = 0; j < step.sections.length; j++){
-          __buildContent2(step.sections[j], $stepContent);
+          __buildContent(step.sections[j], $stepContent);
         }
       }
     }
@@ -451,12 +451,12 @@ var stepContent = (function() {
     createEndOfGuideContent();
   };
 
-  var __buildContent2 = function(step, $stepContent) {
+  var __buildContent = function(step, $stepContent) {
     contentManager.setInstructions(step.name, step.instruction);
 
-    __addTitle2(step, $stepContent);
-    __addDescription2(step, $stepContent);
-    __updateInstructions2(step, $stepContent);    
+    __addTitle(step, $stepContent);
+    __addDescription(step, $stepContent);
+    __updateInstructions(step, $stepContent);    
 
 //     if (step.content) {
 //       var content = step.content;        
@@ -566,10 +566,10 @@ var stepContent = (function() {
       currentStepName = step.name;
             
       if (!__lookForExistingContents(step)) {
-        __buildContent(step);
+        __buildContentOLD(step);
         if(step.sections){
           for(var i = 0; i < step.sections.length; i++){
-            __buildContent(step.sections[i]);
+            __buildContentOLD(step.sections[i]);
           }
         }
       }
@@ -587,12 +587,12 @@ var stepContent = (function() {
     __addMarginToLastInstruction();
   };
 
-  var __buildContent = function(step) {
+  var __buildContentOLD = function(step) {
     contentManager.setInstructions(step.name, step.instruction);
 
-    __addTitle(step);
-    __addDescription(step);
-    __updateInstructions(step);    
+    __addTitleOLD(step);
+    __addDescriptionOLD(step);
+    __updateInstructionsOLD(step);    
 
     if (step.content) {
       var content = step.content;        
