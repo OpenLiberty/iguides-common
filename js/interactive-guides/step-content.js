@@ -275,7 +275,7 @@ var stepContent = (function() {
             //}
           }
 
-          contentManager.addCheckmarkToInstruction(stepName, index);
+          //contentManager.addCheckmarkToInstruction(stepName, index);
         }
         index++;
       } while (index < step.instruction.length);
@@ -293,12 +293,16 @@ var stepContent = (function() {
     if (instruction != null) { // Some steps don't have instructions
       var instructionTag = $('<instruction>', {id: stepName + '-instruction-' + index, class: 'instruction', tabindex: 0});
       instructionTag.attr("data-step", stepName); // Set a data tag to identify the instruction block with this step
-      var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
+      if (index > 0) {
+        instructionTag.addClass("unavailable");
+      }
+      //var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
       var instructionContentDiv = $("<div class='instructionContent'></div>");
       instructionContentDiv.attr("data-step", stepName); // Set a data tag to identify the instruction  with this step
       instructionContentDiv.attr("data-instruction", index);
       instructionContentDiv.html(instruction);
-      instructionTag.append(instrCompleteMark).append(instructionContentDiv);
+      //instructionTag.append(instrCompleteMark).append(instructionContentDiv);
+      instructionTag.append(instructionContentDiv);
       return instructionTag;
     }
   };

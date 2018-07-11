@@ -59,11 +59,10 @@
 }
 
 .instruction {
-  font-family:Asap;
+  font-family: Asap;
   font-weight: 400;
   text-align: left;
   font-size: 14px;
-  width: 100%;
   border-left: 4px solid #96bc32;
 }
 
@@ -73,12 +72,8 @@ action.disabled {
 
 action {
   cursor: pointer;
-  font-size: 14px;
   /*font-family: "Fira Mono","DejaVu Sans Mono",Menlo,Consolas,"Liberation Mono",Monaco,"Lucida Console",monospace;*/
-  font-family: Asap;
-  font-weight: 400;
   letter-spacing:0;
-  text-align:left;
   color: #5e6b8d; /*#FFF;*/
   background: #f1f4fe; /*#555;*/
   border:1px solid #5e6b8d;
@@ -88,6 +83,11 @@ action {
   margin: 2px 4px;
   display: inline-block;
   white-space: pre-wrap;
+}
+
+action:hover {
+  background:#c7ccd9;
+  color:#1b1c34;
 }
 
 /*action:focus {
@@ -109,18 +109,22 @@ instruction {
   margin-bottom: 30px;
 }
 
-instruction.inactive {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
 instruction.completed {
-  opacity: 0.5;
+  opacity: 0.75;
   pointer-events: none;
-  border:4px solid #dee3f0;
+  border-left:4px solid #dee3f0;
 }
 
-instruction .instrCompleteMark {
+instruction.completed .instructionContent {
+    color: #5d6a8e;
+}
+
+instruction.completed .instructionContent  action {
+    color:#5e6b8d;
+    border: none;
+}
+
+/*instruction .instrCompleteMark {
   visibility: hidden;
   padding: 5px;
 }
@@ -128,7 +132,7 @@ instruction .instrCompleteMark {
 instruction.completed .instrCompleteMark {
   visibility: visible;
   padding: 5px;
-}
+}*/
 
 instruction.unavailable {
   opacity: 0.5;
@@ -140,8 +144,7 @@ instruction.unavailable {
 }
 
 .instructionContent {
-  /*padding-left: 5px;*/
-  margin-left: -10px;
+  padding-left: 10px;
   color:#1b1c34;
   letter-spacing:0;
   line-height:24px;
