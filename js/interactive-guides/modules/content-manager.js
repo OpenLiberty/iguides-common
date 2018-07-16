@@ -39,7 +39,7 @@ var contentManager = (function() {
     /** Generic method to add modules to their respective step
      * @param {String} stepName - stepName where module is located
      * @param {Module Object} module - the module object
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor',
      *                              'commandPrompt', 'pod', or 'tabbedEditor'
      * @param {Integer} index - Index in which the module should be stored to preserve order with async loading of modules
      */
@@ -99,8 +99,8 @@ var contentManager = (function() {
                 moduleList.splice(index, 0, module); // Insert module at specificed index in the array, to maintain order due to asynchronous loading
             } else{
                 moduleList.push(module);
-            }            
-        } 
+            }
+        }
     };
 
 // ==== GET FUNCTIONS ====
@@ -445,7 +445,7 @@ var contentManager = (function() {
 
     /** Set readonly lines in a specified FileEditor instance
      * @param {String} stepName - name of step where FileEditor is located
-     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as, 
+     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as,
      * readonly, example to mark lines 1 thru 4 and lines 8 thru 12 readonly:
      *      [ {from: 1, to: 4} {from: 8, to: 12} ]
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
@@ -496,7 +496,7 @@ var contentManager = (function() {
 
     /**
      * Get the active Tab fileName in the Tabbed Editor.
-     * 
+     *
      * @returns {String} fileName of active Tab || undefined.
      */
     var getActiveTabFileName = function(stepName, instanceNumber) {
@@ -535,11 +535,11 @@ var contentManager = (function() {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
                 return teditor.getEditorContent();
-            }           
+            }
         }
     };
 
-    /** Set (replace) the content in a specified FileEditor instance within a 
+    /** Set (replace) the content in a specified FileEditor instance within a
      *  TabbedEditor
      * @param {String} stepName - name of step where FileEditor is located
      * @param {String} fileName - file name of editor within TabbedEditor
@@ -552,8 +552,8 @@ var contentManager = (function() {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
                 teditor.setEditorContent(content);
-            }           
-        }        
+            }
+        }
     };
 
     /** Reset the content in a specified FileEditor instance within a TabbedEditor
@@ -567,8 +567,8 @@ var contentManager = (function() {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
                 teditor.resetEditorContent();
-            }           
-        }        
+            }
+        }
     };
 
     /** Insert content before a certain line in a specified FileEditor instance
@@ -647,7 +647,7 @@ var contentManager = (function() {
     /** Set readonly lines in a specified FileEditor instance within a TabbedEditor
      * @param {String} stepName - name of step where FileEditor is located
      * @param {String} fileName - file name of editor within TabbedEditor
-     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as, 
+     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as,
      * readonly, example to mark lines 1 thru 4 and lines 8 thru 12 readonly:
      *      [ {from: 1, to: 4} {from: 8, to: 12} ]
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
@@ -673,7 +673,7 @@ var contentManager = (function() {
         }
     };
 
-    
+
 // ==== Instruction Functions ====
     /** Store the instructions for the given step
      * @param {String} stepName
@@ -722,8 +722,9 @@ var contentManager = (function() {
         return (stepInstruction && stepInstruction.instructions.length > 0);
     }
 
+    /* TODO: updateWithNewInstructionNoMarkComplete and updateWithNewInstruction should be removed or modified for the conversion to multipane */
     var updateWithNewInstructionNoMarkComplete = function(stepName) {
-        stepContent.createInstructionBlock(stepName);        
+        stepContent.createInstructionBlock(stepName);
     }
 
     var updateWithNewInstruction = function(stepName) {
@@ -731,16 +732,17 @@ var contentManager = (function() {
         stepContent.createInstructionBlock(stepName);
     };
 
+    /* TODO: Needs to be updated for conversion to multipane design since checkMark is no longer used in instruction and all instructions load at the same time */
     var markCurrentInstructionComplete = function(stepName){
         var stepInstruction = __getStepInstruction(stepName);
         var currentInstructionIndex = stepInstruction.currentInstructionIndex;
         var instruction = stepInstruction.instructions[currentInstructionIndex];
-        
+
         if(instruction){
             var instructionID = stepName + '-instruction-' + currentInstructionIndex;
             if($("#"+instructionID).length > 0){
                 $("html, body").animate({ scrollTop: $("#"+instructionID).offset().top }, 750);
-            }            
+            }
 
             if(instruction.complete === false){
                 instruction.complete = true;
@@ -783,10 +785,10 @@ var contentManager = (function() {
         var stepInstruction = __getStepInstruction(stepName);
         // var currentInstructionIndex = stepInstruction.currentInstructionIndex;
         var instruction = stepInstruction.instructions[instructionIndex];
-        
+
         if(instruction && instruction.complete) {
-            var instructionID = stepName + '-instruction-' + instructionIndex;        
-            $("#"+instructionID).addClass("completed");    
+            var instructionID = stepName + '-instruction-' + instructionIndex;
+            $("#"+instructionID).addClass("completed");
         }
     };
 
@@ -850,7 +852,7 @@ var contentManager = (function() {
             if(lastLoadedInstruction !== -1){
                 isComplete = false;
             }
-        }       
+        }
         // Check if there are sections to this step and if they are complete
         if(isComplete && step.sections){
             for(var i = 0; i < step.sections.length; i++){
@@ -860,10 +862,10 @@ var contentManager = (function() {
                     if(lastLoadedInstruction !== -1){
                         isComplete = false;
                     }
-                }                
+                }
             }
-        }               
-        return isComplete;        
+        }
+        return isComplete;
     };
 
     var resetInstruction = function(stepName) {

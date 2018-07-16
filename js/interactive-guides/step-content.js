@@ -186,108 +186,30 @@ var stepContent = (function() {
         }
     return false;
   };
-
   // Update the step instruction text
-  var __updateInstructionsOLD = function(step) {
+  var __updateInstructions = function(step, $stepContent) {
     var stepName = step.name;
 
-    var index = 0;
     // Check if any instructions exist for this step
     if(!contentManager.checkIfInstructionsForStep(stepName)){
       return;
     }
-    var lastLoadedInstruction = contentManager.getCurrentInstructionIndex(stepName);
-    // Reached the end of the instructions, so get the last index
-    if(lastLoadedInstruction === -1){
-      lastLoadedInstruction = contentManager.getInstructionsLastIndex(stepName);
-    }
-    do {
+
+    for (var index = 0; index < step.instruction.length; index ++ ) {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
       instruction = __parseInstructionForActionTag(instruction);
       //console.log("new instruction ", instruction);
       // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
-      if(instruction && instruction.indexOf("NOSHOW") !== 0){
-        // If the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content.
+      if(instruction){
+        // Append the instruction to the bottom of the current content.
         var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
-        if(instr.length > 0){
-          instr.show();
-        }
-        else{
           instr = __addInstructionTag(stepName, instruction, index);
-          // Check if there is already an instruction for this step, and to append it after that one
-          var stepInstructions = $(".instructionContent[data-step='" + stepName + "']");
-          if(stepInstructions.length > 0){
-            stepInstructions.last().after(instr);
-          }
-          else{
-            $("#contentContainer").append(instr);
-          }
-        }
+          $stepContent.append(instr);
 
-        contentManager.addCheckmarkToInstruction(stepName, index);
-      }
-      index++;
-    } while (index <= lastLoadedInstruction);
-
-    // Load this step's sections instructions
-    if(step.sections){
-      for(var i = 0; i < step.sections.length; i++){
-        var section = step.sections[i];
-        __updateInstructionsOLD(section);
       }
     }
+
   };
-
-    // Update the step instruction text
-    var __updateInstructions = function(step, $stepContent) {
-      var stepName = step.name;
-
-      var index = 0;
-      // Check if any instructions exist for this step
-      if(!contentManager.checkIfInstructionsForStep(stepName)){
-        return;
-      }
-      // var lastLoadedInstruction = contentManager.getCurrentInstructionIndex(stepName);
-      // // Reached the end of the instructions, so get the last index
-      // if(lastLoadedInstruction === -1){
-      //   lastLoadedInstruction = contentManager.getInstructionsLastIndex(stepName);
-      // }
-      do {
-        var instruction = contentManager.getInstructionAtIndex(index, stepName);
-        instruction = __parseInstructionForActionTag(instruction);
-        //console.log("new instruction ", instruction);
-        // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
-        if(instruction && instruction.indexOf("NOSHOW") !== 0){
-          // If the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content.
-          var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
-          if(instr.length > 0){
-            instr.show();
-          }
-          else{
-            instr = __addInstructionTag(stepName, instruction, index);
-            // Check if there is already an instruction for this step, and to append it after that one
-            // var stepInstructions = $("#instructionContent[data-step='" + stepName + "']");
-            // if(stepInstructions.length > 0){
-            //   stepInstructions.last().after(instr);
-            // }
-            // else{
-              $stepContent.append(instr);
-            //}
-          }
-
-          //contentManager.addCheckmarkToInstruction(stepName, index);
-        }
-        index++;
-      } while (index < step.instruction.length);
-
-      // Load this step's sections instructions
-      if(step.sections){
-        for(var i = 0; i < step.sections.length; i++){
-          var section = step.sections[i];
-          __updateInstructions(section, $stepContent);
-        }
-      }
-    };
 
   var __addInstructionTag = function (stepName, instruction, index) {
     if (instruction != null) { // Some steps don't have instructions
@@ -326,7 +248,6 @@ var stepContent = (function() {
       else{
         $("#contentContainer").append(currentInstruction);
       }
-      __addMarginToLastInstruction();
 
     }
   };
@@ -355,12 +276,6 @@ var stepContent = (function() {
       }
     }
     return instruction;
-  };
-
-  var __addMarginToLastInstruction = function(){
-    // Add padding to the last instruction to not overlap the step's content
-    $('.lastInstruction').removeClass('lastInstruction');
-    $(".instruction:visible:last").addClass('lastInstruction');
   };
 
   /*
@@ -587,8 +502,6 @@ var stepContent = (function() {
       // Do we need the following statement for anything?
 //      var complete = contentManager.determineIfAllInstructionsComplete(step);
     }
-
-    __addMarginToLastInstruction();
   };
 
   var __buildContentOLD = function(step) {
