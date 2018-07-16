@@ -17,15 +17,12 @@ var blueprint = (function(){
           tableofcontents.create(steps);
           stepContent.createGuideContents();
       
-          // if (window.location.hash === "") {
-          //   // No step specified in the URL, so display the first page.
-          //   stepContent.createContents(steps[0], false);
-          // } else {    
-          //   // The URL fragment indentifier (first hash (#) after the URL) indicates
-          //   // the user requested a specific page within the guide.  Go to it.
-          //   var hashValue = window.location.hash.substring(1);  // get rid of '#'
-          //   stepContent.createContentsFromHash(hashValue);
-          // }
+          if (window.location.hash !== "") {   
+            // The URL fragment indentifier (first hash (#) after the URL) indicates
+            // the user requested a specific page within the guide.  Go to it.
+            var hashValue = window.location.hash.substring(1);  // get rid of '#'
+            stepContent.accessContentsFromHash(hashValue);
+          }
 
           // Monitor for hash changes to show the requested page.
           // Hash changes occur when the URL is updated with a new hash
@@ -33,7 +30,7 @@ var blueprint = (function(){
           // page is selected from the table of contents
           window.onhashchange = function() {
             var hashValue = window.location.hash.substring(1);  // get rid of '#'
-            stepContent.createContentsFromHash(hashValue);
+            stepContent.accessContentsFromHash(hashValue);
           };
       
 //          calculateBackgroundContainer();    
