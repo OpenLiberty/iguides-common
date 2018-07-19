@@ -13,7 +13,7 @@
 }
 
 .wbNavBar {
-    background-color: steelblue;
+    background-color: #5e6b8d;
     height: 50px;
     width: 100%;
     color: lightsteelblue;
@@ -52,8 +52,14 @@
 
 .wbNavURL {
     padding: 2px;
-    width: 75%;
-    color: darkslategrey;
+    width: calc( 100% - 66px );
+    color: #24243b;
+    opacity: 0.8;
+    background: #ffffff;
+}
+
+.wbNavURL:focus {
+    opacity: 1;
 }
 
 .wbContent {
