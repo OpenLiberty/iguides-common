@@ -722,17 +722,7 @@ var contentManager = (function() {
         return (stepInstruction && stepInstruction.instructions.length > 0);
     }
 
-    /* TODO: updateWithNewInstructionNoMarkComplete and updateWithNewInstruction should be removed or modified for the conversion to multipane */
-    var updateWithNewInstructionNoMarkComplete = function(stepName) {
-        stepContent.createInstructionBlock(stepName);
-    }
-
-    var updateWithNewInstruction = function(stepName) {
-        contentManager.markCurrentInstructionComplete(stepName);
-        stepContent.createInstructionBlock(stepName);
-    };
-
-    /* TODO: Needs to be updated for conversion to multipane design since checkMark is no longer used in instruction and all instructions load at the same time */
+    /* Made changes to implement the new multipane design, but can't test until widgets are working*/
     var markCurrentInstructionComplete = function(stepName){
         var stepInstruction = __getStepInstruction(stepName);
         var currentInstructionIndex = stepInstruction.currentInstructionIndex;
@@ -740,13 +730,10 @@ var contentManager = (function() {
 
         if(instruction){
             var instructionID = stepName + '-instruction-' + currentInstructionIndex;
-            if($("#"+instructionID).length > 0){
-                $("html, body").animate({ scrollTop: $("#"+instructionID).offset().top }, 750);
-            }
 
             if(instruction.complete === false){
                 instruction.complete = true;
-                addCheckmarkToInstruction(stepName, currentInstructionIndex);
+                $("#"+instructionID).addClass("completed");
                 if(stepInstruction.currentInstructionIndex < stepInstruction.instructions.length-1){
                     stepInstruction.currentInstructionIndex++;
                 }
@@ -769,26 +756,6 @@ var contentManager = (function() {
             tabbedEditors.forEach(function(tabbedEditor){
                 tabbedEditor.resize();
             });
-        }
-    };
-
-    var markInstructionDisable = function() {
-        // Mark the completed instruction's actions disabled
-        var instructions = $("instruction.completed:visible");
-        var actions = instructions.find('action');
-        actions.prop('tabindex', '-1');
-        actions.off('click');
-        actions.off('keypress');
-    }
-
-    var addCheckmarkToInstruction = function(stepName, instructionIndex) {
-        var stepInstruction = __getStepInstruction(stepName);
-        // var currentInstructionIndex = stepInstruction.currentInstructionIndex;
-        var instruction = stepInstruction.instructions[instructionIndex];
-
-        if(instruction && instruction.complete) {
-            var instructionID = stepName + '-instruction-' + instructionIndex;
-            $("#"+instructionID).addClass("completed");
         }
     };
 
@@ -926,15 +893,12 @@ var contentManager = (function() {
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,
-        updateWithNewInstruction: updateWithNewInstruction,
         markCurrentInstructionComplete: markCurrentInstructionComplete,
-        addCheckmarkToInstruction: addCheckmarkToInstruction,
         isInstructionComplete: isInstructionComplete,
         getCurrentInstruction: getCurrentInstruction,
         getCurrentInstructionIndex: getCurrentInstructionIndex,
         getInstructionAtIndex: getInstructionAtIndex,
         getInstructionsLastIndex: getInstructionsLastIndex,
-        determineIfAllInstructionsComplete: determineIfAllInstructionsComplete,
-        updateWithNewInstructionNoMarkComplete: updateWithNewInstructionNoMarkComplete
+        determineIfAllInstructionsComplete: determineIfAllInstructionsComplete
     };
 })();

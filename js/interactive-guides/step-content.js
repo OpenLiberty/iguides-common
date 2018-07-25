@@ -229,29 +229,6 @@ var stepContent = (function() {
     }
   };
 
-  var createInstructionBlock = function(stepName){
-    var currentInstruction = contentManager.getCurrentInstruction(stepName);
-    var instructionNumber = contentManager.getCurrentInstructionIndex(stepName);
-    if(currentInstruction){
-      currentInstruction = __parseInstructionForActionTag(currentInstruction);
-      //console.log("new currentInstruction ", currentInstruction);
-      currentInstruction = __addInstructionTag(stepName, currentInstruction, instructionNumber);
-      // Check if there is already an instruction for this step, and to append it after that one
-      var stepInstructions = $(".instruction[data-step='" + stepName + "']");
-      if(stepInstructions.length > 0){
-        // If the other step's instructions are hidden then this instruction should be hidden because the user switched steps before the instruction was created.
-        if($(".instruction[data-step='" + stepName + "']:visible").length === 0){
-          currentInstruction.addClass('hidden');
-        }
-        stepInstructions.last().after(currentInstruction);
-      }
-      else{
-        $("#contentContainer").append(currentInstruction);
-      }
-
-    }
-  };
-
   var __parseInstructionForActionTag = function(instruction) {
     //console.log("instruction: ", instruction);
     if (instruction) {
@@ -657,7 +634,6 @@ var stepContent = (function() {
     createGuideContents: createGuideContents,
     createContents: createContents,
     getCurrentStepName: getCurrentStepName,
-    createInstructionBlock: createInstructionBlock,
     updateURLfromStepName: updateURLfromStepName,
     updateURLfromStepTitle: updateURLfromStepTitle
   };

@@ -79,6 +79,7 @@ action {
   margin: 2px 4px;
   display: inline-block;
   white-space: pre-wrap;
+  max-width: calc(100% - 15px);
 }
 
 action:hover {
@@ -137,13 +138,13 @@ samp {
 }
 
 note {
-  /*color: #c7254e;*/
-  background-color: #CED5E4; /*#f9f2f4;*/
+  background-color: rgba(150,188,50,0.3);
   border-radius: 4px;
   line-height: 1.8;
   font-size: 15px;
   display: block;
   padding: 4px;
+  margin-top: 25px;
 }
 
 .invisible {
