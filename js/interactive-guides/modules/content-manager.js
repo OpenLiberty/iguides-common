@@ -736,6 +736,7 @@ var contentManager = (function() {
                 $("#"+instructionID).addClass("completed");
                 if(stepInstruction.currentInstructionIndex < stepInstruction.instructions.length-1){
                     stepInstruction.currentInstructionIndex++;
+                    enableNextInstruction(stepName);
                 }
                 else{
                     stepInstruction.currentInstructionIndex = -1;
@@ -757,6 +758,22 @@ var contentManager = (function() {
                 tabbedEditor.resize();
             });
         }
+    };
+
+    // May need to change for cases where you have to wait a set time before activating
+    var enableNextInstruction = function(stepName){
+      var stepInstruction = contentManager.getCurrentInstruction(stepName);
+      var nextInstructionIndex = contentManager.getCurrentInstructionIndex(stepName); //this is the instruction that needs to be activated
+
+      if(nextInstruction) {
+        var instruction = stepInstruction.instructions[nextInstructionIndex];
+        var instructionID = stepName + '-instruction-' + nextInstructionIndex;
+
+        if(instruction.complete === false) {
+          $("#"+instructionID).removeClass("unavailable");
+        }
+
+      }
     };
 
     var isInstructionComplete = function(stepName, index) {
