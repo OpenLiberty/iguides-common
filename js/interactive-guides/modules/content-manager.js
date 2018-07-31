@@ -762,11 +762,11 @@ var contentManager = (function() {
 
     // May need to change for cases where you have to wait a set time before activating
     var enableNextInstruction = function(stepName){
-      var stepInstruction = contentManager.getCurrentInstruction(stepName);
-      var nextInstructionIndex = contentManager.getCurrentInstructionIndex(stepName); //this is the instruction that needs to be activated
+      var stepInstruction = __getStepInstruction(stepName);
+      var nextInstructionIndex = stepInstruction.currentInstructionIndex; //this is the instruction that needs to be activated
+      var instruction = stepInstruction.instructions[nextInstructionIndex];
 
-      if(nextInstruction) {
-        var instruction = stepInstruction.instructions[nextInstructionIndex];
+      if(instruction) {
         var instructionID = stepName + '-instruction-' + nextInstructionIndex;
 
         if(instruction.complete === false) {
