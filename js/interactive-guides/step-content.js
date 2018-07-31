@@ -81,8 +81,12 @@ var stepContent = (function() {
     return currentStepName;
   };
 
-  /*
-    Return the step or section name value associated with the hash value.
+  var setCurrentStepName = function(stepName) {
+    currentStepName = stepName;
+  }
+
+  /* 
+    Return the step or section name value associated with the hash value.  
     If the hash is not recognized, return an empty string.
 
     hash - string - hash value for a step.  Created in __createStepHashIdentifier().
@@ -358,34 +362,34 @@ var stepContent = (function() {
   };
 
   /*
-    Searches for a step content from a given step name.  Invokes
-    accessContents() to show the step contents.
+    Displays the step associated with a given step name.  If no step is 
+    associated with the stepName, the first page is shown.  
   */
   var accessContentsFromName = function(stepName){
     if (stepName) {
-      for(var i = 0; i < _steps.length; i++){
-        var step = _steps[i];
-        var stepToLoad = __findStepFromName(step, stepName);
-        if(stepToLoad){
-          accessContents(stepToLoad);
-          return;
-        }
+      var hashValue = __createStepHashIdentifier(stepName);
+      var requestedStepName = __getStepNameFromHash(hashValue);
+      if (requestedStepName) {
+        __accessContents(hashValue, requestedStepName);
+      } else {
+        __defaultToFirstPage();
       }
+    } else {
+      // Default to the first page of the guide.  Set the URL appropriately.
+      __defaultToFirstPage();
     }
-    // If we haven't returned yet, then the stepName is not valid for this guide
-    // or was blank.
-    // Default to the first page of the guide.  Set the URL appropriately.
-    __defaultToFirstPage();
   };
 
   /*
     Displays the step associated with the inputted hash value.
     If no step is associated with the hashValue, the first page is shown.
   */
-  var accessContentsFromHash = function(hashValue) {
+  var accessContentsFromHash = function() {
+    var hashValue = window.location.hash.substring(1);  // get rid of '#'
+    // Validate the hash value
     var requestedStepName = __getStepNameFromHash(hashValue);
     if (requestedStepName) {
-      accessContentsFromName(requestedStepName);
+      __accessContents(hashValue, requestedStepName);
     } else {
       // If the hash did not point to an existing step, default
       // to show the first step of the guide but don't have it selected
@@ -394,18 +398,35 @@ var stepContent = (function() {
     }
   };
 
-  var accessContents = function(stepObject) {
-    // Check if this is a section of a step.  A section appears underneath a
-    // step.  It has its own TOC entry, but it does not have its own sticky
-    // header.  A section is identified by having a parent attribute in their
-    // JSON.
-    if (!stepObject.parent) {
-      shiftWindow();  // Move the window up to account for the sticky header.
+  var __accessContents = function(hashValue, stepName) {
+    handleFloatingTableOfContent();    // Common method with static guides
+    updateTOCHighlighting(hashValue);  // Common method with static guides
+
+//    __scrollToContent(hashValue, requestedStepName);
+    __updateURLwithStepHash(hashValue);
+    shiftWindow();
+    
+    currentStepName = stepName;
+  };
+
+  /* 
+    Given a step's hash value, scroll to its contents, and put the focus on
+    the first part of its description.
+    Input: stepHash: String - hash value for the step (ID not name)
+  */
+   var __scrollToContent = function(stepHash, stepName){    
+    var focusSection = $(".title[id='" + stepHash +"']");
+    var headerAdjust = $('.container-fluid').height() | 0;
+  
+    // If the section is found scroll to it
+    if(focusSection.length > 0){
+      $("html, body").animate({ scrollTop: focusSection.offset().top - headerAdjust}, 400);
+      focusSection.siblings('.description[data-step="' + stepName + '"]').focus();
     }
-
-    currentStepName = stepObject.name;
-
-    tableofcontents.selectStep(stepObject);
+    // Otherwise, scroll to the top of the guide
+    else {
+      __defaultToFirstPage();
+    }   
   };
 
   var updateURLfromStepName = function(stepName) {
@@ -446,9 +467,12 @@ var stepContent = (function() {
   return {
     setSteps: setSteps,
     createGuideContents: createGuideContents,
-    accessContents: accessContents,
+    createStepHashIdentifier: __createStepHashIdentifier,    
     accessContentsFromHash: accessContentsFromHash,
+    accessContentsFromName: accessContentsFromName,
     getCurrentStepName: getCurrentStepName,
+    setCurrentStepName: setCurrentStepName,
+    getStepNameFromHash: __getStepNameFromHash,
     updateURLfromStepName: updateURLfromStepName,
     updateURLfromStepTitle: updateURLfromStepTitle
   };
