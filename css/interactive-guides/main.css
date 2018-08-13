@@ -8,14 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-#toc_guide_title {
-  padding-top: 30px;
-}
-
-#first_step_header:focus {
-  outline:none;
-}
-
 #guide_content pre.CodeMirror-line {
   border-radius: unset;
   border: unset;
@@ -57,9 +49,8 @@
 
 .description {
   text-align: left;
-  font-size: 16px;
   width: 100%;
-  margin-bottom: 15px;
+  padding-top: 19px;
 }
 
 .description:focus {
@@ -68,71 +59,8 @@
 
 .instruction {
   text-align: left;
-  font-size: 16px;
-  width: 100%;
-}
-
-.navButton {
-  width: 150px;
-  color: #8791AA;
-  background-color: transparent;
-  border: solid 2px #8791AA;
-  border-radius: 100px;
-  transition: all .2s;
-  visibility: hidden;
-}
-.navButton:hover,
-.navButton:focus {
-  color: white;
-  background-color: #8791AA;
-  border-color: #8791AA;
-}
-
-#prev_button {
-  text-align: right;
-  padding-right: 20px;
-  background-image: url(/guides/iguides-common/img/interactive-guides/guides_btnarrow_previous.svg);
-  background-repeat: no-repeat;
-  background-position: left 15px center;
-}
-#prev_button:hover,
-#prev_button:focus {
-  background-image: url(/guides/iguides-common/img/interactive-guides/guides_btnarrow_previous_hover.svg);
-  outline: none;
-}
-
-#next_button {
-  float: right;
-  text-align: left;
-  padding-left: 20px;
-  background-image: url(/guides/iguides-common/img/interactive-guides/guides_btnarrow_next.svg);
-  background-repeat: no-repeat;
-  background-position: right 15px center;
-}
-#next_button:hover,
-#next_button:focus {
-  background-image: url(/guides/iguides-common/img/interactive-guides/guides_btnarrow_next_hover.svg);  
-  outline: none; 
-}
-
-#next_button.green {
-  background-image: url(/guides/iguides-common/img/interactive-guides/guides_btnarrow_next_greenbtn.svg);
-  background-color: #ABD155;
-  border: 2px solid #A9D155;
-  color: #282A4A;
-}
-
-#next_button.green:hover, 
-#next_button.green:focus,
-#next_button.green:active {
-  background-color: #C7EE63;
-  border: 2px solid #C7EE63;
-}
-
-@media (max-width: 767px) {
-  .navButton {
-    width: 130px;
-  }
+  font-size: 14px;
+  border-left: 4px solid #96bc32;
 }
 
 action.disabled {
@@ -141,49 +69,48 @@ action.disabled {
 
 action {
   cursor: pointer;
-  font-size: 14px;
-  font-family: "Fira Mono","DejaVu Sans Mono",Menlo,Consolas,"Liberation Mono",Monaco,"Lucida Console",monospace;
-  color: #FFF;
-  background: #555;
-  border-radius: 4px;
-  padding: 2px 5px;
+  letter-spacing:0;
+  color: #5e6b8d;
+  background: #f1f4fe;
+  border:1px solid #5e6b8d;
+  border-radius:12px;
+  padding: 9px 12px;
   margin: 2px 4px;
   display: inline-block;
   white-space: pre-wrap;
+  max-width: calc(100% - 15px);
+}
+
+action:hover {
+  background:#c7ccd9;
+  color:#1b1c34;
 }
 
 action:focus {
-  outline: none;
-  box-shadow: 0 0 3pt 2pt orange;
+  background:#c7ccd9;
+  color:#1b1c34;
 }
 
 instruction {
-  background-color: rgba(150, 188, 50, 0.3);
-  padding: 10px;
-  border-radius: 2px;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 25px;
   display: inline-flex;
   align-items: center;
 }
 
-.lastInstruction {
-  margin-bottom: 30px;
-}
-
 instruction.completed {
-  opacity: 0.5;
+  opacity: 0.75;
   pointer-events: none;
+  border-left:4px solid #dee3f0;
 }
 
-instruction .instrCompleteMark {
-  visibility: hidden;
-  padding: 5px;
+instruction.completed .instructionContent {
+    color: #5d6a8e;
 }
 
-instruction.completed .instrCompleteMark {
-  visibility: visible;
-  padding: 5px;
+instruction.completed .instructionContent  action {
+    color:#5e6b8d;
+    border: none;
 }
 
 instruction.unavailable {
@@ -196,7 +123,11 @@ instruction.unavailable {
 }
 
 .instructionContent {
-  padding-left: 5px;
+  padding-left: 11px;
+  color:#1b1c34;
+  letter-spacing:0;
+  line-height:24px;
+  text-align:left;
 }
 
 samp {
@@ -206,13 +137,13 @@ samp {
 }
 
 note {
-  /*color: #c7254e;*/
-  background-color: #CED5E4; /*#f9f2f4;*/
+  background-color: rgba(150,188,50,0.3);
   border-radius: 4px;
   line-height: 1.8;
   font-size: 15px;
   display: block;
   padding: 4px;
+  margin-top: 25px;
 }
 
 .invisible {
