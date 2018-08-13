@@ -263,88 +263,88 @@ var stepContent = (function() {
     __addDescription(step, $stepContent);
     __updateInstructions(step, $stepContent);
 
-//     if (step.content) {
-//       var content = step.content;
-//       var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
-//       var defaultBootstrapColSize = "col-sm-12";
-//       // two contents will be side by side. Otherwise, it will be stack on top of each other.
-//       if (step.content.length == 2) {
-//         defaultBootstrapColSize = "col-sm-6";
-//       }
-//       $.each(step.content, function(index, content) {
-//         if (content.displayType) {
-//           var contentBootstrapColSize = defaultBootstrapColSize;
-//           if (content.size === "100%") {
-//             contentBootstrapColSize = "col-sm-12";
-//           } else if (content.size === "75%") {
-//             contentBootstrapColSize = "col-sm-9";
-//           } else if (content.size === "50%") {
-//             contentBootstrapColSize = "col-sm-6";
-//           } else if (content.size === "40%") {
-//             contentBootstrapColSize = "col-sm-5";
-//           } else if (content.size === "10%") {
-//             contentBootstrapColSize = "col-sm-1";
-//           }
+    if (step.content) {
+      var content = step.content;
+      var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
+      var defaultBootstrapColSize = "col-sm-12";
+      // two contents will be side by side. Otherwise, it will be stack on top of each other.
+      if (step.content.length == 2) {
+        defaultBootstrapColSize = "col-sm-6";
+      }
+      $.each(step.content, function(index, content) {
+        if (content.displayType) {
+          var contentBootstrapColSize = defaultBootstrapColSize;
+          if (content.size === "100%") {
+            contentBootstrapColSize = "col-sm-12";
+          } else if (content.size === "75%") {
+            contentBootstrapColSize = "col-sm-9";
+          } else if (content.size === "50%") {
+            contentBootstrapColSize = "col-sm-6";
+          } else if (content.size === "40%") {
+            contentBootstrapColSize = "col-sm-5";
+          } else if (content.size === "10%") {
+            contentBootstrapColSize = "col-sm-1";
+          }
 
-//           // Create an id for the subContainer using the displayType, starting with 0 for each displayType
-//           if(displayTypeCounts[content.displayType] === undefined){
-//             displayTypeCounts[content.displayType] = 0;
-//           }
-//           else{
-//             displayTypeCounts[content.displayType]++;
-//           }
-//           // create a new div under the main contentContainer to load the content of each display type
-//           var displayTypeNum = displayTypeCounts[content.displayType];
-//           var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
-//           // data-step attribute is used to look for content of an existing step in __hideContents
-//           // and __lookForExistingContents.
-//           var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv ' + contentBootstrapColSize + '"></div>';
-// //          var mainContainer = $('#contentContainer');
-//           //console.log(mainContainer);
-// //          mainContainer.append(subContainerDiv);
-//           $stepContent.append(subContainerDiv);
-//           var subContainer = $("#" + subContainerDivId);
+          // Create an id for the subContainer using the displayType, starting with 0 for each displayType
+          if(displayTypeCounts[content.displayType] === undefined){
+            displayTypeCounts[content.displayType] = 0;
+          }
+          else{
+            displayTypeCounts[content.displayType]++;
+          }
+          // create a new div under the main contentContainer to load the content of each display type
+          var displayTypeNum = displayTypeCounts[content.displayType];
+          var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
+          // data-step attribute is used to look for content of an existing step in __hideContents
+          // and __lookForExistingContents.
+          var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv ' + contentBootstrapColSize + '"></div>';
+//          var mainContainer = $('#contentContainer');
+          //console.log(mainContainer);
+//          mainContainer.append(subContainerDiv);
+          $stepContent.append(subContainerDiv);
+          var subContainer = $("#" + subContainerDivId);
 
-//           //console.log("displayType: ", content.displayType);
-//           switch (content.displayType) {
-//             case 'fileEditor':
-//               editor.create(subContainer, step.name, content).done(function(newEditor){
-//                 contentManager.setEditor(step.name, newEditor, displayTypeNum);
-//               });
-//               break;
-//             case 'tabbedEditor':
-//               // NOTE! tabbedEditors may not display well in less than 1/2 screen.
-//               content.bootstrapColSize = contentBootstrapColSize;  // The tabbedEditor needs to know
-//                                                                    // the width of its containr to
-//                                                                    // determine the size of its tabs.
-//               tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
-//                 contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
-//               });
-//               break;
-//             case 'commandPrompt':
-//               cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
-//                 contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
-//               });
-//               break;
-//             case 'webBrowser':
-//               webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
-//                 contentManager.setWebBrowser(step.name, newWebBrowser, displayTypeNum);
-//               });
-//               break;
-//             case 'fileBrowser':
-//               fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
-//                 contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
-//               });
-//               break;
-//             case 'pod':
-//               pod.create(subContainer, step.name, content).done(function(newPod){
-//                 contentManager.setPod(step.name, newPod, displayTypeNum);
-//               });
-//               break;
-//           }
-//         }
-//       });
-//     }
+          //console.log("displayType: ", content.displayType);
+          switch (content.displayType) {
+            case 'fileEditor':
+              editor.create(subContainer, step.name, content).done(function(newEditor){
+                contentManager.setEditor(step.name, newEditor, displayTypeNum);
+              });
+              break;
+            case 'tabbedEditor':
+              // NOTE! tabbedEditors may not display well in less than 1/2 screen.
+              content.bootstrapColSize = contentBootstrapColSize;  // The tabbedEditor needs to know
+                                                                   // the width of its containr to
+                                                                   // determine the size of its tabs.
+              tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
+                contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
+              });
+              break;
+            case 'commandPrompt':
+              cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
+                contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
+              });
+              break;
+            case 'webBrowser':
+              webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
+                contentManager.setWebBrowser(step.name, newWebBrowser, displayTypeNum);
+              });
+              break;
+            case 'fileBrowser':
+              fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
+                contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
+              });
+              break;
+            case 'pod':
+              pod.create(subContainer, step.name, content).done(function(newPod){
+                contentManager.setPod(step.name, newPod, displayTypeNum);
+              });
+              break;
+          }
+        }
+      });
+    }
   };
 
   return {
