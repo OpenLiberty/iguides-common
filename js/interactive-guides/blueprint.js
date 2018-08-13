@@ -26,7 +26,7 @@ var blueprint = (function(){
             event.preventDefault();
 
             var hash = location.hash.substring(1);
-            stepContent.setCurrentStepName(hash);
+            stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash));
           });
 
           if (window.location.hash !== "") {   
@@ -36,6 +36,7 @@ var blueprint = (function(){
             // the user requested a specific page within the guide.  Go to it.
             var hash = location.hash;
             accessContentsFromHash(hash);
+            stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
           }
     });    
   };

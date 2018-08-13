@@ -89,7 +89,8 @@ var stepContent = (function() {
     Return the step or section name value associated with the hash value.  
     If the hash is not recognized, return an empty string.
 
-    hash - string - hash value for a step.  Created in __createStepHashIdentifier().
+    hash - string - hash value for a step.  Created in __createStepHashIdentifier(),
+                    so it should NOT be preceeded with '#'.
   */
   var getStepNameFromHash = function(hash) {
     return hashStepNames[hash] ? hashStepNames[hash] : "";
