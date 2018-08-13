@@ -81,13 +81,18 @@ var stepContent = (function() {
     return currentStepName;
   };
 
-  /*
-    Return the step or section name value associated with the hash value.
+  var setCurrentStepName = function(stepName) {
+    currentStepName = stepName;   
+  }
+
+  /* 
+    Return the step or section name value associated with the hash value.  
     If the hash is not recognized, return an empty string.
 
-    hash - string - hash value for a step.  Created in __createStepHashIdentifier().
+    hash - string - hash value for a step.  Created in __createStepHashIdentifier(),
+                    so it should NOT be preceeded with '#'.
   */
-  var __getStepNameFromHash = function(hash) {
+  var getStepNameFromHash = function(hash) {
     return hashStepNames[hash] ? hashStepNames[hash] : "";
   };
 
@@ -144,6 +149,7 @@ var stepContent = (function() {
         }
     return false;
   };
+
   // Update the step instruction text
   var __updateInstructions = function(step, $stepContent) {
     var stepName = step.name;
@@ -157,16 +163,13 @@ var stepContent = (function() {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
       instruction = __parseInstructionForActionTag(instruction);
       //console.log("new instruction ", instruction);
-      // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
       if(instruction){
         // Append the instruction to the bottom of the current content.
         var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
-          instr = __addInstructionTag(stepName, instruction, index);
-          $stepContent.append(instr);
-
+        instr = __addInstructionTag(stepName, instruction, index);
+        $stepContent.append(instr);
       }
     }
-
   };
 
   var __addInstructionTag = function (stepName, instruction, index) {
@@ -344,112 +347,12 @@ var stepContent = (function() {
 //     }
   };
 
-  /*
-    Shows the first page of the guide, but not selected.  Therefore, the
-    Guide Header is seen.
-
-    This situation occurs when we first enter the guide or when a unknown
-    hash is provided in the URL.
-  */
-  var __defaultToFirstPage = function() {
-    window.location.hash = "";
-    currentStepName = "";
-    $('.selectedStep').removeClass('selectedStep');
-  };
-
-  /*
-    Searches for a step content from a given step name.  Invokes
-    accessContents() to show the step contents.
-  */
-  var accessContentsFromName = function(stepName){
-    if (stepName) {
-      for(var i = 0; i < _steps.length; i++){
-        var step = _steps[i];
-        var stepToLoad = __findStepFromName(step, stepName);
-        if(stepToLoad){
-          accessContents(stepToLoad);
-          return;
-        }
-      }
-    }
-    // If we haven't returned yet, then the stepName is not valid for this guide
-    // or was blank.
-    // Default to the first page of the guide.  Set the URL appropriately.
-    __defaultToFirstPage();
-  };
-
-  /*
-    Displays the step associated with the inputted hash value.
-    If no step is associated with the hashValue, the first page is shown.
-  */
-  var accessContentsFromHash = function(hashValue) {
-    var requestedStepName = __getStepNameFromHash(hashValue);
-    if (requestedStepName) {
-      accessContentsFromName(requestedStepName);
-    } else {
-      // If the hash did not point to an existing step, default
-      // to show the first step of the guide but don't have it selected
-      // since it was not specified.
-      __defaultToFirstPage();
-    }
-  };
-
-  var accessContents = function(stepObject) {
-    // Check if this is a section of a step.  A section appears underneath a
-    // step.  It has its own TOC entry, but it does not have its own sticky
-    // header.  A section is identified by having a parent attribute in their
-    // JSON.
-    if (!stepObject.parent) {
-      shiftWindow();  // Move the window up to account for the sticky header.
-    }
-
-    currentStepName = stepObject.name;
-
-    tableofcontents.selectStep(stepObject);
-  };
-
-  var updateURLfromStepName = function(stepName) {
-    var hashName = "";
-    $.each(hashStepNames, function(key, value){
-      if (value === stepName) {
-        hashName = key;
-        return false;
-      }
-    });
-
-    __updateURLwithStepHash(hashName);
-  };
-
-  var updateURLfromStepTitle = function(stepTitle) {
-    var hashName = __createStepHashIdentifier(stepTitle);
-
-    if (!hashStepNames[hashName]) {
-      hashName = "";
-    }
-
-    __updateURLwithStepHash(hashName);
-  };
-
-  var __updateURLwithStepHash = function(hashName) {
-    var URL = location.href;
-    if (URL.indexOf('#') != -1) {
-      URL = URL.substring(0, URL.indexOf('#'));
-    }
-
-    if (hashName) {
-      URL += '#' + hashName;
-    }
-
-    location.href = URL;
-  };
-
   return {
     setSteps: setSteps,
-    createGuideContents: createGuideContents,
-    accessContents: accessContents,
-    accessContentsFromHash: accessContentsFromHash,
+    createStepHashIdentifier: __createStepHashIdentifier,
     getCurrentStepName: getCurrentStepName,
-    updateURLfromStepName: updateURLfromStepName,
-    updateURLfromStepTitle: updateURLfromStepTitle
+    setCurrentStepName: setCurrentStepName,
+    getStepNameFromHash: getStepNameFromHash,
+    createGuideContents: createGuideContents
   };
 })();

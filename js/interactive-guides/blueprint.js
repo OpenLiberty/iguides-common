@@ -17,41 +17,29 @@ var blueprint = (function(){
           tableofcontents.create(steps);
           stepContent.createGuideContents();
       
-          if (window.location.hash !== "") {   
-            // The URL fragment indentifier (first hash (#) after the URL) indicates
-            // the user requested a specific page within the guide.  Go to it.
-            var hashValue = window.location.hash.substring(1);  // get rid of '#'
-            stepContent.accessContentsFromHash(hashValue);
-          }
-
           // Monitor for hash changes to show the requested page.
           // Hash changes occur when the URL is updated with a new hash
           // value (as in someone bookmarked one of the pages) or when a new
-          // page is selected from the table of contents
-          window.onhashchange = function() {
-            var hashValue = window.location.hash.substring(1);  // get rid of '#'
-            stepContent.accessContentsFromHash(hashValue);
-          };
-      
-//          calculateBackgroundContainer();    
-      
-          // $(window).resize(function(){
-          //   calculateBackgroundContainer();
-          // });
+          // page is selected from the table of contents.
+          // HashChange event processing also occurs in content\common-multipane.js.
+          window.addEventListener("hashchange", function(){
+            event.preventDefault();
+
+            var hash = location.hash.substring(1);
+            stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash));
+          });
+
+          if (window.location.hash !== "") {   
+            handleFloatingTableOfContent();
+            
+            // The URL fragment indentifier (first hash (#) after the URL) indicates
+            // the user requested a specific page within the guide.  Go to it.
+            var hash = location.hash;
+            accessContentsFromHash(hash);
+            stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
+          }
     });    
   };
-
-  // calculateBackgroundContainer = function(){
-  //   // Calculate the bottom of the table of contents
-  //   var tocParent = $("#toc_container").parent();
-  //   var backgroundMargin = parseInt($("#background_container").css('margin-top')) + parseInt($("#background_container").css('margin-bottom'));
-  //   var backgroundPadding = parseInt($("#background_container").css('padding-top')) + parseInt($("#background_container").css('padding-bottom'));
-  //   var minHeight = tocParent.offset().top + tocParent.height() + backgroundMargin + backgroundPadding;
-
-  //   // Extend the background container's min-height to cover the table of contents
-  //   $("#background_container").css('min-height', minHeight);
-  //   $("#background_container").css('background-size', "100% calc(100% - 50px)");
-  // };
  
   var __load = function() {
     var deferred = new $.Deferred();
