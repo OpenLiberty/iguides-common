@@ -52,23 +52,17 @@ var tableofcontents = (function() {
           __buildStep(container, step);
         }
 
-        // Set click processing for TOC.   These onclick handlers should match the
-        // actions in ...content\assests\js\toc-multipane.js.  It is duplicated 
+        // Set click processing for TOC entries. This onclick handler should match
+        // the actions in ...content\assests\js\toc-multipane.js.  It is duplicated
         // here because the interactive guide TOC list items are created AFTER
         // the main document loads.
         $("#toc_container li").on('click', function(event) {
-          // 'this' is the li element.  Its first child is the anchor tag.
-          var hash = $(this).find('a').prop('hash').substring(1);  // Get rid of the '#' of the hash
+          // 'this' is the li element in the #toc_container.
+          TOCentryClick(this, event);
 
-          // Update the URL hash with where we wish to go....
-          window.location.hash = hash; // NOTE: hashchange handling invokes 
-                                       //       updateTOCHighlighting(id) and
-                                       //       handleFloatingTableOfContent();
-          if(inSingleColumnView()){
-              $("#mobile_close_container").trigger('click');
-          }
-        });
-  
+          var hash = window.location.hash.substring(1);  // Remove the '#'
+          stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash));
+        }); 
     };
 
     /*
@@ -128,11 +122,9 @@ var tableofcontents = (function() {
         }
       }
 
-      // Used for previous/next button functionality.
-      // NOTE: sections aren't added to this array since they don't have their own
-      //       previous and next buttons.
+      // NOTE: Sections aren't added to this array since they are part of 
+      //       a parent page.
       orderedStepNamesArray.push(step.name);
-
     };
 
     /*

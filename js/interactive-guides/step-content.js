@@ -82,7 +82,7 @@ var stepContent = (function() {
   };
 
   var setCurrentStepName = function(stepName) {
-    currentStepName = stepName;
+    currentStepName = stepName;   
   }
 
   /* 
@@ -91,7 +91,7 @@ var stepContent = (function() {
 
     hash - string - hash value for a step.  Created in __createStepHashIdentifier().
   */
-  var __getStepNameFromHash = function(hash) {
+  var getStepNameFromHash = function(hash) {
     return hashStepNames[hash] ? hashStepNames[hash] : "";
   };
 
@@ -148,6 +148,7 @@ var stepContent = (function() {
         }
     return false;
   };
+
   // Update the step instruction text
   var __updateInstructions = function(step, $stepContent) {
     var stepName = step.name;
@@ -161,16 +162,13 @@ var stepContent = (function() {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
       instruction = __parseInstructionForActionTag(instruction);
       //console.log("new instruction ", instruction);
-      // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
       if(instruction){
         // Append the instruction to the bottom of the current content.
         var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
-          instr = __addInstructionTag(stepName, instruction, index);
-          $stepContent.append(instr);
-
+        instr = __addInstructionTag(stepName, instruction, index);
+        $stepContent.append(instr);
       }
     }
-
   };
 
   var __addInstructionTag = function (stepName, instruction, index) {
@@ -348,132 +346,12 @@ var stepContent = (function() {
 //     }
   };
 
-  /*
-    Shows the first page of the guide, but not selected.  Therefore, the
-    Guide Header is seen.
-
-    This situation occurs when we first enter the guide or when a unknown
-    hash is provided in the URL.
-  */
-  var __defaultToFirstPage = function() {
-    window.location.hash = "";
-    currentStepName = "";
-    $('.selectedStep').removeClass('selectedStep');
-  };
-
-  /*
-    Displays the step associated with a given step name.  If no step is 
-    associated with the stepName, the first page is shown.  
-  */
-  var accessContentsFromName = function(stepName){
-    if (stepName) {
-      var hashValue = __createStepHashIdentifier(stepName);
-      var requestedStepName = __getStepNameFromHash(hashValue);
-      if (requestedStepName) {
-        __accessContents(hashValue, requestedStepName);
-      } else {
-        __defaultToFirstPage();
-      }
-    } else {
-      // Default to the first page of the guide.  Set the URL appropriately.
-      __defaultToFirstPage();
-    }
-  };
-
-  /*
-    Displays the step associated with the inputted hash value.
-    If no step is associated with the hashValue, the first page is shown.
-  */
-  var accessContentsFromHash = function() {
-    var hashValue = window.location.hash.substring(1);  // get rid of '#'
-    // Validate the hash value
-    var requestedStepName = __getStepNameFromHash(hashValue);
-    if (requestedStepName) {
-      __accessContents(hashValue, requestedStepName);
-    } else {
-      // If the hash did not point to an existing step, default
-      // to show the first step of the guide but don't have it selected
-      // since it was not specified.
-      __defaultToFirstPage();
-    }
-  };
-
-  var __accessContents = function(hashValue, stepName) {
-    handleFloatingTableOfContent();    // Common method with static guides
-    updateTOCHighlighting(hashValue);  // Common method with static guides
-
-//    __scrollToContent(hashValue, requestedStepName);
-    __updateURLwithStepHash(hashValue);
-    shiftWindow();
-    
-    currentStepName = stepName;
-  };
-
-  /* 
-    Given a step's hash value, scroll to its contents, and put the focus on
-    the first part of its description.
-    Input: stepHash: String - hash value for the step (ID not name)
-  */
-   var __scrollToContent = function(stepHash, stepName){    
-    var focusSection = $(".title[id='" + stepHash +"']");
-    var headerAdjust = $('.container-fluid').height() | 0;
-  
-    // If the section is found scroll to it
-    if(focusSection.length > 0){
-      $("html, body").animate({ scrollTop: focusSection.offset().top - headerAdjust}, 400);
-      focusSection.siblings('.description[data-step="' + stepName + '"]').focus();
-    }
-    // Otherwise, scroll to the top of the guide
-    else {
-      __defaultToFirstPage();
-    }   
-  };
-
-  var updateURLfromStepName = function(stepName) {
-    var hashName = "";
-    $.each(hashStepNames, function(key, value){
-      if (value === stepName) {
-        hashName = key;
-        return false;
-      }
-    });
-
-    __updateURLwithStepHash(hashName);
-  };
-
-  var updateURLfromStepTitle = function(stepTitle) {
-    var hashName = __createStepHashIdentifier(stepTitle);
-
-    if (!hashStepNames[hashName]) {
-      hashName = "";
-    }
-
-    __updateURLwithStepHash(hashName);
-  };
-
-  var __updateURLwithStepHash = function(hashName) {
-    var URL = location.href;
-    if (URL.indexOf('#') != -1) {
-      URL = URL.substring(0, URL.indexOf('#'));
-    }
-
-    if (hashName) {
-      URL += '#' + hashName;
-    }
-
-    location.href = URL;
-  };
-
   return {
     setSteps: setSteps,
-    createGuideContents: createGuideContents,
-    createStepHashIdentifier: __createStepHashIdentifier,    
-    accessContentsFromHash: accessContentsFromHash,
-    accessContentsFromName: accessContentsFromName,
+    createStepHashIdentifier: __createStepHashIdentifier,
     getCurrentStepName: getCurrentStepName,
     setCurrentStepName: setCurrentStepName,
-    getStepNameFromHash: __getStepNameFromHash,
-    updateURLfromStepName: updateURLfromStepName,
-    updateURLfromStepTitle: updateURLfromStepTitle
+    getStepNameFromHash: getStepNameFromHash,
+    createGuideContents: createGuideContents
   };
 })();

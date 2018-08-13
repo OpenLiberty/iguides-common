@@ -23,14 +23,19 @@ var blueprint = (function(){
           // page is selected from the table of contents.
           // HashChange event processing also occurs in content\common-multipane.js.
           window.addEventListener("hashchange", function(){
-            var id = location.hash.substring(1);
-            stepContent.setCurrentStepName(id);
+            event.preventDefault();
+
+            var hash = location.hash.substring(1);
+            stepContent.setCurrentStepName(hash);
           });
 
           if (window.location.hash !== "") {   
+            handleFloatingTableOfContent();
+            
             // The URL fragment indentifier (first hash (#) after the URL) indicates
             // the user requested a specific page within the guide.  Go to it.
-            stepContent.accessContentsFromHash();
+            var hash = location.hash;
+            accessContentsFromHash(hash);
           }
     });    
   };
