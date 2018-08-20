@@ -46,6 +46,14 @@ var editor = (function() {
             }
             this.editor.replaceRange(content, {line: lineNumber-2});
             this.editor.markText({line: lineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
+            if (numberOfLines !== undefined) {
+                var i;
+                for (i = 0; i < numberOfLines; i++) {
+                    this.editor.addLineClass((lineNumber + i) - 1, 'gutter', 'insertBorderLine');
+                } 
+            } else {
+                this.editor.addLineClass(lineNumber - 1, 'gutter', 'insertBorderLine');   
+            }      
         },
         // append content after the specified line number
         appendContent: function(lineNumber, content, numberOfLines) {
@@ -58,6 +66,15 @@ var editor = (function() {
             }
             this.editor.replaceRange(content, {line: lineNumber-1});
             this.editor.markText({line: lineNumber-1}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
+            
+            if (numberOfLines !== undefined) {
+                var i;
+                for (i = 0; i < numberOfLines; i++) {
+                    this.editor.addLineClass((lineNumber + i), 'gutter', 'insertBorderLine');
+                } 
+            } else {
+                this.editor.addLineClass(lineNumber, 'gutter', 'insertBorderLine');   
+            }      
         },
         // replace content from and to the specified line number
         replaceContent: function(fromLineNumber, toLineNumber, content, numberOfLines) {
@@ -70,6 +87,14 @@ var editor = (function() {
                 markTextToLineNumber = fromLineNumber - 2 + numberOfLines;
             }
             this.editor.markText({line: fromLineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
+            
+            if (numberOfLines === undefined) {
+                numberOfLines = (toLineNumber - fromLineNumber) + 1;
+            }
+            var i;
+            for (i = 0; i < numberOfLines; i++) {
+                this.editor.addLineClass((fromLineNumber + i) - 1, 'gutter', 'insertBorderLine');
+            } 
         },
         addSaveListener: function(callback) {
             //console.log("saveListener callback", callback);
@@ -181,11 +206,18 @@ var editor = (function() {
     var __createEditor = function(thisEditor, id, container, stepName, content) {
         var isReadOnly = false;
         var markText = [];
+        var markTextWritable = [];
         if (content.readonly === true || content.readonly === "true") {
             isReadOnly = true;
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
         }
+        
+        if (content.writable) {
+            markTextWritable = __adjustWritableLines(content.writable);
+            //console.log("markTextWritable: ", markTextWritable);
+        }
+        
         thisEditor.editor = CodeMirror(document.getElementById(id), {
             lineNumbers: true,
             autoRefresh: true,
@@ -239,7 +271,9 @@ var editor = (function() {
             thisEditor.createReadonlyAlert();
         } else {
             thisEditor.markText = markText;
-            __markTextForReadOnly(thisEditor, thisEditor.markText);
+            thisEditor.markTextWritable = markTextWritable;
+            __markTextForWritable(thisEditor, thisEditor.markTextWritable);
+            __markTextForReadOnly(thisEditor, thisEditor.markText);           
             __addSaveOnClickListener(thisEditor, saveButton);
             __addResetOnClickListener(thisEditor, resetButton);
             __addCopyOnClickListener(thisEditor, copyButton);
@@ -277,11 +311,36 @@ var editor = (function() {
         return markText;
     }
 
+    var __adjustWritableLines = function(writableLinesArray) {
+        var markText = [];
+        $.each(writableLinesArray, function(index, writableLines) {
+            var writableLine;
+
+            if ($.isNumeric(writableLines.line)) {
+                writableLine = parseInt(writableLines.line) - 1;
+            } else {
+                //console.log("invalid from line", writableLines.from);
+            }
+            
+            if (writableLine !== undefined) {
+                markText.push({line: writableLine});
+            }
+        });
+        return markText;
+    }
+    
+    var __markTextForWritable = function(thisEditor, markTextWritable) {
+        $.each(markTextWritable, function(index, writableLine) {
+            //console.log("writableLine ", writableLine.line);
+            thisEditor.editor.addLineClass(writableLine.line, 'gutter', 'insertBorderLine');
+        });
+    }; 
+
     var __markTextForReadOnly = function(thisEditor, markText) {
          $.each(markText, function(index, readOnlyFromAndTo) {
              thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});
          });
-     };
+    };
 
     var __markEditorReadOnly = function(thisEditor) {
         thisEditor.markText = [];
