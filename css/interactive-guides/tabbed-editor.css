@@ -53,6 +53,11 @@
 .teContainer>.nav-tabs>li>a.active {
     line-height: 26px;
     background-color: #f1f4fe;
+    color: #3f465a !important;
+}
+
+.teContainer>.nav-tabs>li>a:hover {
+    color: #5E6B8D !important;
 }
 
 .teTabContent {
