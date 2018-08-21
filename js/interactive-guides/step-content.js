@@ -243,6 +243,9 @@ var stepContent = (function() {
       step = _steps[i];
 
       $stepContent = $("<div class='sect1' id='" + step.name + "_content'></div>");
+      if (i == 0) {
+        $stepContent.addClass('active');
+      }
       $("#contentContainer").append($stepContent);
 
       __buildContent(step, $stepContent);
