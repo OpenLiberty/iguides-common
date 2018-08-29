@@ -58,7 +58,7 @@ var tableofcontents = (function() {
         // the main document loads.
         $("#toc_container li").on('click', function(event) {
           // 'this' is the li element in the #toc_container.
-          TOCentryClick(this, event);
+          TOCEntryClick(this, event);
 
           var hash = window.location.hash.substring(1);  // Remove the '#'
           stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash));
@@ -81,8 +81,9 @@ var tableofcontents = (function() {
 
         var listItem = $("<li class='tableOfContentsStep'></li>");
         listItem.attr('data-toc', dataToc);
-        // Indent based on depth
-        listItem.css('margin-left', depth * 30 + 'px');
+        // Indent based on depth. Level1 TOC elements have a padding of 19px.
+        //                        Each sublevel is indented 30px more.
+        listItem.css('padding-left', ((depth * 30) + 19) + 'px');
       
         // Create an anchor <a> tag for the TOC entry.
         var stepHash = stepContent.createStepHashIdentifier(title);
