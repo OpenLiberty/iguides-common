@@ -38,6 +38,17 @@ var blueprint = (function(){
             accessContentsFromHash(hash);
             stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
           }
+
+          $(window).on('scroll', function(event) {
+            // Check if a scroll animation from another piece of code is taking
+            // place and prevent normal behavior.
+            // NOTE: 'scrolling' flag is set in common-multipane.js accessContentsFromHash()
+            //       to indicate when scrolling to a selected section is in progress.
+            if($("body").data('scrolling') === true) {
+                return;
+            }
+            handleSectionSnapping(event);
+          });
     });    
   };
  
@@ -82,7 +93,34 @@ var blueprint = (function(){
         }
       });
     }
-  }
+  };
+
+  var handleSectionSnapping = function(event) {
+    // Multipane view
+    if(window.innerWidth > twoColumnBreakpoint) {
+      var id = getScrolledVisibleSectionID();
+      if (id !== null) {
+        var windowHash = window.location.hash;
+        var scrolledToHash = id === "" ? id : '#' + id;
+        if (windowHash !== scrolledToHash) {
+          // Update the URL hash with new section we scrolled into....
+          var currentPath = window.location.pathname;
+          var newPath = currentPath.substring(currentPath.lastIndexOf('/')+1) + scrolledToHash;
+          // Not setting window.location.hash here because that causes an
+          // onHashChange event to fire which will scroll to the top of the
+          // section.  pushState updates the URL without causing an
+          // onHashChange event.
+          history.pushState(null, null, newPath);
+
+          // Update the selected TOC entry
+          updateTOCHighlighting(id);
+
+          // Match the code block on the right to the new id
+          stepContent.showStepWidgets(id);
+        }
+      }
+    }
+  };
 
   return {
     create: create
