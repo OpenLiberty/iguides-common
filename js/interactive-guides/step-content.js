@@ -247,8 +247,11 @@ var stepContent = (function() {
 
       __buildContent(step, $stepContent);
       if(step.sections){
+        var $sectionContent;
         for(var j = 0; j < step.sections.length; j++){
-          __buildContent(step.sections[j], $stepContent);
+          $sectionContent = $("<div class='sect2' id'" + step.name + "_content'></div>");
+          $stepContent.append($sectionContent);
+          __buildContent(step.sections[j], $sectionContent);
         }
       }
     }
@@ -340,12 +343,18 @@ var stepContent = (function() {
     }
   };
 
+  // Update widgets displayed on right-hand side of multipane layout for the specified id.
+  var showStepWidgets = function(id) {
+    console.log("show widgets for step " + id);
+  };
+
   return {
     setSteps: setSteps,
     createStepHashIdentifier: __createStepHashIdentifier,
     getCurrentStepName: getCurrentStepName,
     setCurrentStepName: setCurrentStepName,
     getStepNameFromHash: getStepNameFromHash,
-    createGuideContents: createGuideContents
+    createGuideContents: createGuideContents,
+    showStepWidgets: showStepWidgets
   };
 })();
