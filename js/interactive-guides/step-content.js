@@ -16,9 +16,12 @@ var stepContent = (function() {
   var hashStepNames = {};   // Maps step's hash to its name.  This contains
                             // more entries than the _steps array because it also
                             // contains elements for sections which appear in the TOC.
+  var _defaultWidgets;
 
-  var setSteps = function(steps) {
+  var setSteps = function(steps, defaultWidgets) {
     _steps = steps;
+    _defaultWidgets = defaultWidgets;
+    console.log("defaultWidgets ", _defaultWidgets);
     __createLinks();
   };
 
@@ -259,6 +262,50 @@ var stepContent = (function() {
     createEndOfGuideContent();
   };
 
+  // empty editor object
+  var editorObject = {
+    "displayType":"fileEditor",
+    "fileName": "    ",
+    "save": true,
+    "activeTab": true
+  };
+
+  var __createEmptyWidgets = function(step, widgetContainer) {
+    var displayTypeCounts = {};
+    var stepWidgets = _defaultWidgets;
+    var content = {};
+    var editorList = [];
+    
+    for (var i = 0; i < stepWidgets.length; i++){
+        var widget = stepWidgets[i];
+        var displayType = widget.displayType;
+        //console.log("displayType ", displayType);
+        if (displayTypeCounts[displayType] === undefined){
+            displayTypeCounts[displayType] = 0;
+        } else {
+            displayTypeCounts[displayType]++;
+        }
+        var displayTypeNum = displayTypeCounts[displayType];
+        var subContainerId = step.name + '-' + displayType + '-' + displayTypeNum;
+        // data-step attribute is used to look for content of an existing step in __hideContents
+        // and __lookForExistingContents.
+        var subContainerDivId = '<div id="' + subContainerId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
+        var subContainer = $(subContainerDivId);
+        if (widget.enable === false) {
+          subContainer.addClass('disableContainer'); 
+        }
+        widgetContainer.append(subContainer);
+
+        if (displayType === "tabbedEditor") {
+            if (jQuery.isEmptyObject(content)) {      
+                editorList.push(editorObject);
+                content.editorList = editorList;
+            }  
+        }
+        createWidget(step.name, content, displayType, subContainer, displayTypeNum);
+    }
+  }
+
   var __buildContent = function(step, $stepContent) {
     contentManager.setInstructions(step.name, step.instruction);
 
@@ -266,10 +313,19 @@ var stepContent = (function() {
     __addDescription(step, $stepContent);
     __updateInstructions(step, $stepContent);
 
+    // Insert widgets into the widgets div for its step.
+    var stepWidgets;
+    // if div found | ES6 template literal used. possibly use ES5 for IE11 compatibility?
+    if ($(".stepWidgetContainer[data-step='" + step.name + "']").length > 0) {
+        stepWidgets = $(".stepWidgetContainer[data-step='" + step.name + "']");
+    } else { // create div
+        stepWidgets = $("<div class='stepWidgetContainer' data-step='" + step.name + "'></div>");
+        $("#code_column").append(stepWidgets);
+    }
+
     if (step.content) {
         var content = step.content;
         var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
-
         $.each(step.content, function(index, content) {
             if (content.displayType) {
                 // Create an id for the subContainer using the displayType, starting with 0 for each displayType
@@ -283,63 +339,25 @@ var stepContent = (function() {
                 var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
                 // data-step attribute is used to look for content of an existing step in __hideContents
                 // and __lookForExistingContents.
-                var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
-                //  var mainContainer = $('#contentContainer');
-                //console.log(mainContainer);
-                //  mainContainer.append(subContainerDiv);
+                var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';      
 
-
-                // Insert widgets into the widgets div for its step.
-                var stepWidgets;
-                if ($("#"+ step.name + "_widgets").length > 0) { // if div found
-                    stepWidgets = $("#"+ step.name + "_widgets");
-                } else { // create div
-                    stepWidgets = $("<div id='" + step.name + "_widgets'></div>");
-                    $("#code_column").append(stepWidgets);
-                }
                 // stepWidgets.hide();
                 stepWidgets.append(subContainerDiv);
-
-                // $("#code_column").append(subContainerDiv);
-
                 var subContainer = $("#" + subContainerDivId);
-
-                //console.log("displayType: ", content.displayType);
-                switch (content.displayType) {
-                    case 'fileEditor':
-                    editor.create(subContainer, step.name, content).done(function(newEditor){
-                        contentManager.setEditor(step.name, newEditor, displayTypeNum);
-                    });
-                    break;
-                    case 'tabbedEditor':
-                    // NOTE! tabbedEditors may not display well in less than 1/2 screen.
-                    tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
-                        contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
-                    });
-                    break;
-                    case 'commandPrompt':
-                    cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
-                        contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
-                    });
-                    break;
-                    case 'webBrowser':
-                    webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
-                        contentManager.setWebBrowser(step.name, newWebBrowser, displayTypeNum);
-                    });
-                    break;
-                    case 'fileBrowser':
-                    fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
-                        contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
-                    });
-                    break;
-                    case 'pod':
-                    pod.create(subContainer, step.name, content).done(function(newPod){
-                        contentManager.setPod(step.name, newPod, displayTypeNum);
-                    });
-                    break;
+                // disable the widget if specified
+                if (content.enable === false) {
+                  subContainer.addClass('disableContainer'); 
                 }
+                createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
             }
       });
+    } else {
+      // create empty widgets
+      if (step.name === "WhatNext" || step.name === "RelatedLinks") {
+        //console.log("skip create widgets for WhatNext | RelatedLinks"); 
+      } else {
+        __createEmptyWidgets(step, stepWidgets);
+      }
     }
   };
 
@@ -347,6 +365,42 @@ var stepContent = (function() {
   var showStepWidgets = function(id) {
     console.log("show widgets for step " + id);
   };
+  
+  var createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
+      switch (displayType) {
+          case 'fileEditor':
+          editor.create(subContainer, stepName, content).done(function(newEditor){
+              contentManager.setEditor(stepName, newEditor, displayTypeNum);
+          });
+          break;
+          case 'tabbedEditor':
+          // NOTE! tabbedEditors may not display well in less than 1/2 screen.
+          tabbedEditor.create(subContainer, stepName, content).done(function(newTabbedEditor){
+              contentManager.setTabbedEditor(stepName, newTabbedEditor, displayTypeNum);
+          });
+          break;
+          case 'commandPrompt':
+          cmdPrompt.create(subContainer, stepName, content).done(function(newCmdPrompt){
+              contentManager.setCommandPrompt(stepName, newCmdPrompt, displayTypeNum);
+          });
+          break;
+          case 'webBrowser':
+          webBrowser.create(subContainer, stepName, content).done(function(newWebBrowser){
+              contentManager.setWebBrowser(stepName, newWebBrowser, displayTypeNum);
+          });
+          break;
+          case 'fileBrowser':
+          fileBrowser.create(subContainer, content, stepName).done(function(newFileBrowser){
+              contentManager.setFileBrowser(stepName, newFileBrowser, displayTypeNum);
+          });
+          break;
+          case 'pod':
+          pod.create(subContainer, stepName, content).done(function(newPod){
+              contentManager.setPod(stepName, newPod, displayTypeNum);
+          });
+          break;
+      }
+  }
 
   return {
     setSteps: setSteps,

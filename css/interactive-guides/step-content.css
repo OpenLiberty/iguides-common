@@ -10,7 +10,12 @@
  *******************************************************************************/
 .subContainerDiv {
   padding: 0px 5px;
-  margin-bottom: 25px;  
+  margin-bottom: 2.5px;
+  margin-top: 2.5px;  
+}
+
+.disableContainer {
+  opacity: 0.5;
 }
 
 @media (max-width: 450px) {
