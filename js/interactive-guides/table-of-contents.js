@@ -59,8 +59,9 @@ var tableofcontents = (function() {
         $("#toc_container li").on('click', function(event) {
           // 'this' is the li element in the #toc_container.
           TOCEntryClick(this, event);
-
           var hash = window.location.hash.substring(1);  // Remove the '#'
+          // Match the widgets on the right to the new id
+          stepContent.showStepWidgets(hash);
           stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash));
         }); 
     };

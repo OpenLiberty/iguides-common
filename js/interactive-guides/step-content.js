@@ -252,7 +252,7 @@ var stepContent = (function() {
       if(step.sections){
         var $sectionContent;
         for(var j = 0; j < step.sections.length; j++){
-          $sectionContent = $("<div class='sect2' id'" + step.name + "_content'></div>");
+          $sectionContent = $("<div class='sect2' id='" + step.sections[j].name + "_content'></div>");
           $stepContent.append($sectionContent);
           __buildContent(step.sections[j], $sectionContent);
         }
@@ -323,7 +323,7 @@ var stepContent = (function() {
     if ($(".stepWidgetContainer[data-step='" + step.name + "']").length > 0) {
         stepWidgets = $(".stepWidgetContainer[data-step='" + step.name + "']");
     } else { // create div
-        stepWidgets = $("<div class='stepWidgetContainer' data-step='" + step.name + "'></div>");
+        stepWidgets = $("<div class='stepWidgetContainer multicolStepHidden' data-step='" + step.name + "'></div>");
         $("#code_column").append(stepWidgets);
     }
 
@@ -361,9 +361,23 @@ var stepContent = (function() {
     }
   };
 
-  // Update widgets displayed on right-hand side of multipane layout for the specified id.
+  /* 
+   * Update widgets displayed on right-hand side of multipane layout for the specified id.
+   * 
+   * id - the ID (hash value without the '#') for the given step.
+   */
   var showStepWidgets = function(id) {
     console.log("show widgets for step " + id);
+    if (window.innerWidth >= twoColumnBreakpoint) {
+      // Find the stepName based on the ID
+      var stepName = getStepNameFromHash(id);
+      
+      // #codeColumn is showing.   Only display applicable widgets for the step.
+      $('.multicolStepShown').removeClass('multicolStepShown').addClass('multicolStepHidden');
+      // Find the .stepWidgetContainer holding the widgets for the specified step.
+      var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
+      $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
+    } 
   };
 
   var createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
