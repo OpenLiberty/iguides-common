@@ -119,7 +119,9 @@ instruction.unavailable {
 }
 
 .podContainer {
-  padding-bottom: 30px;
+  /*padding-bottom: 30px;*/
+  border: 1px solid #c8d6fb;
+  height: 200px;
 }
 
 .instructionContent {
