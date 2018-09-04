@@ -37,6 +37,8 @@ var blueprint = (function(){
             // the user requested a specific page within the guide.  Go to it.
             var hash = location.hash;
             accessContentsFromHash(hash);
+            // Match the widgets on the right to id
+            stepContent.showStepWidgets(hash.substring(1));
             stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
           }
 
@@ -116,7 +118,7 @@ var blueprint = (function(){
           // Update the selected TOC entry
           updateTOCHighlighting(id);
 
-          // Match the code block on the right to the new id
+          // Match the widgets on the right to the new id
           stepContent.showStepWidgets(id);
         }
       }
