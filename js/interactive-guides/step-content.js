@@ -313,6 +313,11 @@ var stepContent = (function() {
     __addDescription(step, $stepContent);
     __updateInstructions(step, $stepContent);
 
+    // no need to create widgets for these steps
+    if (step.name === "WhatNext" || step.name === "RelatedLinks") {
+      return;
+    }
+
     // Insert widgets into the widgets div for its step.
     var stepWidgets;
     if ($(".stepWidgetContainer[data-step='" + step.name + "']").length > 0) {
@@ -352,11 +357,7 @@ var stepContent = (function() {
       });
     } else {
       // create empty widgets
-      if (step.name === "WhatNext" || step.name === "RelatedLinks") {
-        //console.log("skip create widgets for WhatNext | RelatedLinks"); 
-      } else {
-        __createEmptyWidgets(step, stepWidgets);
-      }
+      __createEmptyWidgets(step, stepWidgets);
     }
   };
 
