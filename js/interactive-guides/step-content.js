@@ -315,7 +315,6 @@ var stepContent = (function() {
 
     // Insert widgets into the widgets div for its step.
     var stepWidgets;
-    // if div found | ES6 template literal used. possibly use ES5 for IE11 compatibility?
     if ($(".stepWidgetContainer[data-step='" + step.name + "']").length > 0) {
         stepWidgets = $(".stepWidgetContainer[data-step='" + step.name + "']");
     } else { // create div
@@ -365,7 +364,7 @@ var stepContent = (function() {
   var showStepWidgets = function(id) {
     console.log("show widgets for step " + id);
   };
-  
+
   var createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
       switch (displayType) {
           case 'fileEditor':
