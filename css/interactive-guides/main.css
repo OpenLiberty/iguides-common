@@ -63,6 +63,12 @@
   border-left: 4px solid #96bc32;
 }
 
+@media (max-width: 1170px){
+  instruction.unavailable {
+    display: none;
+  }
+}
+
 action.disabled {
   color: red;
 }

@@ -731,6 +731,12 @@ var contentManager = (function() {
         if(instruction){
             var instructionID = stepName + '-instruction-' + currentInstructionIndex;
 
+            //scroll so the recently completed instruction is at the top of the browser window
+            if (($("#"+instructionID).length > 0) && (window.innerWidth <= 1170)) {
+              //subtract 40 to consider the TOC button height in single column view
+              $("html, body").animate({ scrollTop: ($("#"+instructionID).offset().top - 40)}, 750);
+            }
+
             if(instruction.complete === false){
                 instruction.complete = true;
                 $("#"+instructionID).addClass("completed");
