@@ -116,11 +116,11 @@ var blueprint = (function(){
           history.pushState(null, null, newPath);
 
           // Update the selected TOC entry
-          updateTOCHighlighting(id);
-
-          // Match the widgets on the right to the new id
-          stepContent.showStepWidgets(id);
+          updateTOCHighlighting(id);  // In toc-multipane.js in openliberty.io
         }
+        // Match the widgets on the right to the new id
+        stepContent.showStepWidgets(id);
+        stepContent.setCurrentStepName(id);
       }
     }
   };
