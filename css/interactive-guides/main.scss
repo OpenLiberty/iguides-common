@@ -138,6 +138,12 @@ instruction.unavailable {
   text-align:left;
 }
 
+.stepWidgetContainer {
+    @media (max-width: 1170px) {
+        overflow: auto;
+    }
+}
+
 samp {
   font-size:13px;
   padding: 9.5px;

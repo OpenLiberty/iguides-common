@@ -19,10 +19,10 @@ $(window).on('load', function() {
     //TODO: when switching to multi, determine what step is selected 
     // and show correct widgets (iguides-common PR #185)
     $(window).on('resize', function() {
-        if (currentView == 'multi' && document.body.scrollWidth <= 1170) {
+        if (currentView == 'multi' && window.innerWidth <= 1170) {
             // move widgets to single column
             currentView = 'single';
-            console.log('Switch to single column');
+            console.log('Switch to single column at ', window.innerWidth);
 
             var widgetDivsArray = [].slice.call( widgetDivs.detach() );
             widgetDivsArray.map(widget => {
@@ -31,10 +31,10 @@ $(window).on('load', function() {
                 var contentStepDiv = $("#contentContainer .sect1:has(div[data-step='" + step + "'])")[0];
                 contentStepDiv.appendChild(widget);
             });
-        } else if (currentView == 'single' && document.body.scrollWidth > 1170) {
+        } else if (currentView == 'single' && window.innerWidth > 1170) {
             // move widgets to right column
             currentView = 'multi';
-            console.log('Switch to multi column');
+            console.log('Switch to multi column at ', window.innerWidth);
 
             var widgetDivsArray = [].slice.call( widgetDivs.detach() );
             widgetDivsArray.map(widget => {
@@ -42,7 +42,6 @@ $(window).on('load', function() {
                 var codeColumnDiv = $("#code_column")[0];
                 codeColumnDiv.appendChild(widget);
             });
-
         } else {
             //Do nothing
         }
