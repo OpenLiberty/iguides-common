@@ -367,16 +367,19 @@ var stepContent = (function() {
    * id - the ID (hash value without the '#') for the given step.
    */
   var showStepWidgets = function(id) {
-    console.log("show widgets for step " + id);
     if (window.innerWidth >= twoColumnBreakpoint) {
       // Find the stepName based on the ID
       var stepName = getStepNameFromHash(id);
       
       // #codeColumn is showing.   Only display applicable widgets for the step.
       $('.multicolStepShown').removeClass('multicolStepShown').addClass('multicolStepHidden');
-      // Find the .stepWidgetContainer holding the widgets for the specified step.
-      var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
-      $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
+
+      // stepName is "" when srollTop displays guide header, or guide meta.
+      if (stepName) {
+        // Find the .stepWidgetContainer holding the widgets for the specified step.
+        var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
+        $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
+      }
     } 
   };
 
