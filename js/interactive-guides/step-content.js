@@ -375,7 +375,7 @@ var stepContent = (function() {
       $('.multicolStepShown').removeClass('multicolStepShown').addClass('multicolStepHidden');
 
       // stepName is "" when srollTop displays guide header, or guide meta.
-      if (stepName !== "") {
+      if (stepName) {
         // Find the .stepWidgetContainer holding the widgets for the specified step.
         var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
         $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
