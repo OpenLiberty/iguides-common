@@ -262,6 +262,35 @@ var stepContent = (function() {
     createEndOfGuideContent();
   };
 
+  var calculateWidgetHeight = function(percentageHeight) { 
+    var widgetHeight = "300px";
+    var rightColumn = $("#code_column:visible");
+    if (rightColumn) {
+        // Get height of visible right column
+        var columnHeight = $(rightColumn).height();
+        var wHeight = (columnHeight * percentageHeight)/100;
+        widgetHeight = wHeight + "px";
+    }
+    return widgetHeight;
+  }
+
+  // we could have a 2 widgets or 3 widgets on the right column
+  // base on the number of widgets determined the percentage height
+  // if 3 widgets: browser: 40% height, pod: 20% height, editor: 40% height
+  var getWidgetPercentageHeight = function(numOfWidgets, widgetType) {
+    var defaultPercentageHeight = 50;
+    if (numOfWidgets === 2) {
+        return defaultPercentageHeight;
+    } else if (numOfWidgets === 3) {
+        if (widgetType === "tabbedEditor" || widgetType === "webBrowser") {
+            return 40;
+        } else if (widgetType === "pod") {
+            return 20;
+        }
+    }
+    return defaultPercentageHeight;
+  }
+
   // empty editor object
   var editorObject = {
     "displayType":"fileEditor",
@@ -273,13 +302,17 @@ var stepContent = (function() {
   var __createEmptyWidgets = function(step, widgetContainer) {
     var displayTypeCounts = {};
     var stepWidgets = _defaultWidgets;
-    var content = {};
-    var editorList = [];
-    
+    var numOfWidgets = stepWidgets.length;
+
     for (var i = 0; i < stepWidgets.length; i++){
+        var content = {};
         var widget = stepWidgets[i];
         var displayType = widget.displayType;
-        //console.log("displayType ", displayType);
+        
+        var percentageHeight = getWidgetPercentageHeight(numOfWidgets, displayType);
+        var widgetHeight = calculateWidgetHeight(percentageHeight);
+        //console.log("widgetHeight ", widgetHeight);
+        
         if (displayTypeCounts[displayType] === undefined){
             displayTypeCounts[displayType] = 0;
         } else {
@@ -292,16 +325,20 @@ var stepContent = (function() {
         var subContainerDivId = '<div id="' + subContainerId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
         var subContainer = $(subContainerDivId);
         if (widget.enable === false) {
-          subContainer.addClass('disableContainer'); 
+           subContainer.addClass('disableContainer');
         }
         widgetContainer.append(subContainer);
 
         if (displayType === "tabbedEditor") {
-            if (jQuery.isEmptyObject(content)) {      
-                editorList.push(editorObject);
-                content.editorList = editorList;
-            }  
+            var editorList = [];
+            editorList.push(editorObject);
+            content.editorList = editorList;
         }
+        
+        if (widgetHeight !== undefined) {
+            content.height = widgetHeight;
+        }
+
         createWidget(step.name, content, displayType, subContainer, displayTypeNum);
     }
   }
@@ -330,8 +367,15 @@ var stepContent = (function() {
     if (step.content) {
         var content = step.content;
         var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
+        var numOfWidgets = step.content.length;
+        
         $.each(step.content, function(index, content) {
             if (content.displayType) {
+                // dynamically setup height for each widget based on each step content
+                var percentageHeight = getWidgetPercentageHeight(numOfWidgets, content.displayType);
+                var widgetHeight = calculateWidgetHeight(percentageHeight);
+                content.height = widgetHeight;
+
                 // Create an id for the subContainer using the displayType, starting with 0 for each displayType
                 if(displayTypeCounts[content.displayType] === undefined){
                     displayTypeCounts[content.displayType] = 0;
