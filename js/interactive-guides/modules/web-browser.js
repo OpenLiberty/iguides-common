@@ -182,6 +182,13 @@ var webBrowser = (function(){
           thisWebBrowser.contentRootElement.find('.wbRefreshButton').attr('aria-label', messages.browserRefreshButton);
           thisWebBrowser.contentRootElement.find('.wbRefreshButton').attr('title', messages.browserRefreshButton);
 
+          // set browser height
+          if (content.height !== undefined) {
+            container.find('.wb').css({
+              "height": content.height
+            });
+          }
+
           // Select URL text when in focus
           $wbNavURL.focus(function() {
               $(this).select();
