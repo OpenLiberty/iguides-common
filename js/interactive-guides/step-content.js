@@ -265,9 +265,9 @@ var stepContent = (function() {
   var calculateWidgetHeight = function(percentageHeight) { 
     var widgetHeight = "300px";
     var rightColumn = $("#code_column:visible");
-    if (rightColumn) {
+    if (rightColumn.length > 0) {
         // Get height of visible right column
-        var columnHeight = $(rightColumn).height();
+        var columnHeight = rightColumn.height();
         var wHeight = (columnHeight * percentageHeight)/100;
         widgetHeight = wHeight + "px";
     }
