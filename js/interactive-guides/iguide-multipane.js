@@ -9,18 +9,38 @@
  *     IBM Corporation
  *******************************************************************************/
 var currentView;
-var widgetDivs;
+var widgetDivs, codeColumnDiv;
 function init() {
     widgetDivs = $('.stepWidgetContainer');
-    if (window.innerWidth <= 1170) {
+    codeColumnDiv = $('#code_column')[0];
+
+    if (inSingleColumnView()) {
         currentView = 'single';
     } else {
         currentView = 'multi';
     }
 }
 
-//TODO: functions for getting (and setting) single/multi pane var?
-//      to be used in other areas of multipane code
+function multiToSingleColumn() {
+    currentView = 'single';
+
+    // JQuery's detach() method returns a NodeList which is tricky to iterate over
+    var widgetDivsArray = [].slice.call( widgetDivs.detach() );
+    widgetDivsArray.map(function(widget) {
+        var step = widget.dataset.step;
+        var contentStepDiv = $('#contentContainer #' + step + '_content')[0];
+        contentStepDiv.appendChild(widget);
+    });
+}
+
+function singleToMultiColumn() {
+    currentView = 'multi';
+
+    var widgetDivsArray = [].slice.call( widgetDivs.detach() );
+    widgetDivsArray.map(function(widget) {
+        codeColumnDiv.appendChild(widget);
+    });
+}
 
 $(window).on('load', function() {
     init();
@@ -28,30 +48,10 @@ $(window).on('load', function() {
     //TODO: when switching to multi, determine what step is selected 
     // and show correct widgets (iguides-common PR #185)
     $(window).on('resize', function() {
-        if (currentView == 'multi' && window.innerWidth <= 1170) {
-            // move widgets to single column
-            currentView = 'single';
-            console.log('Switch to single column at ', window.innerWidth);
-
-            // JQuery's detach() method returns a NodeList which is tricky to iterate over
-            var widgetDivsArray = [].slice.call( widgetDivs.detach() );
-            widgetDivsArray.map(function(widget) {
-                var step = widget.dataset.step;
-                var contentStepDiv = $('#contentContainer #' + step + '_content')[0];
-                contentStepDiv.appendChild(widget);
-            });
-        } else if (currentView == 'single' && window.innerWidth > 1170) {
-            // move widgets to right column
-            currentView = 'multi';
-            console.log('Switch to multi column at ', window.innerWidth);
-
-            var widgetDivsArray = [].slice.call( widgetDivs.detach() );
-            var codeColumnDiv = $('#code_column')[0];
-            widgetDivsArray.map(function(widget) {
-                codeColumnDiv.appendChild(widget);
-            });
-        } else {
-            //Do nothing
+        if (currentView == 'multi' && inSingleColumnView()) {
+            multiToSingleColumn();
+        } else if (currentView == 'single' && !inSingleColumnView()) {
+            singleToMultiColumn();
         }
     });
 });
