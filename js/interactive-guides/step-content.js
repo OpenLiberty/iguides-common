@@ -21,7 +21,6 @@ var stepContent = (function() {
   var setSteps = function(steps, defaultWidgets) {
     _steps = steps;
     _defaultWidgets = defaultWidgets;
-    console.log("defaultWidgets ", _defaultWidgets);
     __createLinks();
   };
 
@@ -84,7 +83,7 @@ var stepContent = (function() {
     return currentStepName;
   };
 
-  var setCurrentStepName = function(stepName) {
+  var setCurrentStepName = function(stepName) {    
     currentStepName = stepName;   
   }
 
