@@ -16,6 +16,7 @@ function init() {
 
     if (inSingleColumnView()) {
         currentView = 'single';
+        multiToSingleColumn();
     } else {
         currentView = 'multi';
     }
