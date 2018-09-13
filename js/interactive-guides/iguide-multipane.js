@@ -12,7 +12,7 @@ var currentView;
 var widgetDivs, codeColumnDiv;
 function init() {
     widgetDivs = $('.stepWidgetContainer');
-    codeColumnDiv = $('#code_column')[0];
+    codeColumnDiv = $('#code_column');
 
     if (inSingleColumnView()) {
         currentView = 'single';
@@ -29,8 +29,14 @@ function multiToSingleColumn() {
     var widgetDivsArray = [].slice.call( widgetDivs.detach() );
     widgetDivsArray.map(function(widget) {
         var step = widget.dataset.step;
-        var contentStepDiv = $('#contentContainer #' + step + '_content')[0];
-        contentStepDiv.appendChild(widget);
+        var contentStepDiv = $('#contentContainer #' + step + '_content');
+
+        var subsection = contentStepDiv.find('.sect2');
+        if (subsection.length > 0) {
+            subsection.before(widget);
+        } else {
+            contentStepDiv.append(widget);
+        }
     });
 }
 
@@ -39,7 +45,7 @@ function singleToMultiColumn() {
 
     var widgetDivsArray = [].slice.call( widgetDivs.detach() );
     widgetDivsArray.map(function(widget) {
-        codeColumnDiv.appendChild(widget);
+        codeColumnDiv.append(widget);
     });
 }
 
