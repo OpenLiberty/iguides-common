@@ -16,6 +16,10 @@
 
 .disableContainer {
   opacity: 0.5;
+
+  @media (max-width: 1170px) {
+      display: none;
+  }
 }
 
 .multicolStepShown {
