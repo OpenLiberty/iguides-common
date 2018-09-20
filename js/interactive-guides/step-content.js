@@ -289,10 +289,8 @@ var stepContent = (function() {
     var widgetInfo = [];
 
     // populate the widget object with displayType/state
-    console.log("step ", step.name);
     if (step.content) {
       $.each(step.content, function(index, content) {
-          console.log("display ", content.displayType);
           var widgetObj = {};
           widgetObj.displayType = content.displayType;
           widgetObj.enable = (content.enable === false) ? content.enable : true;
