@@ -15,11 +15,19 @@
 .subContainerDiv {
   padding: 0px 5px;
   margin-bottom: 2.5px;
-  margin-top: 2.5px;  
+  margin-top: 2.5px; 
+  
+  @media (max-width: 1170px) {
+    margin: 10px 0px;
+  }
 }
 
 .disableContainer {
   opacity: 0.5;
+
+  @media (max-width: 1170px) {
+      display: none;
+  }
 }
 
 .multicolStepShown {
@@ -31,12 +39,6 @@
 
   @media (max-width: 1170px) {
     display: block;
-  }
-}
-
-@media (max-width: 450px) {
-  .subContainerDiv {
-    margin-bottom: 60px;
   }
 }
 

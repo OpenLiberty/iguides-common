@@ -16,10 +16,9 @@
 
 .wbNavBar {
     background-color: #5e6b8d;
-    height: 50px;
     width: 100%;
     color: lightsteelblue;
-    padding: 10px;
+    padding: 6px;
     overflow-x: hidden;
     white-space: nowrap;
 }
@@ -37,8 +36,8 @@
 }
 
 .wbNavButton {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     display: inline-block;
     background-repeat: no-repeat;
     position: relative;
@@ -81,6 +80,9 @@
 
 .wbContent {
     height: 85%;
+    @media (max-width: 1170px) {
+        height: 300px;
+    }
 }
 
 .wbOverlay:after {

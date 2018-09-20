@@ -22,7 +22,6 @@ var stepContent = (function() {
   var setSteps = function(steps, defaultWidgets) {
     _steps = steps;
     _defaultWidgets = defaultWidgets;
-    console.log("defaultWidgets ", _defaultWidgets);
     __createLinks();
   };
 
@@ -85,7 +84,7 @@ var stepContent = (function() {
     return currentStepName;
   };
 
-  var setCurrentStepName = function(stepName) {
+  var setCurrentStepName = function(stepName) {    
     currentStepName = stepName;   
   }
 
@@ -278,6 +277,9 @@ var stepContent = (function() {
         //}
         var wHeight = ((columnHeight - totalMargin) * percentageHeight)/100;
         widgetHeight = wHeight + "px";
+    } else {
+      // Don't dictate the height in single column mode.
+      widgetHeight = "auto";
     }
     return widgetHeight;
   }
