@@ -269,6 +269,9 @@ var stepContent = (function() {
         var columnHeight = rightColumn.height();
         var wHeight = (columnHeight * percentageHeight)/100;
         widgetHeight = wHeight + "px";
+    } else {
+      // Don't dictate the height in single column mode.
+      widgetHeight = "auto";
     }
     return widgetHeight;
   }
