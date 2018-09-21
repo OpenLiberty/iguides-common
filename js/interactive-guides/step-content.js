@@ -17,6 +17,7 @@ var stepContent = (function() {
                             // more entries than the _steps array because it also
                             // contains elements for sections which appear in the TOC.
   var _defaultWidgets;
+  var _mapStepWidgets = {};
 
   var setSteps = function(steps, defaultWidgets) {
     _steps = steps;
@@ -261,13 +262,20 @@ var stepContent = (function() {
     createEndOfGuideContent();
   };
 
-  var calculateWidgetHeight = function(percentageHeight) { 
+  var calculateWidgetHeight = function(percentageHeight, numOfWidgets) { 
     var widgetHeight = "300px";
+    var marginHeight = "5";
+    var totalMargin = marginHeight * numOfWidgets;
     var rightColumn = $("#code_column:visible");
     if (rightColumn.length > 0) {
         // Get height of visible right column
         var columnHeight = rightColumn.height();
-        var wHeight = (columnHeight * percentageHeight)/100;
+        //var subContainer = $(".subContainerDiv");
+        //if (subContainer.length > 0) {
+        //   marginHeight = subContainer[0].css("margin-top") * 2;
+        //   totalMargin = marginHeight * numOfWidgets;
+        //}
+        var wHeight = ((columnHeight - totalMargin) * percentageHeight)/100;
         widgetHeight = wHeight + "px";
     } else {
       // Don't dictate the height in single column mode.
@@ -276,21 +284,109 @@ var stepContent = (function() {
     return widgetHeight;
   }
 
-  // we could have a 2 widgets or 3 widgets on the right column
-  // base on the number of widgets determined the percentage height
-  // if 3 widgets: browser: 40% height, pod: 20% height, editor: 40% height
-  var getWidgetPercentageHeight = function(numOfWidgets, widgetType) {
-    var defaultPercentageHeight = 50;
+  
+  var _createWidgetInfo = function(step) {
+    var widgetInfo = [];
+
+    // populate the widget object with displayType/state
+    if (step.content) {
+      $.each(step.content, function(index, content) {
+          var widgetObj = {};
+          widgetObj.displayType = content.displayType;
+          widgetObj.enable = (content.enable === false) ? content.enable : true;
+          widgetInfo.push(widgetObj);
+      });
+    }
+    return widgetInfo;
+  }
+
+  var getWidgetsInfoForStep = function(step) {
+    var defaultPercentage = "50%";
+    var widgetInfo = (step.content === undefined ? _defaultWidgets : _createWidgetInfo(step));
+    var numOfWidgets = widgetInfo.length;
+
+    // populate the widget object with height
     if (numOfWidgets === 2) {
-        return defaultPercentageHeight;
+        for (var i = 0; i < widgetInfo.length; i++) {
+           widgetInfo[i].height = defaultPercentage;
+        };
     } else if (numOfWidgets === 3) {
-        if (widgetType === "tabbedEditor" || widgetType === "webBrowser") {
-            return 40;
-        } else if (widgetType === "pod") {
-            return 20;
+        // pod is always 20% height
+        var podWidget = widgetInfo[1];
+        podWidget.height = "20%";
+        
+        var browserWidget = widgetInfo[0];
+        var editorWidget = widgetInfo[2];
+        // if both browser and editor are active then browser is 40%, editor is 40%
+        if (browserWidget.enable === true && editorWidget.enable === true) {
+            widgetInfo[0].height = "40%";
+            widgetInfo[2].height = "40%";
+        // if browser is active and editor is nonactive then browser is 60%, editor is 20% 
+        } else if (browserWidget.enable === true && editorWidget.enable === false) {
+            widgetInfo[0].height = "60%";
+            widgetInfo[2].height = "20%";
+            console.log("browser 60%, editor")
+        // if browser is nonactive and editor is active then browser is 20%, editor is 60%
+        } else if (browserWidget.enable === false && editorWidget.enable === true) {
+            widgetInfo[0].height = "20%";
+            widgetInfo[2].height = "60%";
         }
     }
-    return defaultPercentageHeight;
+    return widgetInfo;
+  }
+
+  var resizeWidgets = function(widgetInfo, activeWidget) {
+    var numOfWidgets = widgetInfo.length;
+
+    // no need to resize if active widget is pod since pod is always constant size
+    if (activeWidget === "pod") {
+       return;
+    }
+
+    // readjust the widgets height
+    if (numOfWidgets === 2) {
+        var browserWidget = widgetInfo[0];
+        var editorWidget = widgetInfo[1];
+
+        if (activeWidget === "webBrowser") {
+            browserWidget.height = "60%";
+            editorWidget.height = "40%";
+        } else if (activeWidget === "tabbedEditor") {
+            browserWidget.height = "40%";
+            editorWidget.height = "60%";
+        }
+    } else if (numOfWidgets === 3) {
+        var browserWidget = widgetInfo[0];
+        var podWidget = widgetInfo[1];
+        var editorWidget = widgetInfo[2];
+
+        // pod is always 20% height
+        podWidget.height = "20%";
+
+        if (activeWidget === "webBrowser") {
+            if (browserWidget.height === "60%") {
+              return;
+            } else {
+              browserWidget.height = "40%";
+              editorWidget.height = "40%";
+            }
+        }
+        if (activeWidget === "tabbedEditor") {
+            if (editorWidget.height === "60%") {
+              return;
+            } else {
+              browserWidget.height = "40%";
+              editorWidget.height = "60%";
+            }
+        }
+    }
+
+    // actual resize of widgets
+    for (var i = 0; i < widgetInfo.length; i++) {
+        var widgetId = widgetInfo[i].id;
+        var widgetContainer = $("#" + widgetId);
+        widgetContainer.css("height", widgetInfo[i].height);
+    }
   }
 
   // empty editor object
@@ -301,19 +397,14 @@ var stepContent = (function() {
     "activeTab": true
   };
 
-  var __createEmptyWidgets = function(step, widgetContainer) {
+  var __createEmptyWidgets = function(step, widgetContainer, stepWidgets) {
     var displayTypeCounts = {};
-    var stepWidgets = _defaultWidgets;
-    var numOfWidgets = stepWidgets.length;
 
     for (var i = 0; i < stepWidgets.length; i++){
         var content = {};
         var widget = stepWidgets[i];
         var displayType = widget.displayType;
-        
-        var percentageHeight = getWidgetPercentageHeight(numOfWidgets, displayType);
-        var widgetHeight = calculateWidgetHeight(percentageHeight);
-        //console.log("widgetHeight ", widgetHeight);
+        var isEnable = widget.enable;
         
         if (displayTypeCounts[displayType] === undefined){
             displayTypeCounts[displayType] = 0;
@@ -325,8 +416,9 @@ var stepContent = (function() {
         // data-step attribute is used to look for content of an existing step in __hideContents
         // and __lookForExistingContents.
         var subContainerDivId = '<div id="' + subContainerId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
+        widget.id = subContainerDivId;
         var subContainer = $(subContainerDivId);
-        if (widget.enable === false) {
+        if (isEnable === false) {
            subContainer.addClass('disableContainer');
         }
         widgetContainer.append(subContainer);
@@ -337,9 +429,16 @@ var stepContent = (function() {
             content.editorList = editorList;
         }
         
-        if (widgetHeight !== undefined) {
-            content.height = widgetHeight;
+        if (widget.height !== undefined) {
+            subContainer.css("height", widget.height);
         }
+        //var percentageHeight = getWidgetPercentageHeight(numOfWidgets, displayType, isEnable);
+        //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
+        //console.log("widgetHeight ", widgetHeight);
+
+        //if (widgetHeight !== undefined) {
+        //    content.height = widgetHeight;
+        //}
 
         createWidget(step.name, content, displayType, subContainer, displayTypeNum);
     }
@@ -366,6 +465,14 @@ var stepContent = (function() {
         $("#code_column").append(stepWidgets);
     }
 
+    // build/get widgets info
+    // store widgets object for each step in _mapStepWidgets
+    var widgetsObjInfo = _mapStepWidgets[step.name];
+    if (widgetsObjInfo === undefined) {
+        widgetsObjInfo = getWidgetsInfoForStep(step);
+        _mapStepWidgets[step.name] = widgetsObjInfo;
+    }
+
     if (step.content) {
         var content = step.content;
         var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
@@ -373,11 +480,6 @@ var stepContent = (function() {
         
         $.each(step.content, function(index, content) {
             if (content.displayType) {
-                // dynamically setup height for each widget based on each step content
-                var percentageHeight = getWidgetPercentageHeight(numOfWidgets, content.displayType);
-                var widgetHeight = calculateWidgetHeight(percentageHeight);
-                content.height = widgetHeight;
-
                 // Create an id for the subContainer using the displayType, starting with 0 for each displayType
                 if(displayTypeCounts[content.displayType] === undefined){
                     displayTypeCounts[content.displayType] = 0;
@@ -390,6 +492,7 @@ var stepContent = (function() {
                 // data-step attribute is used to look for content of an existing step in __hideContents
                 // and __lookForExistingContents.
                 var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';      
+                widgetsObjInfo[index].id = subContainerDivId;
 
                 // stepWidgets.hide();
                 stepWidgets.append(subContainerDiv);
@@ -398,12 +501,40 @@ var stepContent = (function() {
                 if (content.enable === false) {
                   subContainer.addClass('disableContainer'); 
                 }
+
+                // dynamically setup height for each widget based on each step content
+                //var percentageHeight = getWidgetPercentageHeight(numOfWidgets, content.displayType);
+                //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
+                //content.height = widgetHeight;
+                var widgetHeight = widgetsObjInfo[index].height;
+                subContainer.css("height", widgetHeight);
+
                 createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
+
+                var isWidgetEnable = widgetsObjInfo[index].enable;
+                subContainer.on("click", function() {
+                  //console.log( "Handler for .click() ", subContainerDiv);
+                  if (isWidgetEnable !== false) {
+                    resizeWidgets(widgetsObjInfo, content.displayType);
+                  }
+                });
+
+                // listen to onclick on webBrowser content since it's an iframe
+                if (content.displayType === "webBrowser") {         
+                  var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
+                  console.log("find iframe ", webBrowserContent);
+                  webBrowserContent.load(function() {
+                    $(this).contents().on("click", function() {
+                      console.log("Click detected inside iframe.");
+                      resizeWidgets(widgetsObjInfo, content.displayType);
+                    });
+                  });
+                }
             }
       });
     } else {
       // create empty widgets
-      __createEmptyWidgets(step, stepWidgets);
+      __createEmptyWidgets(step, stepWidgets, widgetsObjInfo);
     }
   };
 
