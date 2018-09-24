@@ -325,7 +325,6 @@ var stepContent = (function() {
         } else if (browserWidget.enable === true && editorWidget.enable === false) {
             widgetInfo[0].height = "60%";
             widgetInfo[2].height = "20%";
-            console.log("browser 60%, editor")
         // if browser is nonactive and editor is active then browser is 20%, editor is 60%
         } else if (browserWidget.enable === false && editorWidget.enable === true) {
             widgetInfo[0].height = "20%";
@@ -520,12 +519,11 @@ var stepContent = (function() {
                 });
 
                 // listen to onclick on webBrowser content since it's an iframe
-                if (content.displayType === "webBrowser") {         
+                if (content.displayType === "webBrowser" && isWidgetEnable !== false) {         
                   var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
-                  console.log("find iframe ", webBrowserContent);
                   webBrowserContent.load(function() {
                     $(this).contents().on("click", function() {
-                      console.log("Click detected inside iframe.");
+                      //console.log("Click detected inside iframe.");
                       resizeWidgets(widgetsObjInfo, content.displayType);
                     });
                   });
