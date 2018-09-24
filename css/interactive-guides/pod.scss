@@ -10,11 +10,11 @@
  *******************************************************************************/
 
 .podContainer {
-  height: 100%;
+  height: 200px;
   @media (min-width: 1170px) {
     border: 1px solid #c8d6fb;
     background: rgba(255,255,255,0.75);
-    height: 200px;    
+    height: 100%;
   }
 
   p {
