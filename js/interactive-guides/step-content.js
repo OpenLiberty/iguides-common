@@ -275,8 +275,6 @@ var stepContent = (function() {
         //   marginHeight = subContainer[0].css("margin-top") * 2;
         //   totalMargin = marginHeight * numOfWidgets;
         //}
-        //var wHeight = ((columnHeight - totalMargin) * percentageHeight)/100;
-        //widgetHeight = wHeight + "px";
         var widgetHeight = ((columnHeight - totalMargin) * percentageHeight)/100 + "px";
     } else {
       // Don't dictate the height in single column mode.
@@ -404,10 +402,10 @@ var stepContent = (function() {
     for (var i = 0; i < widgetInfo.length; i++) {
         var widgetId = widgetInfo[i].id;
         var widgetContainer = $("#" + widgetId);
-        widgetContainer.css("height", widgetInfo[i].height);
-        //var percentageHeight = widgetInfo[i].height.substring(0, widgetInfo[i].height.length - 1);
-        //var widgetHeight = calculateWidgetHeight(percentageHeight, widgetInfo.length);
-        //widgetContainer.css("height", widgetHeight);
+        //widgetContainer.css("height", widgetInfo[i].height);
+        var percentageHeight = widgetInfo[i].height.substring(0, widgetInfo[i].height.length - 1);
+        var widgetHeight = calculateWidgetHeight(percentageHeight, widgetInfo.length);
+        widgetContainer.css("height", widgetHeight);
     }
   }
 
@@ -452,19 +450,12 @@ var stepContent = (function() {
         }
         
         if (widget.height !== undefined) {
-            subContainer.css("height", widget.height);
-            //var percentageHeight = widget.height.substring(0, widget.height.length - 1);
-            //var widgetHeight = calculateWidgetHeight(percentageHeight, stepWidgets.length);
-            //subContainer.css("height", widgetHeight);
+            //subContainer.css("height", widget.height);
+            var percentageHeight = widget.height.substring(0, widget.height.length - 1);
+            var widgetHeight = calculateWidgetHeight(percentageHeight, stepWidgets.length);
+            subContainer.css("height", widgetHeight);
         }
-        //var percentageHeight = getWidgetPercentageHeight(numOfWidgets, displayType, isEnable);
-        //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
-        //console.log("widgetHeight ", widgetHeight);
-
-        //if (widgetHeight !== undefined) {
-        //    content.height = widgetHeight;
-        //}
-
+    
         createWidget(step.name, content, displayType, subContainer, displayTypeNum);
     }
   }
@@ -528,12 +519,9 @@ var stepContent = (function() {
                 }
 
                 // dynamically setup height for each widget based on each step content
-                //var percentageHeight = getWidgetPercentageHeight(numOfWidgets, content.displayType);
-                //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
-                //content.height = widgetHeight;
-                var widgetHeight = widgetsObjInfo[index].height;
-                //var percentageHeight = widgetsObjInfo[index].height.substring(0, widgetsObjInfo[index].height.length - 1);
-                //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
+                //var widgetHeight = widgetsObjInfo[index].height;
+                var percentageHeight = widgetsObjInfo[index].height.substring(0, widgetsObjInfo[index].height.length - 1);
+                var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
                 subContainer.css("height", widgetHeight);
 
                 createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
