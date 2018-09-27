@@ -265,7 +265,7 @@ var stepContent = (function() {
   var calculateWidgetHeight = function(percentageHeight, numOfWidgets) { 
     var widgetHeight = "300px";
     var marginHeight = "5";
-    var totalMargin = marginHeight * numOfWidgets;
+    //var totalMargin = marginHeight * numOfWidgets;
     var rightColumn = $("#code_column:visible");
     if (rightColumn.length > 0) {
         // Get height of visible right column
@@ -275,24 +275,27 @@ var stepContent = (function() {
         //   marginHeight = subContainer[0].css("margin-top") * 2;
         //   totalMargin = marginHeight * numOfWidgets;
         //}
-        var widgetHeight = ((columnHeight - totalMargin) * percentageHeight)/100 + "px";
+        //var widgetHeight = ((columnHeight - totalMargin) * percentageHeight)/100 + "px";
+        var widgetHeight = ((columnHeight * percentageHeight)/100 - marginHeight) + "px";
     } else {
       // Don't dictate the height in single column mode.
       widgetHeight = "auto";
     }
     return widgetHeight;
   }
-
   
   var _createWidgetInfo = function(step) {
     var widgetInfo = [];
 
     // populate the widget object with displayType/state
+    // enable: the widgets that are use in this step
+    // active: the active one that will be interact first in this step
     if (step.content) {
       $.each(step.content, function(index, content) {
           var widgetObj = {};
           widgetObj.displayType = content.displayType;
           widgetObj.enable = (content.enable === false) ? content.enable : true;
+          widgetObj.active = (content.active === true) ? content.active : false;
           widgetInfo.push(widgetObj);
       });
     }
@@ -327,8 +330,22 @@ var stepContent = (function() {
         
         var browserWidget = widgetInfo[0];
         var editorWidget = widgetInfo[2];
-        // if both browser and editor are active then browser is 40%, editor is 40%
+        // if both browser and editor are enable
+        // set the active widget to 60%
+        // active widget mean the widget that user will interact first in the step
         if (browserWidget.enable === true && editorWidget.enable === true) {
+            if (browserWidget.active === true) {
+              widgetInfo[0].height = "60%";
+              widgetInfo[2].height = "20%";
+            } else if (editorWidget.active === true) {
+              widgetInfo[0].height = "20%";
+              widgetInfo[2].height = "60%";
+            } else {
+              widgetInfo[0].height = "40%";
+              widgetInfo[2].height = "40%";
+            }
+        // all widgets are not enable then browser is 40%, editor 40%
+        } else if (browserWidget.enable !== true && editorWidget.enable !== true) {
             widgetInfo[0].height = "40%";
             widgetInfo[2].height = "40%";
         // if browser is active and editor is nonactive then browser is 60%, editor is 20% 
@@ -526,6 +543,7 @@ var stepContent = (function() {
 
                 createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
 
+                // listen to onclick on webBrowser nav bar
                 var isWidgetEnable = widgetsObjInfo[index].enable;
                 subContainer.on("click", function() {
                   //console.log( "Handler for .click() ", subContainerDiv);
@@ -543,6 +561,25 @@ var stepContent = (function() {
                       resizeWidgets(widgetsObjInfo, content.displayType);
                     });
                   });
+                }
+
+                // enable hover on clickable widget
+                if (content.displayType !== "pod" && isWidgetEnable !== false) {
+                  var widgetOnHover;
+                  if (content.displayType === "webBrowser") {
+                      widgetOnHover = subContainer.find(".wb")
+                  } else if (content.displayType === "tabbedEditor") {
+                      widgetOnHover = subContainer.find(".teContainer");
+                  }
+                  if (widgetOnHover) {
+                    widgetOnHover.hover(function(e) {
+                      if (e.type === "mouseenter") {
+                        $(this).addClass('stepWidgetOnHover');
+                      } else {
+                        $(this).removeClass('stepWidgetOnHover');
+                      }
+                    });
+                  }
                 }
             }
       });
