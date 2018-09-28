@@ -223,16 +223,11 @@ var webBrowser = (function(){
           }
 
           // make the refresh and url field have the same enable-disable
-          // value as the web browser
-          if (content.displayType === "webBrowser") {
-            if (content.enable) {
-              thisWebBrowser.enableURLField(true);
-              thisWebBrowser.enableRefreshButton(true);
-            } else {
-              thisWebBrowser.enableURLField(false);
-              thisWebBrowser.enableRefreshButton(false);
-            } 
-          }
+          // value as the web browser (undefined assumed to be true)
+          if ((content.enable !== undefined) && (!content.enable)) {
+            thisWebBrowser.enableURLField(false);
+            thisWebBrowser.enableRefreshButton(false);
+          } 
 
           // fill in contents
           thisWebBrowser.setURL(thisWebBrowser.webURL);
