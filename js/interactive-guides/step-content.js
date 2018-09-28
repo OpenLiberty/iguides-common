@@ -422,6 +422,11 @@ var stepContent = (function() {
         }
         widgetContainer.append(subContainer);
 
+        // set the content here - will be used later to enable correctly        
+        if (displayType === "webBrowser") {
+           content.displayType = "webBrowser";
+           content.enable = isEnable;
+        }
         if (displayType === "tabbedEditor") {
             var editorList = [];
             editorList.push(editorObject);
