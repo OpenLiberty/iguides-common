@@ -224,7 +224,7 @@ var webBrowser = (function(){
 
           // make the refresh and url field have the same enable-disable
           // value as the web browser (undefined assumed to be true)
-          if ((content.enable !== undefined) && (!content.enable)) {
+          if ((content.enable !== undefined) && (content.enable === false)) {
             thisWebBrowser.enableURLField(false);
             thisWebBrowser.enableRefreshButton(false);
           } 
