@@ -93,6 +93,16 @@ var jsonGuide = (function () {
         return [];
     }
 
+    var getStepsConfigWidgets = function (guideName) {
+        for (var i = 0; i < __guides.length; i++) {
+            var guide = __guides[i];
+            if (guide.name === guideName) {
+                return guide.configWidgets;
+            }
+        }
+        return [];
+    }
+
     var getGuideDisplayTitle = function (guideName) {
         for (var i = 0; i < __guides.length; i++) {
             var guide = __guides[i];
@@ -130,7 +140,8 @@ var jsonGuide = (function () {
         getGuideDescription: getGuideDescription,
         getGithubRepo: getGithubRepo,
         getAGuide: getAGuide,
-        getStepsDefaultWidgets: getStepsDefaultWidgets
+        getStepsDefaultWidgets: getStepsDefaultWidgets,
+        getStepsConfigWidgets: getStepsConfigWidgets
     };
 
 })();
