@@ -8,12 +8,27 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+
+.podContainer {
+  height: 100%;
+  @media (min-width: 1170px) {
+    border: 1px solid #c8d6fb;
+    background: rgba(255,255,255,0.75);
+    height: 200px;    
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
 .pod-animation-slide-from-right {
   position: relative;
   -webkit-animation-name: animate-slide-from-right;
   -webkit-animation-duration: 1s;
   animation-name: animate-slide-from-right;
-  animation-duration: 1s
+  animation-duration: 1s;
+  height: inherit;
 }
 
 .pod-animation-slide-from-right:focus {

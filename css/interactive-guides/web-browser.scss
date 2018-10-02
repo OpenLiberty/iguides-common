@@ -9,15 +9,16 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 .wb {
-    border: 1.6px solid steelblue;
+    background:rgba(255,255,255,0.72);
+    border: 1px solid #c8d6fb;
+    height: 100%;
 }
 
 .wbNavBar {
-    background-color: steelblue;
-    height: 50px;
+    background-color: #5e6b8d;
     width: 100%;
     color: lightsteelblue;
-    padding: 10px;
+    padding: 6px;
     overflow-x: hidden;
     white-space: nowrap;
 }
@@ -35,29 +36,51 @@
 }
 
 .wbNavButton {
-    padding: 2px;
-    background-color: transparent;
-    border: none;
-    color: ghostwhite;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    position: relative;
+    top: 4px;
+    margin-right: 2px;
+    border-radius: 2px;
 }
 
 .wbNavButtonDisabled {
-    color: lightsteelblue;
+    opacity: 0.5;
 }
 
 .wbNavButtonActive:hover {
     background-color: lightsteelblue;
-    color: ghostwhite;
+    cursor: pointer;
+}
+
+.browserBack {
+    background-image: url(/guides/iguides-common/img/interactive-guides/left-arrow.svg);
+}
+.browserForward {
+    background-image: url(/guides/iguides-common/img/interactive-guides/right-arrow.svg);
+}
+.browserRefresh {
+    background-image: url(/guides/iguides-common/img/interactive-guides/refresh.svg);
+    top: 3px;
 }
 
 .wbNavURL {
     padding: 2px;
-    width: 75%;
-    color: darkslategrey;
+    width: calc( 100% - 68px );
+    color: #24243b;
+    background: #ffffff; 
+    &:focus {
+        opacity: 1;
+    }
 }
 
 .wbContent {
-    height: 400px;
+    height: 85%;
+    @media (max-width: 1170px) {
+        height: 300px;
+    }
 }
 
 .wbOverlay:after {

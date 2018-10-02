@@ -14,24 +14,25 @@ var stepContent = (function() {
   var currentStepName;
   var _steps;
   var hashStepNames = {};   // Maps step's hash to its name.  This contains
-                            // more entries than the _steps array because it also 
+                            // more entries than the _steps array because it also
                             // contains elements for sections which appear in the TOC.
-  
-  var setSteps = function(steps) {
+  var _defaultWidgets;
+  var _mapStepWidgets = {};
+
+  var setSteps = function(steps, defaultWidgets) {
     _steps = steps;
-    __createLinks();   
+    _defaultWidgets = defaultWidgets;
+    __createLinks();
   };
 
   /*
      1) Create the mapping between the step's name and its hash.  The hash
-     for the step is created from its title.  Hashes must be created for 
+     for the step is created from its title.  Hashes must be created for
      sections as well as steps. It is created for every entry that appears
      in the Table of Contents (TOC). The hash may be used as the
-     URL fragment identifier to go directly to a step or section.  They
-     also enable the browser's previous and next buttons since each page
-     is now identified by a hash value.
+     URL fragment identifier to go directly to a step or section.
 
-     2) Create a reference to parent step for each section so it can load 
+     2) Create a reference to parent step for each section so it can load
      the parent step when selected from the Table of Contents or identified
      in the URL hash.
   */
@@ -58,13 +59,13 @@ var stepContent = (function() {
   /*
    Create the hash identifier for the TOC element.  This identifier
    can be used in the fragment identifier of a URL to indicate which
-   page, or part of a page, to go to.  
-   
-   The identifier is the step or section title converted to lower-case.  
-   Spaces and apostrophes are changed to dashes (-). 
+   page, or part of a page, to go to.
+
+   The identifier is the step or section title converted to lower-case.
+   Spaces and apostrophes are changed to dashes (-).
    Existing dashes and underscores are allowed to remain.
    All other characters are removed.
-   
+
    elementTitle - step or section title (NOT name) which appears in the TOC.
   */
   var __createStepHashIdentifier = function(elementTitle) {
@@ -83,76 +84,47 @@ var stepContent = (function() {
     return currentStepName;
   };
 
+  var setCurrentStepName = function(stepName) {    
+    currentStepName = stepName;   
+  }
+
   /* 
     Return the step or section name value associated with the hash value.  
     If the hash is not recognized, return an empty string.
 
-    hash - string - hash value for a step.  Created in __createStepHashIdentifier().
+    hash - string - hash value for a step.  Created in __createStepHashIdentifier(),
+                    so it should NOT be preceeded with '#'.
   */
-  var __getStepNameFromHash = function(hash) {
+  var getStepNameFromHash = function(hash) {
     return hashStepNames[hash] ? hashStepNames[hash] : "";
-  }
-
-  /*
-    Hide the previously selected step content by looking for data-step attributes
-    with the data-step not equal to the current step name.
-
-    stepName - the step name value.   An empty string or 'undefined' will clear
-               all steps from the display.
-  */
-  var __hideContents = function(stepName) {
-    if (stepName) {
-      var stepsToBeHidden = $("[data-step][data-step!=" + stepName + "]");
-      stepsToBeHidden.addClass("hidden");  
-    } else {
-      // clear all contents
-      $("[data-step]").addClass("hidden");
-    }
   };
 
-  /*
-     Decide if the guide time duration label needs to be shown.
-
-     stepName - the step name value
-  */
-    var __handleFirstStepContent = function(stepName) {
-      var isFirstStep = tableofcontents.getStepIndex(stepName) === 0;
-
-      // Only show the duration on the first step
-      if(isFirstStep) {
-        $(ID.toc_guide_title).hide();
-        $(ID.first_step_header).show();               
-      } else {
-        $(ID.toc_guide_title).show();
-        $(ID.first_step_header).hide();
-      }
-    };
-
   // Append the element's title to the content
-  var __addTitle = function(element) {
-    if(!element.title){
-      return;
-    }
-    var newTitle;
-    // If the element has a parent, it is a section and should have a h3 tag
-    if(element.parent){
-      newTitle = $("<h3 class='title'></h3>");
-    }
-    else{
-      newTitle = $("<h2 class='title'></h2>");
-    }    
-    newTitle.attr('aria-label', element.title);
-    newTitle.attr('data-step', element.name);
-    newTitle.html(element.title);
-    $("#contentContainer").append(newTitle);
+  var __addTitle = function(element, $stepContent) {
+      if(!element.title){
+        return;
+      }
+      var hashIdentifier = __createStepHashIdentifier(element.title);
+      var newTitle;
+      // If the element has a parent, it is a section and should have a h3 tag
+      if(element.parent){
+        newTitle = $("<h3 class='title' id='" + hashIdentifier + "'></h3>");
+      }
+      else{
+        newTitle = $("<h2 class='title' id='" + hashIdentifier + "'></h2>");
+      }
+      newTitle.attr('aria-label', element.title);
+      newTitle.attr('data-step', element.name);
+      newTitle.html(element.title);
+      $stepContent.append(newTitle);
   };
 
   // Append the step description text
-  var __addDescription = function(step) {
+  var __addDescription = function(step, $stepContent) {
     if(!step.description){
       return;
     }
-    var description = step.description;    
+    var description = step.description;
     if ($.isArray(description)) {
         $.each(description, function(i, desc) {
             if (desc) {
@@ -166,14 +138,10 @@ var stepContent = (function() {
     var newDescription = $("<div class='description' tabindex='0'></div>");
     newDescription.attr('data-step', step.name);
     newDescription.html(description);
-    $("#contentContainer").append(newDescription);
-
-    if (step.name === "RelateGuides") {
-      insertRelateGuidesContent();  
-    }
+    $stepContent.append(newDescription);
   };
 
-  //Used for the Description rendering (__addDescription) 
+  //Used for the Description rendering (__addDescription)
   //Prevent certain description strings with these HTML tags that should not be wrapped in <p>
   var __containsHTMLTag = function(content) {
     if (content.indexOf("<ul>") !== -1 || content.indexOf("</ul>") !== -1 ||
@@ -185,106 +153,43 @@ var stepContent = (function() {
     return false;
   };
 
-  var insertRelateGuidesContent = function() {
-    // Kin's code put the relate guides content in the wrong place
-    // there's no way for him to know where to insert correctly
-    // and there's no way for us to get the content and insert where we can
-    // we copy the contents from Kin's and do a clone, remove the hidden and insert it to the right place
-    var relateGuides = $("#related-guides");
-    if (relateGuides.length > 0) {
-      var newRG = $("#related-guides").clone().removeClass("hidden")
-      var rGDiv = $("#relateGuidesContent");
-      rGDiv.append(newRG);
-      relateGuides.empty();
-    }
-  };
-
   // Update the step instruction text
-  var __updateInstructions = function(step) {
+  var __updateInstructions = function(step, $stepContent) {
     var stepName = step.name;
 
-    var index = 0;
     // Check if any instructions exist for this step
     if(!contentManager.checkIfInstructionsForStep(stepName)){
       return;
     }
-    var lastLoadedInstruction = contentManager.getCurrentInstructionIndex(stepName);
-    // Reached the end of the instructions, so get the last index
-    if(lastLoadedInstruction === -1){
-      lastLoadedInstruction = contentManager.getInstructionsLastIndex(stepName);
-    }
-    do {
+
+    for (var index = 0; index < step.instruction.length; index ++ ) {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
       instruction = __parseInstructionForActionTag(instruction);
       //console.log("new instruction ", instruction);
-      // Special instruction to track whether the user has completed something but the instruction should not be shown in the DOM.
-      if(instruction && instruction.indexOf("NOSHOW") !== 0){
-        // If the instruction already exists in the page, then show it. Otherwise append it to the bottom of the current content. 
+      if(instruction){
+        // Append the instruction to the bottom of the current content.
         var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
-        if(instr.length > 0){
-          instr.show();
-        }
-        else{
-          instr = __addInstructionTag(stepName, instruction, index);
-          // Check if there is already an instruction for this step, and to append it after that one
-          var stepInstructions = $(".instructionContent[data-step='" + stepName + "']");
-          if(stepInstructions.length > 0){
-            stepInstructions.last().after(instr);
-          }
-          else{
-            $("#contentContainer").append(instr);
-          }          
-        }            
-        
-        contentManager.addCheckmarkToInstruction(stepName, index);        
+        instr = __addInstructionTag(stepName, instruction, index);
+        $stepContent.append(instr);
       }
-      index++;      
-    } while (index <= lastLoadedInstruction);
-
-    // Load this step's sections instructions
-    if(step.sections){
-      for(var i = 0; i < step.sections.length; i++){
-        var section = step.sections[i];
-        __updateInstructions(section);
-      }
-    }        
+    }
   };
 
   var __addInstructionTag = function (stepName, instruction, index) {
     if (instruction != null) { // Some steps don't have instructions
       var instructionTag = $('<instruction>', {id: stepName + '-instruction-' + index, class: 'instruction', tabindex: 0});
       instructionTag.attr("data-step", stepName); // Set a data tag to identify the instruction block with this step
-      var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
-      var instructionContentDiv = $("<div class='instructionContent'></div>");      
+      if (index > 0) {
+        instructionTag.addClass("unavailable");
+      }
+      //var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
+      var instructionContentDiv = $("<div class='instructionContent'></div>");
       instructionContentDiv.attr("data-step", stepName); // Set a data tag to identify the instruction  with this step
       instructionContentDiv.attr("data-instruction", index);
       instructionContentDiv.html(instruction);
-      instructionTag.append(instrCompleteMark).append(instructionContentDiv);
+      //instructionTag.append(instrCompleteMark).append(instructionContentDiv);
+      instructionTag.append(instructionContentDiv);
       return instructionTag;
-    }
-  };
-
-  var createInstructionBlock = function(stepName){
-    var currentInstruction = contentManager.getCurrentInstruction(stepName);
-    var instructionNumber = contentManager.getCurrentInstructionIndex(stepName);    
-    if(currentInstruction){
-      currentInstruction = __parseInstructionForActionTag(currentInstruction);
-      //console.log("new currentInstruction ", currentInstruction);
-      currentInstruction = __addInstructionTag(stepName, currentInstruction, instructionNumber);
-      // Check if there is already an instruction for this step, and to append it after that one
-      var stepInstructions = $(".instruction[data-step='" + stepName + "']");
-      if(stepInstructions.length > 0){
-        // If the other step's instructions are hidden then this instruction should be hidden because the user switched steps before the instruction was created.
-        if($(".instruction[data-step='" + stepName + "']:visible").length === 0){
-          currentInstruction.addClass('hidden');
-        }
-        stepInstructions.last().after(currentInstruction);
-      }
-      else{
-        $("#contentContainer").append(currentInstruction);
-      }   
-      __addMarginToLastInstruction();
-      
     }
   };
 
@@ -310,39 +215,12 @@ var stepContent = (function() {
           instruction = newInstrStr;
         }
       }
-    } 
+    }
     return instruction;
   };
 
-  var __addMarginToLastInstruction = function(){
-    // Add padding to the last instruction to not overlap the step's content
-    $('.lastInstruction').removeClass('lastInstruction');
-    $(".instruction:visible:last").addClass('lastInstruction');
-  };
-
   /*
-    Searches for a step JSON from a given step name, and calls createContents
-    using that step JSON.
-  */
-  var createContentsFromName = function(stepName){
-    if (stepName) {
-      for(var i = 0; i < _steps.length; i++){
-        var step = _steps[i];
-        var stepToLoad = __findStepFromName(step, stepName);
-        if(stepToLoad){
-          createContents(stepToLoad, true);
-          return;
-        }
-      }
-    }
-    // If we haven't returned yet, then the stepName is not valid for this guide
-    // or was blank.
-    // Default to the first page of the guide.  Set the URL appropriately.
-    __defaultToFirstPage();
-  };
-
-  /*
-    Searches through a step object (root) to see if the step or one of its 
+    Searches through a step object (root) to see if the step or one of its
     sections has a name matching stepToFind.
 
     returns the step or section object if a match is found
@@ -359,241 +237,375 @@ var stepContent = (function() {
         }
       }
     }
-  }; 
-  
-  /*
-    Shows the first page of the guide, but not selected.  Therefore, the
-    fistSetpHeader is seen.
+  };
 
-    This situation occurs when we first enter the guide or when a unknown
-    hash is provided in the URL.
-  */
-  var __defaultToFirstPage = function() {
-    window.location.hash = "";
-    currentStepName = "";
-    $('.selectedStep').removeClass('selectedStep');
-    createContents(_steps[0], false);
+  var createGuideContents = function() {
+    var $stepContent, step;
+
+    for(var i = 0; i < _steps.length; i++) {
+      step = _steps[i];
+
+      $stepContent = $("<div class='sect1' id='" + step.name + "_content'></div>");
+      $("#contentContainer").append($stepContent);
+
+      __buildContent(step, $stepContent);
+      if(step.sections){
+        var $sectionContent;
+        for(var j = 0; j < step.sections.length; j++){
+          $sectionContent = $("<div class='sect2' id='" + step.sections[j].name + "_content'></div>");
+          $stepContent.append($sectionContent);
+          __buildContent(step.sections[j], $sectionContent);
+        }
+      }
+    }
+    resizeGuideSections();
+    createEndOfGuideContent();
+  };
+
+  var calculateWidgetHeight = function(percentageHeight, numOfWidgets) { 
+    var widgetHeight = "300px";
+    var marginHeight = "5";
+    var totalMargin = marginHeight * numOfWidgets;
+    var rightColumn = $("#code_column:visible");
+    if (rightColumn.length > 0) {
+        // Get height of visible right column
+        var columnHeight = rightColumn.height();
+        //var subContainer = $(".subContainerDiv");
+        //if (subContainer.length > 0) {
+        //   marginHeight = subContainer[0].css("margin-top") * 2;
+        //   totalMargin = marginHeight * numOfWidgets;
+        //}
+        var wHeight = ((columnHeight - totalMargin) * percentageHeight)/100;
+        widgetHeight = wHeight + "px";
+    } else {
+      // Don't dictate the height in single column mode.
+      widgetHeight = "auto";
+    }
+    return widgetHeight;
   }
 
-  /*
-    Calls createContents() for the step associated with the inputted
-    hash value.  If no step is associated with the hashValue, the first
-    page is shown.
-  */
-  var createContentsFromHash = function(hashValue) {
-    var requestedStepName = __getStepNameFromHash(hashValue);
-    if (requestedStepName) {
-      createContentsFromName(requestedStepName);      
-    } else {
-      // If the hash did not point to an existing step, default
-      // to show the first step of the guide but don't have it selected
-      // since it was not specified.
-      __defaultToFirstPage();
-    }
-  };
+  
+  var _createWidgetInfo = function(step) {
+    var widgetInfo = [];
 
-  /*
-    Before create content for the selected step,
-    - hide the content of the previous selected step
-    - check whether the content of the selected step has been created before
-      - if it has, show the existing content
-      - otherwise create the new content
-      Inputs: {JSON} step or section 
-              boolean - selectStep - true if step should be selected after created
-                                     false step created should not be selected
-  */
-  var createContents = function(step, selectStep) {  
-    // Check if this is a section of a step. A section appears on the same
-    // page as a step, but has its own TOC entry. Sections have a 
-    // parent attribute in their JSON indicating which step to load.
-    if(step.parent){
-      createContents(step.parent, false);  // Create step page this section is part of
-      tableofcontents.selectStep(step);
-      return;
-    }
-    else{
-      currentStepName = step.name;
-      __hideContents(step.name);      // Hide other steps that are not for this step
-      __handleFirstStepContent(step.name);
-            
-      if (!__lookForExistingContents(step)) {
-        __buildContent(step);
-        if(step.sections){
-          for(var i = 0; i < step.sections.length; i++){
-            __buildContent(step.sections[i]);
-          }
-        }
-      }
-      
-      tableofcontents.addPreviousNext(step);
-
-      if (selectStep) {   // Mark this step as selected.
-        tableofcontents.selectStep(step);       
-      } 
- 
-      // Highlight the next button if all of the instructions are complete or there are
-      // no instructions
-      contentManager.enableNextWhenAllInstructionsComplete(step);
-    }
-    
-    __addMarginToLastInstruction();
-  };
-
-  var __buildContent = function(step) {
-    contentManager.setInstructions(step.name, step.instruction);
-
-    __addTitle(step);
-    __addDescription(step);
-    __updateInstructions(step);    
-
+    // populate the widget object with displayType/state
     if (step.content) {
-      var content = step.content;        
-      var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
-      var defaultBootstrapColSize = "col-sm-12";
-      // two contents will be side by side. Otherwise, it will be stack on top of each other.
-      if (step.content.length == 2) {
-        defaultBootstrapColSize = "col-sm-6";
-      }
       $.each(step.content, function(index, content) {
-        if (content.displayType) {
-          var contentBootstrapColSize = defaultBootstrapColSize;
-          if (content.size === "100%") {
-            contentBootstrapColSize = "col-sm-12";
-          } else if (content.size === "75%") {
-            contentBootstrapColSize = "col-sm-9";
-          } else if (content.size === "50%") {
-            contentBootstrapColSize = "col-sm-6";
-          } else if (content.size === "40%") {
-            contentBootstrapColSize = "col-sm-5";
-          } else if (content.size === "10%") {
-            contentBootstrapColSize = "col-sm-1";
-          }
-
-          // Create an id for the subContainer using the displayType, starting with 0 for each displayType
-          if(displayTypeCounts[content.displayType] === undefined){
-            displayTypeCounts[content.displayType] = 0;
-          }
-          else{
-            displayTypeCounts[content.displayType]++;
-          }
-          // create a new div under the main contentContainer to load the content of each display type 
-          var displayTypeNum = displayTypeCounts[content.displayType];
-          var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
-          // data-step attribute is used to look for content of an existing step in __hideContents
-          // and __lookForExistingContents.
-          var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv ' + contentBootstrapColSize + '"></div>';
-          var mainContainer = $('#contentContainer');
-          //console.log(mainContainer);
-          mainContainer.append(subContainerDiv);
-          var subContainer = $("#" + subContainerDivId);            
-
-          //console.log("displayType: ", content.displayType);
-          switch (content.displayType) {
-            case 'fileEditor':
-              editor.create(subContainer, step.name, content).done(function(newEditor){
-                contentManager.setEditor(step.name, newEditor, displayTypeNum);
-              });                
-              break;
-            case 'tabbedEditor':
-              // NOTE! tabbedEditors may not display well in less than 1/2 screen.
-              content.bootstrapColSize = contentBootstrapColSize;  // The tabbedEditor needs to know
-                                                                   // the width of its containr to
-                                                                   // determine the size of its tabs.
-              tabbedEditor.create(subContainer, step.name, content).done(function(newTabbedEditor){
-                contentManager.setTabbedEditor(step.name, newTabbedEditor, displayTypeNum);
-              });
-              break; 
-            case 'commandPrompt':
-              cmdPrompt.create(subContainer, step.name, content).done(function(newCmdPrompt){
-                contentManager.setCommandPrompt(step.name, newCmdPrompt, displayTypeNum);
-              });                
-              break;
-            case 'webBrowser':
-              webBrowser.create(subContainer, step.name, content).done(function(newWebBrowser){
-                contentManager.setWebBrowser(step.name, newWebBrowser, displayTypeNum);
-              });                
-              break;
-            case 'fileBrowser':
-              fileBrowser.create(subContainer, content, step.name).done(function(newFileBrowser){
-                contentManager.setFileBrowser(step.name, newFileBrowser, displayTypeNum);
-              });                
-              break;
-            case 'pod':
-              pod.create(subContainer, step.name, content).done(function(newPod){
-                contentManager.setPod(step.name, newPod, displayTypeNum);
-              });                
-              break;
-          }
-        }
+          var widgetObj = {};
+          widgetObj.displayType = content.displayType;
+          widgetObj.enable = (content.enable === false) ? content.enable : true;
+          widgetInfo.push(widgetObj);
       });
     }
-  };
+    return widgetInfo;
+  }
 
-  // Look for step content using data-step attribute with the step name in it
-  var __lookForExistingContents = function(step) {
-    var existingStep = $("[data-step=" + step.name + "]");
-    if (existingStep.length > 0) {
-      existingStep.removeClass("hidden");
-      // Look for any sections of this step and show them.  Sections appear on 
-      // the same page as a step, but have their own TOC entry.
-      if(step.sections){
-        for(var i = 0; i < step.sections.length; i++){
-          var section = step.sections[i];
-          var existingSection = $("[data-step=" + section.name + "]");
-          if(existingSection.length > 0){
-            existingSection.removeClass("hidden");
-          }
+  var getWidgetsInfoForStep = function(step) {
+    var defaultPercentage = "50%";
+    var widgetInfo = (step.content === undefined ? _defaultWidgets : _createWidgetInfo(step));
+    var numOfWidgets = widgetInfo.length;
+
+    // populate the widget object with height
+    if (numOfWidgets === 2) {
+        for (var i = 0; i < widgetInfo.length; i++) {
+           widgetInfo[i].height = defaultPercentage;
+        };
+    } else if (numOfWidgets === 3) {
+        // pod is always 20% height
+        var podWidget = widgetInfo[1];
+        podWidget.height = "20%";
+        
+        var browserWidget = widgetInfo[0];
+        var editorWidget = widgetInfo[2];
+        // if both browser and editor are active then browser is 40%, editor is 40%
+        if (browserWidget.enable === true && editorWidget.enable === true) {
+            widgetInfo[0].height = "40%";
+            widgetInfo[2].height = "40%";
+        // if browser is active and editor is nonactive then browser is 60%, editor is 20% 
+        } else if (browserWidget.enable === true && editorWidget.enable === false) {
+            widgetInfo[0].height = "60%";
+            widgetInfo[2].height = "20%";
+        // if browser is nonactive and editor is active then browser is 20%, editor is 60%
+        } else if (browserWidget.enable === false && editorWidget.enable === true) {
+            widgetInfo[0].height = "20%";
+            widgetInfo[2].height = "60%";
         }
-      }
-      return true;
     }
-    return false;
+    return widgetInfo;
+  }
+
+  var resizeWidgets = function(widgetInfo, activeWidget) {
+    var numOfWidgets = widgetInfo.length;
+
+    // no need to resize if active widget is pod since pod is always constant size
+    if (activeWidget === "pod") {
+       return;
+    }
+
+    // readjust the widgets height
+    if (numOfWidgets === 2) {
+        var browserWidget = widgetInfo[0];
+        var editorWidget = widgetInfo[1];
+
+        if (activeWidget === "webBrowser") {
+            browserWidget.height = "60%";
+            editorWidget.height = "40%";
+        } else if (activeWidget === "tabbedEditor") {
+            browserWidget.height = "40%";
+            editorWidget.height = "60%";
+        }
+    } else if (numOfWidgets === 3) {
+        var browserWidget = widgetInfo[0];
+        var podWidget = widgetInfo[1];
+        var editorWidget = widgetInfo[2];
+
+        // pod is always 20% height
+        podWidget.height = "20%";
+
+        if (activeWidget === "webBrowser") {
+            if (browserWidget.height === "60%") {
+              return;
+            } else {
+              browserWidget.height = "40%";
+              editorWidget.height = "40%";
+            }
+        }
+        if (activeWidget === "tabbedEditor") {
+            if (editorWidget.height === "60%") {
+              return;
+            } else {
+              browserWidget.height = "40%";
+              editorWidget.height = "60%";
+            }
+        }
+    }
+
+    // actual resize of widgets
+    for (var i = 0; i < widgetInfo.length; i++) {
+        var widgetId = widgetInfo[i].id;
+        var widgetContainer = $("#" + widgetId);
+        widgetContainer.css("height", widgetInfo[i].height);
+    }
+  }
+
+  // empty editor object
+  var editorObject = {
+    "displayType":"fileEditor",
+    "fileName": "    ",
+    "save": true,
+    "activeTab": true
   };
 
-  var updateURLfromStepName = function(stepName) {
-    var hashName = "";
-    $.each(hashStepNames, function(key, value){
-      if (value === stepName) {
-        hashName = key;
-        return false;
+  var __createEmptyWidgets = function(step, widgetContainer, stepWidgets) {
+    var displayTypeCounts = {};
+
+    for (var i = 0; i < stepWidgets.length; i++){
+        var content = {};
+        var widget = stepWidgets[i];
+        var displayType = widget.displayType;
+        var isEnable = widget.enable;
+        
+        if (displayTypeCounts[displayType] === undefined){
+            displayTypeCounts[displayType] = 0;
+        } else {
+            displayTypeCounts[displayType]++;
+        }
+        var displayTypeNum = displayTypeCounts[displayType];
+        var subContainerId = step.name + '-' + displayType + '-' + displayTypeNum;
+        // data-step attribute is used to look for content of an existing step in __hideContents
+        // and __lookForExistingContents.
+        var subContainerDivId = '<div id="' + subContainerId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
+        widget.id = subContainerDivId;
+        var subContainer = $(subContainerDivId);
+        if (isEnable === false) {
+           subContainer.addClass('disableContainer');
+        }
+        widgetContainer.append(subContainer);
+
+        // set the content here - will be used later to enable correctly        
+        if (displayType === "webBrowser") {
+           content.displayType = "webBrowser";
+           content.enable = isEnable;
+        }
+        if (displayType === "tabbedEditor") {
+            var editorList = [];
+            editorList.push(editorObject);
+            content.editorList = editorList;
+        }
+        
+        if (widget.height !== undefined) {
+            subContainer.css("height", widget.height);
+        }
+        //var percentageHeight = getWidgetPercentageHeight(numOfWidgets, displayType, isEnable);
+        //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
+        //console.log("widgetHeight ", widgetHeight);
+
+        //if (widgetHeight !== undefined) {
+        //    content.height = widgetHeight;
+        //}
+
+        createWidget(step.name, content, displayType, subContainer, displayTypeNum);
+    }
+  }
+
+  var __buildContent = function(step, $stepContent) {
+    contentManager.setInstructions(step.name, step.instruction);
+
+    __addTitle(step, $stepContent);
+    __addDescription(step, $stepContent);
+    __updateInstructions(step, $stepContent);
+
+    // no need to create widgets for these steps
+    if (step.name === "WhatNext" || step.name === "RelatedLinks") {
+      return;
+    }
+
+    // Insert widgets into the widgets div for its step.
+    var stepWidgets;
+    if ($(".stepWidgetContainer[data-step='" + step.name + "']").length > 0) {
+        stepWidgets = $(".stepWidgetContainer[data-step='" + step.name + "']");
+    } else { // create div
+        stepWidgets = $("<div class='stepWidgetContainer multicolStepHidden' data-step='" + step.name + "'></div>");
+        $("#code_column").append(stepWidgets);
+    }
+
+    // build/get widgets info
+    // store widgets object for each step in _mapStepWidgets
+    var widgetsObjInfo = _mapStepWidgets[step.name];
+    if (widgetsObjInfo === undefined) {
+        widgetsObjInfo = getWidgetsInfoForStep(step);
+        _mapStepWidgets[step.name] = widgetsObjInfo;
+    }
+
+    if (step.content) {
+        var content = step.content;
+        var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
+        var numOfWidgets = step.content.length;
+        
+        $.each(step.content, function(index, content) {
+            if (content.displayType) {
+                // Create an id for the subContainer using the displayType, starting with 0 for each displayType
+                if(displayTypeCounts[content.displayType] === undefined){
+                    displayTypeCounts[content.displayType] = 0;
+                } else {
+                    displayTypeCounts[content.displayType]++;
+                }
+                // create a new div under the main contentContainer to load the content of each display type
+                var displayTypeNum = displayTypeCounts[content.displayType];
+                var subContainerDivId = step.name + '-' + content.displayType + '-' + displayTypeNum;
+                // data-step attribute is used to look for content of an existing step in __hideContents
+                // and __lookForExistingContents.
+                var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';      
+                widgetsObjInfo[index].id = subContainerDivId;
+
+                // stepWidgets.hide();
+                stepWidgets.append(subContainerDiv);
+                var subContainer = $("#" + subContainerDivId);
+                // disable the widget if specified
+                if (content.enable === false) {
+                  subContainer.addClass('disableContainer'); 
+                }
+
+                // dynamically setup height for each widget based on each step content
+                //var percentageHeight = getWidgetPercentageHeight(numOfWidgets, content.displayType);
+                //var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
+                //content.height = widgetHeight;
+                var widgetHeight = widgetsObjInfo[index].height;
+                subContainer.css("height", widgetHeight);
+
+                createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
+
+                var isWidgetEnable = widgetsObjInfo[index].enable;
+                subContainer.on("click", function() {
+                  //console.log( "Handler for .click() ", subContainerDiv);
+                  if (isWidgetEnable !== false) {
+                    resizeWidgets(widgetsObjInfo, content.displayType);
+                  }
+                });
+
+                // listen to onclick on webBrowser content since it's an iframe
+                if (content.displayType === "webBrowser" && isWidgetEnable !== false) {         
+                  var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
+                  webBrowserContent.load(function() {
+                    $(this).contents().on("click", function() {
+                      //console.log("Click detected inside iframe.");
+                      resizeWidgets(widgetsObjInfo, content.displayType);
+                    });
+                  });
+                }
+            }
+      });
+    } else {
+      // create empty widgets
+      __createEmptyWidgets(step, stepWidgets, widgetsObjInfo);
+    }
+  };
+
+  /* 
+   * Update widgets displayed on right-hand side of multipane layout for the specified id.
+   * 
+   * id - the ID (hash value without the '#') for the given step.
+   */
+  var showStepWidgets = function(id) {
+    if (window.innerWidth >= twoColumnBreakpoint) {
+      // Find the stepName based on the ID
+      var stepName = getStepNameFromHash(id);
+      
+      // #codeColumn is showing.   Only display applicable widgets for the step.
+      $('.multicolStepShown').removeClass('multicolStepShown').addClass('multicolStepHidden');
+
+      // stepName is "" when srollTop displays guide header, or guide meta.
+      if (stepName) {
+        // Find the .stepWidgetContainer holding the widgets for the specified step.
+        var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
+        $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
       }
-    });
+    } 
+  };
 
-    __updateURLwithStepHash(hashName);
-  }
-
-  var updateURLfromStepTitle = function(stepTitle) {
-    var hashName = __createStepHashIdentifier(stepTitle);
-
-    if (!hashStepNames[hashName]) {
-      hashName = "";
-    }
-
-    __updateURLwithStepHash(hashName);
-  }
-
-  var __updateURLwithStepHash = function(hashName) {
-    var URL = location.href;
-    if (URL.indexOf('#') != -1) {
-      URL = URL.substring(0, URL.indexOf('#'));
-    }
-
-    if (hashName) {
-      URL += '#' + hashName;      
-    }
-
-    location.href = URL;
+  var createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
+      switch (displayType) {
+          case 'fileEditor':
+          editor.create(subContainer, stepName, content).done(function(newEditor){
+              contentManager.setEditor(stepName, newEditor, displayTypeNum);
+          });
+          break;
+          case 'tabbedEditor':
+          // NOTE! tabbedEditors may not display well in less than 1/2 screen.
+          tabbedEditor.create(subContainer, stepName, content).done(function(newTabbedEditor){
+              contentManager.setTabbedEditor(stepName, newTabbedEditor, displayTypeNum);
+          });
+          break;
+          case 'commandPrompt':
+          cmdPrompt.create(subContainer, stepName, content).done(function(newCmdPrompt){
+              contentManager.setCommandPrompt(stepName, newCmdPrompt, displayTypeNum);
+          });
+          break;
+          case 'webBrowser':
+          webBrowser.create(subContainer, stepName, content).done(function(newWebBrowser){
+              contentManager.setWebBrowser(stepName, newWebBrowser, displayTypeNum);
+          });
+          break;
+          case 'fileBrowser':
+          fileBrowser.create(subContainer, content, stepName).done(function(newFileBrowser){
+              contentManager.setFileBrowser(stepName, newFileBrowser, displayTypeNum);
+          });
+          break;
+          case 'pod':
+          pod.create(subContainer, stepName, content).done(function(newPod){
+              contentManager.setPod(stepName, newPod, displayTypeNum);
+          });
+          break;
+      }
   }
 
   return {
     setSteps: setSteps,
-    createContentsFromName: createContentsFromName,
-    createContentsFromHash: createContentsFromHash,    
-    createContents: createContents,
+    createStepHashIdentifier: __createStepHashIdentifier,
     getCurrentStepName: getCurrentStepName,
-    createInstructionBlock: createInstructionBlock,
-    handleFirstStepContent: __handleFirstStepContent,
-    updateURLfromStepName: updateURLfromStepName,
-    updateURLfromStepTitle: updateURLfromStepTitle
+    setCurrentStepName: setCurrentStepName,
+    getStepNameFromHash: getStepNameFromHash,
+    createGuideContents: createGuideContents,
+    showStepWidgets: showStepWidgets
   };
 })();
