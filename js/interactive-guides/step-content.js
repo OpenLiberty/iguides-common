@@ -376,15 +376,15 @@ var stepContent = (function() {
             return;
           } else {
             browserWidget.height = browserWidgetHeight;
-            editorWidget.height = calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
+            editorWidget.height = calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
           }
         } else if (activeWidget === "tabbedEditor") {
-          if (editorWidget.height === editorWidgetMaxHeight) {
-            return;
-          } else {
-            browserWidget.height = calculateWidgetHeight(numOfWidgets, true, browserWidget.displayType);;
+          //if (editorWidget.height === editorWidgetMaxHeight) {
+          //  return;
+          //} else {
+            browserWidget.height = calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);;
             editorWidget.height = editorWidgetMaxHeight;
-          }
+          //}
         }
     } else if (numOfWidgets === 3) {
         var browserWidget = widgetInfo[0];
@@ -399,14 +399,14 @@ var stepContent = (function() {
               return;
             } else {
               browserWidget.height = browserWidgetHeight;
-              editorWidget.height = calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
+              editorWidget.height = calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
             }
         }
         if (activeWidget === "tabbedEditor") {
             if (editorWidget.height === editorWidgetMaxHeight) {
               return;
             } else {
-              browserWidget.height = calculateWidgetHeight(numOfWidgets, true, browserWidget.displayType);
+              browserWidget.height = calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);
               editorWidget.height = editorWidgetMaxHeight;
             }
         }
