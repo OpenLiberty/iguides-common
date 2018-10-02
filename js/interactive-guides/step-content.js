@@ -379,12 +379,12 @@ var stepContent = (function() {
             editorWidget.height = calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
           }
         } else if (activeWidget === "tabbedEditor") {
-          //if (editorWidget.height === editorWidgetMaxHeight) {
-          //  return;
-          //} else {
+          if (editorWidget.height === editorWidgetMaxHeight) {
+            return;
+          } else {
             browserWidget.height = calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);;
             editorWidget.height = editorWidgetMaxHeight;
-          //}
+          }
         }
     } else if (numOfWidgets === 3) {
         var browserWidget = widgetInfo[0];
