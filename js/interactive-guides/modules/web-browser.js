@@ -151,12 +151,21 @@ var webBrowser = (function(){
 
     enableRefreshButton: function(enable) {
       if (enable === true) {
-          this.contentRootElement.find('.wbRefreshButton').prop('disabled', false);
+        this.contentRootElement.find('.wbRefreshButton').removeClass('wbNavButtonDisabled');
+        this.contentRootElement.find('.wbRefreshButton').addClass('wbNavButtonActive');
       } else {
-          this.contentRootElement.find('.wbRefreshButton').prop('disabled', true);
+        this.contentRootElement.find('.wbRefreshButton').removeClass('wbNavButtonActive');
+        this.contentRootElement.find('.wbRefreshButton').addClass('wbNavButtonDisabled');
+      }
+    },
+
+    enableURLField: function(enable) {
+      if (enable === true) {
+          this.contentRootElement.find('.wbNavURL').prop('disabled', false);
+      } else {
+          this.contentRootElement.find('.wbNavURL').prop('disabled', true);
       }
     }
-
   };
 
 
@@ -212,6 +221,13 @@ var webBrowser = (function(){
           if (content.enableStatusBar !== undefined) {
             __enableStatusBar(thisWebBrowser, content.enableStatusBar);
           }
+
+          // make the refresh and url field have the same enable-disable
+          // value as the web browser (undefined assumed to be true)
+          if ((content.enable !== undefined) && (content.enable === false)) {
+            thisWebBrowser.enableURLField(false);
+            thisWebBrowser.enableRefreshButton(false);
+          } 
 
           // fill in contents
           thisWebBrowser.setURL(thisWebBrowser.webURL);
