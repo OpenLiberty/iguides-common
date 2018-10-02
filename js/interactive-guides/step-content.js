@@ -17,11 +17,13 @@ var stepContent = (function() {
                             // more entries than the _steps array because it also
                             // contains elements for sections which appear in the TOC.
   var _defaultWidgets;
+  var _configWidgets;
   var _mapStepWidgets = {};
 
-  var setSteps = function(steps, defaultWidgets) {
+  var setSteps = function(steps, defaultWidgets, configWidgets) {
     _steps = steps;
     _defaultWidgets = defaultWidgets;
+    _configWidgets = configWidgets;
     __createLinks();
   };
 
@@ -262,28 +264,10 @@ var stepContent = (function() {
     createEndOfGuideContent();
   };
 
-  var calculateWidgetHeight = function(percentageHeight, numOfWidgets) { 
-    var widgetHeight = "300px";
-    var marginHeight = "5";
-    //var totalMargin = marginHeight * numOfWidgets;
-    var rightColumn = $("#code_column:visible");
-    if (rightColumn.length > 0) {
-        // Get height of visible right column
-        var columnHeight = rightColumn.height();
-        //var subContainer = $(".subContainerDiv");
-        //if (subContainer.length > 0) {
-        //   marginHeight = subContainer[0].css("margin-top") * 2;
-        //   totalMargin = marginHeight * numOfWidgets;
-        //}
-        //var widgetHeight = ((columnHeight - totalMargin) * percentageHeight)/100 + "px";
-        var widgetHeight = ((columnHeight * percentageHeight)/100 - marginHeight) + "px";
-    } else {
-      // Don't dictate the height in single column mode.
-      widgetHeight = "auto";
-    }
-    return widgetHeight;
+  var getStepWidgets = function(stepName) {
+    return _mapStepWidgets[stepName];
   }
-  
+
   var _createWidgetInfo = function(step) {
     var widgetInfo = [];
 
@@ -296,78 +280,91 @@ var stepContent = (function() {
           widgetObj.displayType = content.displayType;
           widgetObj.enable = (content.enable === false) ? content.enable : true;
           widgetObj.active = (content.active === true) ? content.active : false;
+          widgetObj.hidden = (content.hidden === true) ? content.hidden : false;
           widgetInfo.push(widgetObj);
       });
     }
     return widgetInfo;
   }
 
-  var getWidgetsInfoForStep = function(step) {
-    var defaultPercentage = "50%";
-    var widgetInfo = (step.content === undefined ? _defaultWidgets : _createWidgetInfo(step));
-    var numOfWidgets = widgetInfo.length;
+  var calculateWidgetHeight = function(numOfWidgets, isPodHidden, type) { 
+    var widgetHeight = "300px";
+    var marginHeight = parseInt("5");
+    var browserHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.length - 2));
+    var podHeight = parseInt(podWidgetHeight.substring(0, podWidgetHeight.length - 2));
+    var editorHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
+    var totalMargin = marginHeight * numOfWidgets;
+    var wHeight;
+    if (type === "webBrowser") {
+      wHeight = editorHeight;
+    } else if (type === "tabbedEditor") {
+      wHeight = browserHeight;
+    }
+        
+    var rightColumn = $("#code_column:visible");
+    if (rightColumn.length > 0) {
+        // Get height of visible right column
+        var columnHeight = rightColumn.height();
+        if (numOfWidgets === 3) {
+          if (isPodHidden === true) {
+            widgetHeight = columnHeight - (wHeight + (marginHeight * (numOfWidgets - 1))) + "px";
+          } else {
+            widgetHeight = columnHeight - (wHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
+          }
+        } else if (numOfWidgets === 2) {
+          widgetHeight = columnHeight - (wHeight + (marginHeight * numOfWidgets));
+        }        
+    } else {
+      // Don't dictate the height in single column mode.
+      widgetHeight = "auto";
+    }
+    return widgetHeight;
+  }
 
+  // TBD configure this in json
+  var podWidgetHeight = "150px";
+  var browserWidgetHeight = "300px";
+  var editorWidgetMaxHeight = "400px";
+
+  var getWidgetsInfoForStep = function(step) {
+
+    var widgetInfo = (step.content === undefined ? _defaultWidgets : _createWidgetInfo(step));
+    var numOfWidgets = widgetInfo.length; 
+    var isPodHidden = false;
+ 
     // populate the widget object with height
     if (numOfWidgets === 2) {
-        var widget1 = widgetInfo[0];
-        var widget2 = widgetInfo[1];
-        if ((widget1.enable === true && widget2.enable === true) ||
-            (widget1.enable !== true && widget2.enable !== true)) {
-            for (var i = 0; i < widgetInfo.length; i++) {
-              widgetInfo[i].height = defaultPercentage;
-            };
-        } else if (widget1.enable === true && widget2.enable !== true) {
-            widget1.height = "60%";
-            widget2.height = "40%";
-        } else if (widget1.enable !== true && widget2.enable === true) {
-            widget1.height = "40%";
-            widget2.height = "60%";
-        }
-    } else if (numOfWidgets === 3) {
-        // pod is always 20% height
-        var podWidget = widgetInfo[1];
-        podWidget.height = "20%";
+        var browserWidget = widgetInfo[0];
+        browserWidget.height = browserWidgetHeight;
         
+        var editorWidget = widgetInfo[1];
+        editorWidget.height = calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
+    } else if (numOfWidgets === 3) {
+        // pod/browser is fix height
+        var podWidget = widgetInfo[1];
         var browserWidget = widgetInfo[0];
         var editorWidget = widgetInfo[2];
-        // if both browser and editor are enable
-        // set the active widget to 60%
-        // active widget mean the widget that user will interact first in the step
-        if (browserWidget.enable === true && editorWidget.enable === true) {
-            if (browserWidget.active === true) {
-              widgetInfo[0].height = "60%";
-              widgetInfo[2].height = "20%";
-            } else if (editorWidget.active === true) {
-              widgetInfo[0].height = "20%";
-              widgetInfo[2].height = "60%";
-            } else {
-              widgetInfo[0].height = "40%";
-              widgetInfo[2].height = "40%";
-            }
-        // all widgets are not enable then browser is 40%, editor 40%
-        } else if (browserWidget.enable !== true && editorWidget.enable !== true) {
-            widgetInfo[0].height = "40%";
-            widgetInfo[2].height = "40%";
-        // if browser is active and editor is nonactive then browser is 60%, editor is 20% 
-        } else if (browserWidget.enable === true && editorWidget.enable === false) {
-            widgetInfo[0].height = "60%";
-            widgetInfo[2].height = "20%";
-        // if browser is nonactive and editor is active then browser is 20%, editor is 60%
-        } else if (browserWidget.enable === false && editorWidget.enable === true) {
-            widgetInfo[0].height = "20%";
-            widgetInfo[2].height = "60%";
-        }
+
+        podWidget.height = podWidgetHeight;
+        isPodHidden = podWidget.hidden;
+             
+        if (editorWidget.active === true) {
+          // cal the browser height base on the remaining space
+          browserWidget.height = calculateWidgetHeight(numOfWidgets, isPodHidden, browserWidget.displayType);
+
+          editorWidget.height = editorWidgetMaxHeight;           
+        } else {
+          browserWidget.height = browserWidgetHeight;
+
+          // cal the editor height base on the remaining space         
+          editorWidget.height = calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
+        }      
     }
     return widgetInfo;
   }
 
-  var resizeWidgets = function(widgetInfo, activeWidget) {
+  var resizeWidgets = function(widgetInfo, activeWidget, enablePod) {
     var numOfWidgets = widgetInfo.length;
-
-    // no need to resize if active widget is pod since pod is always constant size
-    if (activeWidget === "pod") {
-       return;
-    }
 
     // readjust the widgets height
     if (numOfWidgets === 2) {
@@ -375,18 +372,18 @@ var stepContent = (function() {
         var editorWidget = widgetInfo[1];
 
         if (activeWidget === "webBrowser") {
-          if (browserWidget.height === "60%") {
+          if (browserWidget.height === browserWidgetHeight) {
             return;
           } else {
-            browserWidget.height = "60%";
-            editorWidget.height = "40%";
+            browserWidget.height = browserWidgetHeight;
+            editorWidget.height = calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
           }
         } else if (activeWidget === "tabbedEditor") {
-          if (editorWidget.height === "60%") {
+          if (editorWidget.height === editorWidgetMaxHeight) {
             return;
           } else {
-            browserWidget.height = "40%";
-            editorWidget.height = "60%";
+            browserWidget.height = calculateWidgetHeight(numOfWidgets, true, browserWidget.displayType);;
+            editorWidget.height = editorWidgetMaxHeight;
           }
         }
     } else if (numOfWidgets === 3) {
@@ -394,24 +391,34 @@ var stepContent = (function() {
         var podWidget = widgetInfo[1];
         var editorWidget = widgetInfo[2];
 
-        // pod is always 20% height
-        podWidget.height = "20%";
+        // pod is always constant size
+        podWidget.height = podWidgetHeight;
 
         if (activeWidget === "webBrowser") {
-            if (browserWidget.height === "60%") {
+            if (browserWidget.height === browserWidgetHeight) {
               return;
             } else {
-              browserWidget.height = "60%";
-              editorWidget.height = "20%";
+              browserWidget.height = browserWidgetHeight;
+              editorWidget.height = calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
             }
         }
         if (activeWidget === "tabbedEditor") {
-            if (editorWidget.height === "60%") {
+            if (editorWidget.height === editorWidgetMaxHeight) {
               return;
             } else {
-              browserWidget.height = "20%";
-              editorWidget.height = "60%";
+              browserWidget.height = calculateWidgetHeight(numOfWidgets, true, browserWidget.displayType);
+              editorWidget.height = editorWidgetMaxHeight;
             }
+        }
+        if (activeWidget === "pod") {
+            if (enablePod === true) {
+              // show pod
+              var podContainer = $("#" + podWidget.id);
+              podContainer.removeClass('multicolStepHidden');
+              // recalcuate brower/editor height
+              browserWidget.height = browserWidgetHeight;
+              editorWidget.height = calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
+          }           
         }
     }
 
@@ -419,10 +426,7 @@ var stepContent = (function() {
     for (var i = 0; i < widgetInfo.length; i++) {
         var widgetId = widgetInfo[i].id;
         var widgetContainer = $("#" + widgetId);
-        //widgetContainer.css("height", widgetInfo[i].height);
-        var percentageHeight = widgetInfo[i].height.substring(0, widgetInfo[i].height.length - 1);
-        var widgetHeight = calculateWidgetHeight(percentageHeight, widgetInfo.length);
-        widgetContainer.css("height", widgetHeight);
+        widgetContainer.css("height", widgetInfo[i].height);
     }
   }
 
@@ -434,7 +438,7 @@ var stepContent = (function() {
     "activeTab": true
   };
 
-  var __createEmptyWidgets = function(step, widgetContainer, stepWidgets) {
+  var __createDefaultWidgets = function(step, widgetContainer, stepWidgets) {
     var displayTypeCounts = {};
 
     for (var i = 0; i < stepWidgets.length; i++){
@@ -460,20 +464,17 @@ var stepContent = (function() {
         }
         widgetContainer.append(subContainer);
 
-        if (displayType === "tabbedEditor") {
-            var editorList = [];
-            editorList.push(editorObject);
-            content.editorList = editorList;
-        }
+        //if (displayType === "tabbedEditor") {
+            //var editorList = [];
+            //editorList.push(editorObject);
+            //content.editorList = editorList;
+        //}
         
         if (widget.height !== undefined) {
-            //subContainer.css("height", widget.height);
-            var percentageHeight = widget.height.substring(0, widget.height.length - 1);
-            var widgetHeight = calculateWidgetHeight(percentageHeight, stepWidgets.length);
-            subContainer.css("height", widgetHeight);
+            subContainer.css("height", widget.height);
         }
     
-        createWidget(step.name, content, displayType, subContainer, displayTypeNum);
+        createWidget(step.name, widget, displayType, subContainer, displayTypeNum);
     }
   }
 
@@ -536,12 +537,16 @@ var stepContent = (function() {
                 }
 
                 // dynamically setup height for each widget based on each step content
-                //var widgetHeight = widgetsObjInfo[index].height;
-                var percentageHeight = widgetsObjInfo[index].height.substring(0, widgetsObjInfo[index].height.length - 1);
-                var widgetHeight = calculateWidgetHeight(percentageHeight, numOfWidgets);
+                var widgetHeight = widgetsObjInfo[index].height;
                 subContainer.css("height", widgetHeight);
 
                 createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
+
+                // hide the widget if it's hidden
+                var isWidgetHidden = widgetsObjInfo[index].hidden;
+                if (isWidgetHidden === true) {
+                  subContainer.addClass('multicolStepHidden');   
+                }
 
                 // listen to onclick on webBrowser nav bar
                 var isWidgetEnable = widgetsObjInfo[index].enable;
@@ -585,7 +590,7 @@ var stepContent = (function() {
       });
     } else {
       // create empty widgets
-      __createEmptyWidgets(step, stepWidgets, widgetsObjInfo);
+      __createDefaultWidgets(step, stepWidgets, widgetsObjInfo);
     }
   };
 
@@ -654,6 +659,8 @@ var stepContent = (function() {
     setCurrentStepName: setCurrentStepName,
     getStepNameFromHash: getStepNameFromHash,
     createGuideContents: createGuideContents,
-    showStepWidgets: showStepWidgets
+    showStepWidgets: showStepWidgets,
+    getStepWidgets: getStepWidgets,
+    resizeStepWidgets: resizeWidgets
   };
 })();

@@ -14,7 +14,8 @@ var blueprint = (function(){
           __setupLocalSession();
           var steps = jsonGuide.getSteps(blueprintName);
           var defaultWidgets = jsonGuide.getStepsDefaultWidgets(blueprintName);
-          stepContent.setSteps(steps, defaultWidgets);
+          var configWidgets = jsonGuide.getStepsConfigWidgets(blueprintName);
+          stepContent.setSteps(steps, defaultWidgets, configWidgets);
           tableofcontents.create(steps);
           stepContent.createGuideContents();
       
