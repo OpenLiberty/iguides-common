@@ -18,6 +18,7 @@ var blueprint = (function(){
           stepContent.setSteps(steps, defaultWidgets, configWidgets);
           tableofcontents.create(steps);
           stepContent.createGuideContents();
+          iguideMultipane.initView();
       
           // Monitor for hash changes to show the requested page.
           // Hash changes occur when the URL is updated with a new hash
