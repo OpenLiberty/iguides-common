@@ -336,10 +336,10 @@ var contentManager = (function() {
     }
 
 // ==== Pod Functions ====
-    var setPodContent = function(stepName, content, instanceNumber) {
+    var setPodContent = function(stepName, content, instanceNumber, podCallback) {
         var pod = __getPodInstance(stepName, instanceNumber);
         if (pod) {
-            pod.setContent(content);
+            pod.setContent(content, podCallback);
         }
     };
 
@@ -458,7 +458,7 @@ var contentManager = (function() {
     }
 
 
-// ==== Tabbed Editor Functions ====
+    // ==== Tabbed Editor Functions ====
     /** Add an editor to the tabbed editor in a new tab.
      *  @param {String} stepName
      *  @param {*} file editor creation object
@@ -747,22 +747,14 @@ var contentManager = (function() {
                 else{
                     stepInstruction.currentInstructionIndex = -1;
                 }
+                 
+                // Mark the completed instruction's actions disabled
+                var instructions = $("instruction.completed:visible");
+                var actions = instructions.find('action');
+                actions.prop('tabindex', '-1');
+                actions.off('click');
+                actions.off('keypress');
             }
-        }
-
-        // Mark the completed instruction's actions disabled
-        var instructions = $("instruction.completed:visible");
-        var actions = instructions.find('action');
-        actions.prop('tabindex', '-1');
-        actions.off('click');
-        actions.off('keypress');
-
-        // If there are tabbedEditors, resize them according to the widget next to it.
-        var tabbedEditors = __getTabbedEditors(stepName);
-        if(tabbedEditors){
-            tabbedEditors.forEach(function(tabbedEditor){
-                tabbedEditor.resize();
-            });
         }
     };
 
@@ -831,7 +823,7 @@ var contentManager = (function() {
 
     /*
         Check if all of the instructions for a given step are complete.
-        Input: {stepName} Step name
+        Input: {step} Step object
     */
     var determineIfAllInstructionsComplete = function(step) {
         var stepName = step.name;
@@ -860,7 +852,6 @@ var contentManager = (function() {
 
     var resetInstruction = function(stepName) {
         var stepInstruction = __getStepInstruction(stepName);
-        // TODO
     };
 
     return {
