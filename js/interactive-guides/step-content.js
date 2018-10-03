@@ -17,13 +17,13 @@ var stepContent = (function() {
                             // more entries than the _steps array because it also
                             // contains elements for sections which appear in the TOC.
   var _defaultWidgets;
-  var _configWidgets;
   var _mapStepWidgets = {};
+  var _mapWidgetsHeight = {}; // store widgets height
 
   var setSteps = function(steps, defaultWidgets, configWidgets) {
     _steps = steps;
     _defaultWidgets = defaultWidgets;
-    _configWidgets = configWidgets;
+    __getConfigurableWidgetsHeight(configWidgets);
     __createLinks();
   };
 
@@ -268,12 +268,13 @@ var stepContent = (function() {
     return _mapStepWidgets[stepName];
   }
 
-  var _createWidgetInfo = function(step) {
+  var __createWidgetInfo = function(step) {
     var widgetInfo = [];
 
     // populate the widget object with displayType/state
     // enable: the widgets that are use in this step
     // active: the active one that will be interact first in this step
+    // hidden: the widget is not show when initially display the step
     if (step.content) {
       $.each(step.content, function(index, content) {
           var widgetObj = {};
@@ -287,13 +288,22 @@ var stepContent = (function() {
     return widgetInfo;
   }
 
-  var calculateWidgetHeight = function(numOfWidgets, isPodHidden, type) { 
-    var widgetHeight = "300px";
+  // calculate the widget height based on type
+  var __calculateWidgetHeight = function(numOfWidgets, isPodHidden, type) { 
+    var widgetHeight = "auto";
+    // this is for the margin-top + margin-bottom space surrounding each widget in the 3rd column.
     var marginHeight = parseInt("5");
+
+    var browserWidgetHeight =  _mapWidgetsHeight["webBrowser"];
     var browserHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.length - 2));
+
+    var podWidgetHeight =  _mapWidgetsHeight["pod"];
     var podHeight = parseInt(podWidgetHeight.substring(0, podWidgetHeight.length - 2));
+
+    // TBD need to figure out the height of editor using scrollheight
+    var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
     var editorHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
-    var totalMargin = marginHeight * numOfWidgets;
+
     var wHeight;
     if (type === "webBrowser") {
       wHeight = editorHeight;
@@ -321,76 +331,108 @@ var stepContent = (function() {
     return widgetHeight;
   }
 
-  // TBD configure this in json
-  var podWidgetHeight = "150px";
-  var browserWidgetHeight = "300px";
-  var editorWidgetMaxHeight = "400px";
+  // get configurable widgets heights from json
+  var __getConfigurableWidgetsHeight = function(configWidgets) {
+      for (var i = 0; i < configWidgets.length; i++) {
+        var widget = configWidgets[i];
+        _mapWidgetsHeight[widget.displayType] = configWidgets[i].height;
+      }
+  }
 
-  var getWidgetsInfoForStep = function(step) {
-
-    var widgetInfo = (step.content === undefined ? _defaultWidgets : _createWidgetInfo(step));
-    var numOfWidgets = widgetInfo.length; 
-    var isPodHidden = false;
- 
-    // populate the widget object with height
-    if (numOfWidgets === 2) {
-        var browserWidget = widgetInfo[0];
-        browserWidget.height = browserWidgetHeight;
-        
-        var editorWidget = widgetInfo[1];
-        editorWidget.height = calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
-    } else if (numOfWidgets === 3) {
-        // pod/browser is fix height
-        var podWidget = widgetInfo[1];
-        var browserWidget = widgetInfo[0];
-        var editorWidget = widgetInfo[2];
-
-        podWidget.height = podWidgetHeight;
-        isPodHidden = podWidget.hidden;
-             
-        if (editorWidget.active === true) {
-          // cal the browser height base on the remaining space
-          browserWidget.height = calculateWidgetHeight(numOfWidgets, isPodHidden, browserWidget.displayType);
-
-          editorWidget.height = editorWidgetMaxHeight;           
-        } else {
-          browserWidget.height = browserWidgetHeight;
-
-          // cal the editor height base on the remaining space         
-          editorWidget.height = calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
-        }      
+  // return the widget object base on type
+  var __getInfoForWidget = function(widgetsInfo, displayType) {
+    var widgetInfo;
+    for (var i = 0; i < widgetsInfo.length; i++) {
+      if (widgetsInfo[i].displayType === displayType) {
+        widgetInfo = widgetsInfo[i];
+      }
     }
     return widgetInfo;
   }
 
+  var __getWidgetsInfoForStep = function(step) {
+
+    var widgetsInfo = (step.content === undefined ? _defaultWidgets : __createWidgetInfo(step));
+    var numOfWidgets = widgetsInfo.length; 
+    var isPodHidden = false;
+
+    var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
+    var podWidgetHeight = _mapWidgetsHeight["pod"];
+    var editorWidgetMaxHeight = _mapWidgetsHeight["tabbedEditor"];
+ 
+    // pod/browser is fix height
+    var podWidget = __getInfoForWidget(widgetsInfo, "pod");;
+    var browserWidget = __getInfoForWidget(widgetsInfo, "webBrowser");
+    var editorWidget = __getInfoForWidget(widgetsInfo, "tabbedEditor");
+    
+    // populate the widget object with height
+    if (numOfWidgets === 2) {
+        if (browserWidget !== undefined) {
+          browserWidget.height = browserWidgetHeight;
+        }
+        
+        if (editorWidget !== undefined) {
+          editorWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
+        }
+    } else if (numOfWidgets === 3) {
+        if (podWidget !== undefined) {
+          podWidget.height = podWidgetHeight;
+          isPodHidden = podWidget.hidden;
+        }
+          
+        if (editorWidget !== undefined) {
+          if (editorWidget.active === true) {
+            if (browserWidget !== undefined) {
+              // cal the browser height base on the remaining space
+              browserWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, browserWidget.displayType);
+            }
+
+            editorWidget.height = editorWidgetMaxHeight;           
+          } else {
+            if (browserWidget !== undefined) {
+              browserWidget.height = browserWidgetHeight;
+            }
+
+            // cal the editor height base on the remaining space         
+            editorWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
+          }
+        }      
+    }
+    return widgetsInfo;
+  }
+
   var resizeWidgets = function(widgetInfo, activeWidget, enablePod) {
+    if (inSingleColumnView())
+      return;
+
     var numOfWidgets = widgetInfo.length;
 
-    // readjust the widgets height
-    if (numOfWidgets === 2) {
-        var browserWidget = widgetInfo[0];
-        var editorWidget = widgetInfo[1];
+    var podWidget = __getInfoForWidget(widgetInfo, "pod");;
+    var browserWidget = __getInfoForWidget(widgetInfo, "webBrowser");
+    var editorWidget = __getInfoForWidget(widgetInfo, "tabbedEditor");
 
+    var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
+    var podWidgetHeight = _mapWidgetsHeight["pod"];
+    var editorWidgetMaxHeight = _mapWidgetsHeight["tabbedEditor"];
+
+    // readjust the widgets height
+    if (numOfWidgets === 2) {              
         if (activeWidget === "webBrowser") {
           if (browserWidget.height === browserWidgetHeight) {
             return;
           } else {
             browserWidget.height = browserWidgetHeight;
-            editorWidget.height = calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
+            editorWidget.height = __calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
           }
         } else if (activeWidget === "tabbedEditor") {
           if (editorWidget.height === editorWidgetMaxHeight) {
             return;
           } else {
-            browserWidget.height = calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);;
+            browserWidget.height = __calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);;
             editorWidget.height = editorWidgetMaxHeight;
           }
         }
     } else if (numOfWidgets === 3) {
-        var browserWidget = widgetInfo[0];
-        var podWidget = widgetInfo[1];
-        var editorWidget = widgetInfo[2];
-
         // pod is always constant size
         podWidget.height = podWidgetHeight;
 
@@ -399,25 +441,23 @@ var stepContent = (function() {
               return;
             } else {
               browserWidget.height = browserWidgetHeight;
-              editorWidget.height = calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
+              editorWidget.height = __calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
             }
-        }
-        if (activeWidget === "tabbedEditor") {
+        } else if (activeWidget === "tabbedEditor") {
             if (editorWidget.height === editorWidgetMaxHeight) {
               return;
             } else {
-              browserWidget.height = calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);
-              editorWidget.height = editorWidgetMaxHeight;
+              browserWidget.height = __calculateWidgetHeight(numOfWidgets, false, browserWidget.displayType);
+              editorWidget.height =  editorWidgetMaxHeight;
             }
-        }
-        if (activeWidget === "pod") {
+        } else if (activeWidget === "pod") {
             if (enablePod === true) {
               // show pod
               var podContainer = $("#" + podWidget.id);
               podContainer.removeClass('multicolStepHidden');
               // recalcuate brower/editor height
-              browserWidget.height = browserWidgetHeight;
-              editorWidget.height = calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
+              browserWidget.height =  browserWidgetHeight;
+              editorWidget.height = __calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
           }           
         }
     }
@@ -430,19 +470,10 @@ var stepContent = (function() {
     }
   }
 
-  // empty editor object
-  var editorObject = {
-    "displayType":"fileEditor",
-    "fileName": "    ",
-    "save": true,
-    "activeTab": true
-  };
-
   var __createDefaultWidgets = function(step, widgetContainer, stepWidgets) {
     var displayTypeCounts = {};
 
     for (var i = 0; i < stepWidgets.length; i++){
-        //var content = {};
         var widget = stepWidgets[i];
         var displayType = widget.displayType;
         var isEnable = widget.enable;
@@ -464,23 +495,11 @@ var stepContent = (function() {
         }
         widgetContainer.append(subContainer);
 
-        // set the content here - will be used later to enable correctly        
-        //if (displayType === "webBrowser") {
-        //  content.displayType = "webBrowser";
-        //  content.enable = isEnable;
-        //}
-
-        //if (displayType === "tabbedEditor") {
-            //var editorList = [];
-            //editorList.push(editorObject);
-            //content.editorList = editorList;
-        //}       
-        
         if (widget.height !== undefined) {
             subContainer.css("height", widget.height);
         }
     
-        createWidget(step.name, widget, displayType, subContainer, displayTypeNum);
+        __createWidget(step.name, widget, displayType, subContainer, displayTypeNum);
     }
   }
 
@@ -509,9 +528,9 @@ var stepContent = (function() {
     // store widgets object for each step in _mapStepWidgets
     var widgetsObjInfo = _mapStepWidgets[step.name];
     if (widgetsObjInfo === undefined) {
-        widgetsObjInfo = getWidgetsInfoForStep(step);
+        widgetsObjInfo = __getWidgetsInfoForStep(step);
         _mapStepWidgets[step.name] = widgetsObjInfo;
-    }
+    }      
 
     if (step.content) {
         var content = step.content;
@@ -537,59 +556,64 @@ var stepContent = (function() {
                 // stepWidgets.hide();
                 stepWidgets.append(subContainerDiv);
                 var subContainer = $("#" + subContainerDivId);
-                // disable the widget if specified
-                if (content.enable === false) {
-                  subContainer.addClass('disableContainer'); 
-                }
-
-                // dynamically setup height for each widget based on each step content
-                var widgetHeight = widgetsObjInfo[index].height;
-                subContainer.css("height", widgetHeight);
-
-                createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
-
-                // hide the widget if it's hidden
-                var isWidgetHidden = widgetsObjInfo[index].hidden;
-                if (isWidgetHidden === true) {
-                  subContainer.addClass('multicolStepHidden');   
-                }
-
-                // listen to onclick on webBrowser nav bar
-                var isWidgetEnable = widgetsObjInfo[index].enable;
-                subContainer.on("click", function() {
-                  //console.log( "Handler for .click() ", subContainerDiv);
-                  if (isWidgetEnable !== false) {
-                    resizeWidgets(widgetsObjInfo, content.displayType);
+                if (!inSingleColumnView()) {
+                  // disable the widget if specified
+                  if (content.enable === false) {
+                    subContainer.addClass('disableContainer'); 
                   }
-                });
 
-                // listen to onclick on webBrowser content since it's an iframe
-                if (content.displayType === "webBrowser" && isWidgetEnable !== false) {         
-                  var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
-                  webBrowserContent.load(function() {
-                    $(this).contents().on("click", function() {
-                      //console.log("Click detected inside iframe.");
+                  // dynamically setup height for each widget based on each step content    
+                  var widgetHeight = widgetsObjInfo[index].height;
+                  subContainer.css("height", widgetHeight);
+                }
+
+                __createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
+
+                // only handle this in multi view column
+                if (!inSingleColumnView()) {
+                  // hide the widget if it's hidden
+                  var isWidgetHidden = widgetsObjInfo[index].hidden;
+                  if (isWidgetHidden === true) {
+                    subContainer.addClass('multicolStepHidden');   
+                  }
+
+                  // listen to onclick on webBrowser nav bar
+                  var isWidgetEnable = widgetsObjInfo[index].enable;
+                  subContainer.on("click", function() {
+                    //console.log( "Handler for .click() ", subContainerDiv);
+                    if (isWidgetEnable !== false) {
                       resizeWidgets(widgetsObjInfo, content.displayType);
-                    });
+                    }
                   });
-                }
 
-                // enable hover on clickable widget
-                if (content.displayType !== "pod" && isWidgetEnable !== false) {
-                  var widgetOnHover;
-                  if (content.displayType === "webBrowser") {
-                      widgetOnHover = subContainer.find(".wb")
-                  } else if (content.displayType === "tabbedEditor") {
-                      widgetOnHover = subContainer.find(".teContainer");
-                  }
-                  if (widgetOnHover) {
-                    widgetOnHover.hover(function(e) {
-                      if (e.type === "mouseenter") {
-                        $(this).addClass('stepWidgetOnHover');
-                      } else {
-                        $(this).removeClass('stepWidgetOnHover');
-                      }
+                  // listen to onclick on webBrowser content since it's an iframe
+                  if (content.displayType === "webBrowser" && isWidgetEnable !== false) {         
+                    var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
+                    webBrowserContent.load(function() {
+                      $(this).contents().on("click", function() {
+                        //console.log("Click detected inside iframe.");
+                        resizeWidgets(widgetsObjInfo, content.displayType);
+                      });
                     });
+                  }
+
+                  // enable hover on clickable widget
+                  if (content.displayType !== "pod" && isWidgetEnable !== false) {
+                    var widgetOnHover;
+                    if (content.displayType === "webBrowser") {
+                        widgetOnHover = subContainer.find(".wb")
+                    } else if (content.displayType === "tabbedEditor") {
+                        widgetOnHover = subContainer.find(".teContainer");
+                    }
+                    if (widgetOnHover) {
+                      widgetOnHover.hover(function(e) {
+                        if (e.type === "mouseenter") {
+                          $(this).addClass('stepWidgetOnHover');
+                        } else {
+                          $(this).removeClass('stepWidgetOnHover');
+                        }
+                      });
+                    }
                   }
                 }
             }
@@ -622,7 +646,7 @@ var stepContent = (function() {
     } 
   };
 
-  var createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
+  var __createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
       switch (displayType) {
           case 'fileEditor':
           editor.create(subContainer, stepName, content).done(function(newEditor){
