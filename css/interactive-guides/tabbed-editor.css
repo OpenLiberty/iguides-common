@@ -12,9 +12,14 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    text-align: center;   
-    padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
-    border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
+    text-align: center;  
+    letter-spacing: 0;
+    height: 32px;
+    width: 126px;
+    padding: 2px 5px 4px 5px;
+    /*padding: 5px 3px;          /* Minimize Bootstrap's padding for tabs              */
+    /*border: 1px solid #ddd;  /* Give a border to all tabs so they are recognizable */
+    border: 1px solid #acb3c6;
     margin-right: 0;           /* Overlay bootstrap's margin so tabs are condensed   */
 }
 
@@ -46,7 +51,13 @@
 }
 
 .teContainer>.nav-tabs>li>a.active {
-    background-color: #eee;
+    line-height: 26px;
+    background-color: #f1f4fe;
+    color: #3f465a !important;
+}
+
+.teContainer>.nav-tabs>li>a:hover {
+    color: #5E6B8D !important;
 }
 
 .teTabContent {
@@ -55,11 +66,22 @@
 
 .teTabContent div.editorButtonFrame {
     border-top: none;
-    border-left-color: #ddd;    /* Change the border color of the menu bar in */
-    border-right-color: #ddd;   /* the editor to soften the transition from   */ 
-    border-bottom-color: #aaa;  /* the tabs to the editor frame.              */
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #acb3c6;
+    /*border-left-color: #ddd;    /* Change the border color of the menu bar in */
+    /*border-right-color: #ddd;   /* the editor to soften the transition from   */ 
+    /*border-bottom-color: #aaa;  /* the tabs to the editor frame.              */   
 }
 
 .teContents {
     clear: left;    /* Clear the float from the tab <li> elements */
+}
+
+.teContainer, .teTabContent {
+    height: 100%
+}
+
+.teContents {
+    height: calc(100% - 31px);
 }

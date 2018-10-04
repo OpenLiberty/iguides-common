@@ -315,6 +315,13 @@ var tabbedEditor = (function() {
             var containerID = container[0].id;
             thisTabbedEditor.displayTypeNum = containerID.substring(containerID.lastIndexOf('-')+1);
 
+            // set the tabbed editor height for the right column
+            if (content.height !== undefined) {
+                container.find('.teContainer').css({
+                    "height": content.height
+                });
+            }
+
             // Fill in the editors for this Tabbed Editor in different tabs
             var editors = content.editorList || [];
 

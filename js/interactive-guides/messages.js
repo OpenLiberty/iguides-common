@@ -9,8 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 var messages = {
-  // Left pane
-  "tableOfContentsTitle":"BluePrint Overview",
   // Web Browser
   "browserSample": "Sample browser window",
   "browserAddressBar": "Sample browser address bar",
@@ -18,8 +16,6 @@ var messages = {
   "browserRefreshButton": "Refresh sample browser page",
   "navigationButtons": "Guide navigation buttons",
   "browserStatusBar": "Sample browser status bar",
-  "prevButton": "Previous",
-  "nextButton": "Next",
   "cmdPromptSample": "Terminal window",
   "cmdPromptHelpMessage": "Type \'help\' to get started.",
   "cmdPromptInput": "Enter a command",

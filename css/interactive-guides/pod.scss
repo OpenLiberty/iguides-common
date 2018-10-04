@@ -8,12 +8,27 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+
+.podContainer {
+  @media (min-width: 1170px) {
+    border: 1px solid #c8d6fb;
+    background: rgba(255,255,255,0.75);
+    height: 100%;
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
 .pod-animation-slide-from-right {
   position: relative;
   -webkit-animation-name: animate-slide-from-right;
   -webkit-animation-duration: 1s;
   animation-name: animate-slide-from-right;
-  animation-duration: 1s
+  animation-duration: 1s;
+  height: inherit;
+  background: inherit;
 }
 
 .pod-animation-slide-from-right:focus {
@@ -29,4 +44,29 @@
   from{ right:-250px; opacity:0 } 
   to{ right:0; opacity:1 }
 }
+
+.pod-animation-slidedown {
+  position: relative;
+  -webkit-animation-name: animate-slidedown;
+  -webkit-animation-duration: 1s;
+  animation-name: animate-slidedown;
+  animation-duration: 1s;
+  height: inherit;
+  background: inherit;
+}
+
+.pod-animation-slidedown:focus {
+  outline: none;
+}
+
+@-webkit-keyframes animate-slidedown {
+  from { top: -15px; opacity:0 } 
+  to { top: 0px; opacity:1 }
+}
+
+@keyframes animate-slidedown { 
+  from{ top: -15px; opacity:0 } 
+  to{ top: 0px; opacity:1 }
+}
+
 
