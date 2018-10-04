@@ -313,7 +313,12 @@ var stepContent = (function() {
         
     var rightColumn = $("#code_column:visible");
     if (rightColumn.length > 0) {
-        // Get height of visible right column
+        // Recalculate the height of visible right column
+        var windowHeight = window.innerHeight;
+        var endOfGuideTopPosition = $("#end_of_guide")[0].getBoundingClientRect().top;
+        if (endOfGuideTopPosition > windowHeight) {
+          $("#code_column").css('bottom', '0');
+        }
         var columnHeight = rightColumn.height();
         if (numOfWidgets === 3) {
           if (isPodHidden === true) {
