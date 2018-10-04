@@ -353,6 +353,16 @@ var contentManager = (function() {
         }
     };
 
+    var setPodContentWithSlideDown = function(stepName, content, instanceNumber) {
+        var pod = __getPodInstance(stepName, instanceNumber);
+        if (pod) {
+            var podContent = "<div class=\"pod-animation-slidedown\" tabindex=\"0\">" +
+                content +
+                "</div>";
+            pod.setContent(podContent);
+        }
+    };
+
 // ==== File Editor Functions ====
 
     /** Returns the content from a specified FileEditor instance
@@ -879,6 +889,7 @@ var contentManager = (function() {
 
         setPodContent: setPodContent,
         setPodContentWithRightSlide: setPodContentWithRightSlide,
+        setPodContentWithSlideDown: setPodContentWithSlideDown,
         getPod: __getPodInstance,
         getPlayground: __getPlaygroundInstance,
 
