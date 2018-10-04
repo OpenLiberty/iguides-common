@@ -77,3 +77,7 @@
 .teContents {
     clear: left;    /* Clear the float from the tab <li> elements */
 }
+
+.teContainer, .teContents, .teTabContent {
+    height: 100%
+}

@@ -17,13 +17,13 @@
   line-height: 21px;
   text-align: left;
   background-color: #f1f4fe; 
-  height: 375px;
+  height: 100%;
   @media (max-width: 1170px) {
     height: 300px;    
   }
 }
 
-.codeeditor {
+.codeeditor, .editorContainer {
   height: 100%; 
 }
 
