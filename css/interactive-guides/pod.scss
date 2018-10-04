@@ -45,3 +45,28 @@
   to{ right:0; opacity:1 }
 }
 
+.pod-animation-slidedown {
+  position: relative;
+  -webkit-animation-name: animate-slidedown;
+  -webkit-animation-duration: 1s;
+  animation-name: animate-slidedown;
+  animation-duration: 1s;
+  height: inherit;
+  background: inherit;
+}
+
+.pod-animation-slidedown:focus {
+  outline: none;
+}
+
+@-webkit-keyframes animate-slidedown {
+  from { top: -15px; opacity:0 } 
+  to { top: 0px; opacity:1 }
+}
+
+@keyframes animate-slidedown { 
+  from{ top: -15px; opacity:0 } 
+  to{ top: 0px; opacity:1 }
+}
+
+
