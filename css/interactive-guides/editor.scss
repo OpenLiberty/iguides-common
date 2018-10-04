@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-.codeeditor .CodeMirror {
+ .codeeditor .CodeMirror {
   border-bottom: 1px solid #acb3c6;
   font-size: 13px;
   color: #3f465a;
@@ -23,7 +23,7 @@
   }
 }
 
-.codeeditor, .editorContainer {
+.editorContainer {
   height: 100%; 
 }
 
@@ -124,3 +124,8 @@
 .close_button_warning_editor {
   background-color: #fcf8e3;
 }
+
+.codeeditor {
+  height: calc(100% - 34px);
+ }
+
