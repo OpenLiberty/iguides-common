@@ -559,14 +559,18 @@ var stepContent = (function() {
                 widgetsObjInfo[index].id = subContainerDivId;
 
                 // stepWidgets.hide();
-                stepWidgets.append(subContainerDiv);
+                // put the editor first in single column view
+                if (inSingleColumnView() && content.displayType === "tabbedEditor") {
+                  stepWidgets.prepend(subContainerDiv);
+                } else {
+                  stepWidgets.append(subContainerDiv);
+                }
                 var subContainer = $("#" + subContainerDivId);
+                // always disable the widget if specified
+                if (content.enable === false) {
+                  subContainer.addClass('disableContainer');
+                }
                 if (!inSingleColumnView()) {
-                  // disable the widget if specified
-                  if (content.enable === false) {
-                    subContainer.addClass('disableContainer'); 
-                  }
-
                   // dynamically setup height for each widget based on each step content    
                   var widgetHeight = widgetsObjInfo[index].height;
                   subContainer.css("height", widgetHeight);
