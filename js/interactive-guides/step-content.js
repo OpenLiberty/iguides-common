@@ -578,8 +578,10 @@ var stepContent = (function() {
 
                 __createWidget(step.name, content, content.displayType, subContainer, displayTypeNum);
 
-                // only handle this in multi view column
-                if (!inSingleColumnView()) {
+                // Cannot just handle this in multi view column. When it is resized, need to handle click too.
+                // Enable the click listener all the times for now. Will refactor the codes here so that
+                // it could be called in initial build content + during resize from single to multi pane.
+                //if (!inSingleColumnView()) {
                   // hide the widget if it's hidden
                   var isWidgetHidden = widgetsObjInfo[index].hidden;
                   if (isWidgetHidden === true) {
@@ -624,7 +626,7 @@ var stepContent = (function() {
                       });
                     }
                   }
-                }
+                //}
             }
       });
     } else {
