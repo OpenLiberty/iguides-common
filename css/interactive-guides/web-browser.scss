@@ -78,9 +78,6 @@
 
 .wbContent {
     height: calc( 100% - 60px ); /* 60px = wbNavBar + wbStatusBar */
-    @media (max-width: 1170px) {
-        height: 300px;
-    }
 }
 
 .wbOverlay:after {
