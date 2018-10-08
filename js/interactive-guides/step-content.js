@@ -493,7 +493,7 @@ var stepContent = (function() {
         // data-step attribute is used to look for content of an existing step in __hideContents
         // and __lookForExistingContents.
         var subContainerDivId = '<div id="' + subContainerId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
-        widget.id = subContainerDivId;
+        widget.id = subContainerId;
         var subContainer = $(subContainerDivId);
         if (isEnable === false) {
            subContainer.addClass('disableContainer');
