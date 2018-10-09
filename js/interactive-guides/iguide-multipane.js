@@ -65,14 +65,9 @@ var iguideMultipane = (function () {
             widget = $(widget);
             var step = widget.attr('data-step');
             setTabbedEditorPosition(widget, step);
-            var webBrowserWidget = widget.find('#' + step + '-webBrowser-0');
             adjustPodHeight(widget.find('#' + step + '-pod-0'));
-            adjustBrowserHeight(webBrowserWidget, widget.children().length);
-            var activeWidgetType = "tabbedEditor";
-            if (webBrowserWidget.hasClass('activeWidget')) {
-                activeWidgetType = "webBrowser";
-            }
-            stepContent.resizeStepWidgets(stepContent.getStepWidgets(step), activeWidgetType);
+            adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
+            _resizeActiveWidget(widget);
         });
     };
 
@@ -147,17 +142,19 @@ var iguideMultipane = (function () {
         var stepContainers = $('.stepWidgetContainer');
         if (stepContainers.length > 0) {
             stepContainers.each(function() {
-                var stepName = $(this).attr('data-step');
-                var webBrowserWidget = $(this).find('#' + stepName + '-webBrowser-0');
-                var tabbedEditorWidget = $(this).find('#' + stepName + '-tabbedEditor-0');
-
-                var activeWidgetType = "tabbedEditor";
-                if (webBrowserWidget.hasClass('activeWidget')) {
-                    activeWidgetType = "webBrowser";
-                }
-                stepContent.resizeStepWidgets(stepContent.getStepWidgets(stepName), activeWidgetType);
+                _resizeActiveWidget($(this));
             })   
         }
+    }
+
+    var _resizeActiveWidget = function(containerWidget) {
+        var stepName = containerWidget.attr('data-step');
+        var webBrowserWidget = containerWidget.find('#' + stepName + '-webBrowser-0');
+        var activeWidgetType = "tabbedEditor";
+        if (webBrowserWidget.hasClass('activeWidget')) {
+            activeWidgetType = "webBrowser";
+        }
+        stepContent.resizeStepWidgets(stepContent.getStepWidgets(stepName), activeWidgetType);
     }
 
     return {
