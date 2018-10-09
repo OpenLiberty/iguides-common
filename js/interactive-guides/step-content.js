@@ -450,47 +450,47 @@ var stepContent = (function() {
       isPodHidden = podWidget.hidden;
     } 
     // readjust the widgets height
-    if (numOfWidgets === 2) {              
-        if (activeWidget === "webBrowser" || activeWidget === "tabbedEditor") {
-          _setWebBrowserAndEditorHeights(activeWidget, numOfWidgets, isPodHidden, editorWidget, browserWidget);
-        } 
+    if (numOfWidgets === 2) {
+      if (activeWidget === "webBrowser" || activeWidget === "tabbedEditor") {
+        _setWebBrowserAndEditorHeights(activeWidget, numOfWidgets, isPodHidden, editorWidget, browserWidget);
+      }
     } else if (numOfWidgets === 3) {
-        if (activeWidget === "webBrowser" || activeWidget === "tabbedEditor") {
-          _setWebBrowserAndEditorHeights(activeWidget, numOfWidgets, isPodHidden, editorWidget, browserWidget);
-        } else if (activeWidget === "pod") {
-            if (enablePod === true) {
-              // show pod
-              var podContainer = $("#" + podWidget.id);
-              podContainer.removeClass('multicolStepHidden');
-              // recalcuate brower/editor height
-              browserWidget.height =  browserWidgetHeight;
-              editorWidget.height = __calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
-          }           
+      if (activeWidget === "webBrowser" || activeWidget === "tabbedEditor") {
+        _setWebBrowserAndEditorHeights(activeWidget, numOfWidgets, isPodHidden, editorWidget, browserWidget);
+      } else if (activeWidget === "pod") {
+        if (enablePod === true) {
+          // show pod
+          var podContainer = $("#" + podWidget.id);
+          podContainer.removeClass('multicolStepHidden');
+          // recalcuate brower/editor height
+          browserWidget.height = browserWidgetHeight;
+          editorWidget.height = __calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
         }
+      }
     }
 
     // actual resize of widgets
     for (var i = 0; i < widgetInfo.length; i++) {
-        var widgetId = widgetInfo[i].id;
-        var widgetContainer = $("#" + widgetId);
-        widgetContainer.css("height", widgetInfo[i].height);
-        // Default 100% height is overridden under the cover during resizing.
-        // Has to explicit reset the height back to 100%.
-        if (widgetId.indexOf('tabbedEditor') !== -1) {
-          var teContainer = widgetContainer.find('.teContainer');
-          if (teContainer.length > 0) {
-            teContainer.css('height', '100%');
-          }
-          var editorContainer = widgetContainer.find('.editorContainer');
-          if (editorContainer.length > 0) {
-            editorContainer.css('height', '100%');
-          }
-        } else if (widgetId.indexOf('webBrowser') !== -1) {
-          var wb = widgetContainer.find('.wb');
-          if (wb.length > 0) {
-            wb.css('height', '100%');
-          }
+      var widgetId = widgetInfo[i].id;
+      var widgetContainer = $("#" + widgetId);
+      widgetContainer.css("height", widgetInfo[i].height);
+      // Default 100% height is overridden under the cover during resizing.
+      // Has to explicit reset the height back to 100%.
+      if (widgetId.indexOf('tabbedEditor') !== -1) {
+        var teContainer = widgetContainer.find('.teContainer');
+        if (teContainer.length > 0) {
+          teContainer.css('height', '100%');
         }
+        var editorContainer = widgetContainer.find('.editorContainer');
+        if (editorContainer.length > 0) {
+          editorContainer.css('height', '100%');
+        }
+      } else if (widgetId.indexOf('webBrowser') !== -1) {
+        var wb = widgetContainer.find('.wb');
+        if (wb.length > 0) {
+          wb.css('height', '100%');
+        }
+      }
     }
   }
 
@@ -733,6 +733,10 @@ var stepContent = (function() {
       }
   }
 
+  var getConfigWidgetHeights = function() {
+    return _mapWidgetsHeight;
+  }
+
   return {
     setSteps: setSteps,
     createStepHashIdentifier: __createStepHashIdentifier,
@@ -742,6 +746,7 @@ var stepContent = (function() {
     createGuideContents: createGuideContents,
     showStepWidgets: showStepWidgets,
     getStepWidgets: getStepWidgets,
-    resizeStepWidgets: resizeWidgets
+    resizeStepWidgets: resizeWidgets,
+    getConfigWidgetHeights: getConfigWidgetHeights
   };
 })();

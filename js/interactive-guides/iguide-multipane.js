@@ -46,10 +46,10 @@ var iguideMultipane = (function () {
                 contentStepDiv.append(widget);
 
                 // adjust the editpr position and height of the widgets in the code_column
-                setTabbedEditorPosition(contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]'), step);
-                adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
-                adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
-                adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
+                _setTabbedEditorPosition(contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]'), step);
+                _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
+                _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
+                _adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
             }
         });
     };
@@ -64,14 +64,14 @@ var iguideMultipane = (function () {
             // adjust the editpr position and height of the widgets in the code_column
             widget = $(widget);
             var step = widget.attr('data-step');
-            setTabbedEditorPosition(widget, step);
-            adjustPodHeight(widget.find('#' + step + '-pod-0'));
-            adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
+            _setTabbedEditorPosition(widget, step);
+            _adjustPodHeight(widget.find('#' + step + '-pod-0'));
+            _adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
             _resizeActiveWidget(widget);
         });
     };
 
-    var setTabbedEditorPosition = function (stepWidgetContainer, step) {
+    var _setTabbedEditorPosition = function (stepWidgetContainer, step) {
         if (stepWidgetContainer.length > 0) {
             var tabbedEditorWidget = stepWidgetContainer.find('#' + step + '-tabbedEditor-0');
             if (tabbedEditorWidget.length > 0) {
@@ -86,8 +86,17 @@ var iguideMultipane = (function () {
         }
     };
 
-    var adjustPodHeight = function (pod) {
-        var height = 150;
+    var _getConfigWidgetHeight = function(widgetType) {
+        var height = stepContent.getConfigWidgetHeights()[widgetType];
+        if (height.indexOf('px') !== -1) { 
+            height = height.substring(0, height.indexOf('px'));
+        }
+        height = parseInt(height);
+        return height;
+    }
+
+    var _adjustPodHeight = function (pod) {
+        var height = _getConfigWidgetHeight('pod');
         if (pod.length > 0) {
             if (currentView === 'single') {
                 pod.css('height', 'auto');
@@ -100,8 +109,8 @@ var iguideMultipane = (function () {
         return height;
     };
 
-    var adjustBrowserHeight = function (browser, numOfWidgets) {
-        var height = 300;
+    var _adjustBrowserHeight = function (browser, numOfWidgets) {
+        var height = _getConfigWidgetHeight('webBrowser');
         if (browser.length > 0) {
             if (currentView === 'single') {
                 var balanceContainer = browser.find('.wbContent').find('iframe').contents().find('div.checkBalanceContainer');                
@@ -113,7 +122,7 @@ var iguideMultipane = (function () {
                 } 
             } else {
                 if (browser.hasClass('disableContainer') && (numOfWidgets > 2)) {
-                    height = 200;
+                    height = height - 100;
                 }               
             }
             browser.css('height', height + 'px');
@@ -123,7 +132,7 @@ var iguideMultipane = (function () {
         return height;
     };
 
-    var adjustTabbedEditorHeight = function (tabbedEditor, otherWidgetHeight) {
+    var _adjustTabbedEditorHeight = function (tabbedEditor, otherWidgetHeight) {
         if (tabbedEditor.length > 0) {
             if (currentView === 'single') {
                 if (!tabbedEditor.hasClass('disableContainer')) {
@@ -138,14 +147,12 @@ var iguideMultipane = (function () {
         }
     };
 
-    var resizeCodeColumnHeight = function() {
-        var stepContainers = $('.stepWidgetContainer');
-        if (stepContainers.length > 0) {
-            stepContainers.each(function() {
-                _resizeActiveWidget($(this));
-            })   
+    var resizeCodeColumnHeightInStepShown = function() {
+        var stepContainer = $('.stepWidgetContainer.multicolStepShown');
+        if (stepContainer.length > 0) {
+            _resizeActiveWidget(stepContainer);
         }
-    }
+    };
 
     var _resizeActiveWidget = function(containerWidget) {
         var stepName = containerWidget.attr('data-step');
@@ -155,14 +162,14 @@ var iguideMultipane = (function () {
             activeWidgetType = "webBrowser";
         }
         stepContent.resizeStepWidgets(stepContent.getStepWidgets(stepName), activeWidgetType);
-    }
+    };
 
     return {
         initView: initView,
         getCurrentViewType: getCurrentViewType,
         multiToSingleColumn: multiToSingleColumn,
         singleToMultiColumn: singleToMultiColumn,
-        resizeCodeColumnHeight: resizeCodeColumnHeight
+        resizeCodeColumnHeightInStepShown: resizeCodeColumnHeightInStepShown
     };
 })();
 
@@ -176,7 +183,13 @@ $(document).ready(function () {
         } else if (currentView === 'single' && !inSingleColumnView()) {
             iguideMultipane.singleToMultiColumn();
         } else if (currentView === 'multi' && !inSingleColumnView()) {
-            iguideMultipane.resizeCodeColumnHeight();
+            iguideMultipane.resizeCodeColumnHeightInStepShown();
+        }
+    });
+
+    $(window).on('scroll', function() {
+        if (iguideMultipane.getCurrentViewType() === 'multi') {
+            iguideMultipane.resizeCodeColumnHeightInStepShown();
         }
     });
 });
