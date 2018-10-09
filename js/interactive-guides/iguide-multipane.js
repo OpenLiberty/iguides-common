@@ -65,9 +65,14 @@ var iguideMultipane = (function () {
             widget = $(widget);
             var step = widget.attr('data-step');
             setTabbedEditorPosition(widget, step);
-            var podHeight = adjustPodHeight(widget.find('#' + step + '-pod-0'));
-            var BrowserHeight = adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
-            adjustTabbedEditorHeight(widget.find('#' + step + '-tabbedEditor-0'), podHeight + BrowserHeight);
+            var webBrowserWidget = widget.find('#' + step + '-webBrowser-0');
+            adjustPodHeight(widget.find('#' + step + '-pod-0'));
+            adjustBrowserHeight(webBrowserWidget, widget.children().length);
+            var activeWidgetType = "tabbedEditor";
+            if (webBrowserWidget.hasClass('activeWidget')) {
+                activeWidgetType = "webBrowser";
+            }
+            stepContent.resizeStepWidgets(stepContent.getStepWidgets(step), activeWidgetType);
         });
     };
 
@@ -126,22 +131,41 @@ var iguideMultipane = (function () {
     var adjustTabbedEditorHeight = function (tabbedEditor, otherWidgetHeight) {
         if (tabbedEditor.length > 0) {
             if (currentView === 'single') {
-                tabbedEditor.css('height', 'auto');
+                if (!tabbedEditor.hasClass('disableContainer')) {
+                    tabbedEditor.css('height', 'auto');
+                }
             } else {
                 // not able to use $('#code_column').height() as it may get 0 during resizing
                 var codeColumnHeight = window.innerHeight - 101; // not able to use $('.navbar').height() as the navbar height changes
                 var tabbedEditorHeight = codeColumnHeight - otherWidgetHeight;
-                console.log("code_height = " + codeColumnHeight + "; tabbedEditorHeight = " + tabbedEditorHeight);
                 tabbedEditor.css('height', tabbedEditorHeight + 'px');
             }
         }
     };
 
+    var resizeCodeColumnHeight = function() {
+        var stepContainers = $('.stepWidgetContainer');
+        if (stepContainers.length > 0) {
+            stepContainers.each(function() {
+                var stepName = $(this).attr('data-step');
+                var webBrowserWidget = $(this).find('#' + stepName + '-webBrowser-0');
+                var tabbedEditorWidget = $(this).find('#' + stepName + '-tabbedEditor-0');
+
+                var activeWidgetType = "tabbedEditor";
+                if (webBrowserWidget.hasClass('activeWidget')) {
+                    activeWidgetType = "webBrowser";
+                }
+                stepContent.resizeStepWidgets(stepContent.getStepWidgets(stepName), activeWidgetType);
+            })   
+        }
+    }
+
     return {
         initView: initView,
         getCurrentViewType: getCurrentViewType,
         multiToSingleColumn: multiToSingleColumn,
-        singleToMultiColumn: singleToMultiColumn
+        singleToMultiColumn: singleToMultiColumn,
+        resizeCodeColumnHeight: resizeCodeColumnHeight
     };
 })();
 
@@ -150,10 +174,12 @@ $(document).ready(function () {
 
     $(window).on('resize', function () {
         var currentView = iguideMultipane.getCurrentViewType();
-        if (currentView == 'multi' && inSingleColumnView()) {
+        if (currentView === 'multi' && inSingleColumnView()) {
             iguideMultipane.multiToSingleColumn();
-        } else if (currentView == 'single' && !inSingleColumnView()) {
+        } else if (currentView === 'single' && !inSingleColumnView()) {
             iguideMultipane.singleToMultiColumn();
+        } else if (currentView === 'multi' && !inSingleColumnView()) {
+            iguideMultipane.resizeCodeColumnHeight();
         }
     });
 });
