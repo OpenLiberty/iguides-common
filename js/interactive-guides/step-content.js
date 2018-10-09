@@ -430,8 +430,14 @@ var stepContent = (function() {
     // set the current active widget to be used for resizing from single to multi column pane
     _addActiveWidgetClass(widgetInfo, activeWidget);
 
-    if (inSingleColumnView())
+    if (inSingleColumnView()) {
+      if (activeWidget === "pod" && enablePod === true) {
+          // show pod
+          var podContainer = $("#" + podWidget.id);
+          podContainer.removeClass('multicolStepHidden');
+      }
       return;
+    }
 
     var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
     var podWidgetHeight = _mapWidgetsHeight["pod"];
@@ -478,6 +484,11 @@ var stepContent = (function() {
           var editorContainer = widgetContainer.find('.editorContainer');
           if (editorContainer.length > 0) {
             editorContainer.css('height', '100%');
+          }
+        } else if (widgetId.indexOf('webBrowser') !== -1) {
+          var wb = widgetContainer.find('.wb');
+          if (wb.length > 0) {
+            wb.css('height', '100%');
           }
         }
     }
