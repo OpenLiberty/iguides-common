@@ -42,6 +42,12 @@ var blueprint = (function(){
             // Match the widgets on the right to id
             stepContent.showStepWidgets(hash.substring(1));
             stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
+          } else {
+            // no hash -> at the top of the guide
+            var hash = "#Intro";
+            accessContentsFromHash(hash);
+            // Show the widgets on the right for Intro step
+            stepContent.showStepWidgets(hash.substring(1));
           }
 
           $(window).on('scroll', function(event) {
