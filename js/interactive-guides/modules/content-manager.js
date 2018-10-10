@@ -363,6 +363,21 @@ var contentManager = (function() {
         }
     };
 
+    var setPodContentWithFadeInPod = function(stepName, content, instanceNumber) {
+        var pod = __getPodInstance(stepName, instanceNumber);
+        if (pod) {
+            var podContent = "<div tabindex=\"0\">" +
+                content +
+                "</div>";
+            pod.setContent(podContent);
+        }
+        if (instanceNumber === undefined) {
+            instanceNumber = 0;
+        }
+        $('#' + stepName + '-pod-' + instanceNumber).hide();
+        $('#' + stepName + '-pod-' + instanceNumber).fadeIn(1000);
+    };
+
 // ==== File Editor Functions ====
 
     /** Returns the content from a specified FileEditor instance
@@ -890,6 +905,7 @@ var contentManager = (function() {
         setPodContent: setPodContent,
         setPodContentWithRightSlide: setPodContentWithRightSlide,
         setPodContentWithSlideDown: setPodContentWithSlideDown,
+        setPodContentWithFadeInPod: setPodContentWithFadeInPod,
         getPod: __getPodInstance,
         getPlayground: __getPlaygroundInstance,
 
