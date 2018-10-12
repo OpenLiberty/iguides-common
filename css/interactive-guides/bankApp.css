@@ -76,7 +76,7 @@ body {
     margin: 24px 24px 0; 
     flex-grow: 1;
     overflow: hidden;
-  }
+}
   
 .flexWarningContainer > div {
     text-align: center;
@@ -91,9 +91,7 @@ body {
 .flexWelcomeContainer {
     display: flex;
     flex-direction: row;
-    /* justify-content: flex-start; */ /* to the left */ /* align-items: flex-start to move to the top */
     flex-wrap: nowrap;
-    /* align-content: center; */
     flex: 1;
 }
 
@@ -106,7 +104,7 @@ body {
     margin: 10px;
 }
 
-.flexWelcomeContainer > figure > img {
+.flexWarningContainer > figure > img, .flexWelcomeContainer > figure > img {
     margin: auto;
     max-height: 100%;
     max-width: 100%;
@@ -171,7 +169,7 @@ body {
 
 @media (min-width: 950px) {
     .welcomeBankTitle {
-        font-size: 10vw;
+        font-size: 10vw; /* to tone down the text as the image won't stretch past its max size */
     }
 }
 
