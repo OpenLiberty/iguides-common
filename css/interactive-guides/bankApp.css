@@ -10,6 +10,12 @@
  *******************************************************************************/
  @import url("https://fonts.googleapis.com/css?family=Asap:300,400,500");
 
+ @font-face {
+    font-family: BunueloLight;
+    src: url("/fonts/BunueloCleanPro-Light.otf");
+}
+
+
 body {
     font-family: Asap;
     margin: 0 1px;
@@ -57,7 +63,7 @@ body {
     animation: spin 2s linear infinite;
 }
 
-#fail {
+#fail, #welcome {
     display: flex;  /** Initially the spinner is showing so hide this div **/
     height: calc(100% - 85px);    /** 85px is height of check balance + global ebank headers **/
 }
@@ -82,12 +88,92 @@ body {
     letter-spacing: 0;
 }
 
+.flexWelcomeContainer {
+    display: flex;
+    flex-direction: row;
+    /* justify-content: flex-start; */ /* to the left */ /* align-items: flex-start to move to the top */
+    flex-wrap: nowrap;
+    /* align-content: center; */
+    flex: 1;
+}
+
+
+.flexWelcomeContainer > figure {
+    flex: 1;  /* image will take up 1 flex space */
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    margin: 10px;
+}
+
+.flexWelcomeContainer > figure > img {
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.welcomeTextWrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 3;  /* text part will take up 3 flex space */
+    overflow: hidden;
+    justify-content: flex-end;
+}
+
+.welcomeBorderWrapper > p {
+    font-size: 16px;
+    font-weight: 500;
+    color: #5E6B8D;
+    letter-spacing: 0;
+}
+
+.welcomeBorderWrapper {
+    display: flex;
+    align-items: center;
+    width: 88%;  /* to control how long the border line is displayed */
+}
+
+.welcomeLine {
+    border-top: 1px solid #C3C8D7;
+    flex-grow: 1;
+    margin: 0 10px;
+}
+
+.welcomeBankTitle {
+    font-family: BunueloLight;
+    font-size: 12vw;  /* use vw (viewport width) as the unit instead of hardcoding the font size sp
+                         that the font size is scalable */
+    color: #5E6B8D;
+    letter-spacing: 0;
+}
+
+.welcomeBankTitle > p {
+    margin: 0;
+}
+
 @media (max-width: 375px) {
     .bankHeading {
         font-size: 14px;
     } 
 }
-  
+
+@media (max-width: 620px) {
+    .welcomeTextWrapper {
+        justify-content: center;  /* need to adjust the alignment to the center because the image 
+                                     shrinks causing mis-alignment */
+    }
+}
+
+@media (min-width: 950px) {
+    .welcomeBankTitle {
+        font-size: 10vw;
+    }
+}
 
 @-webkit-keyframes spin {
     0% {
