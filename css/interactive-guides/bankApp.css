@@ -23,8 +23,8 @@ body {
 
 .bankHeading {
     font-weight: 500;
-    font-size: 14px;
-    color: #343334;
+    font-size: 16px;
+    color: #5E6B8D;
     letter-spacing: 0;
     text-align: left;
     padding: 9px 0px 9px 18px;
@@ -66,20 +66,28 @@ body {
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
-    background:rgba(231,29,50,0.07);
     justify-content: center;
     margin: 24px 24px 0; 
     flex-grow: 1;
-}
-
+    overflow: hidden;
+  }
+  
 .flexWarningContainer > div {
     text-align: center;
     line-height: 24px;
+    font-weight: 500;
     font-size: 14px;
     align-self: center;
-    color: #272727;
+    color: #1B1C34;
     letter-spacing: 0;
 }
+
+@media (max-width: 375px) {
+    .bankHeading {
+        font-size: 14px;
+    } 
+}
+  
 
 @-webkit-keyframes spin {
     0% {
