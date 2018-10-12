@@ -169,13 +169,23 @@ function replaceExternalizedStrings(responseText) {
     'use strict';  
     var messages = parseQuery(responseText);
 
-    var allExternalizedStr = document.querySelectorAll("[data-externalizedString]");
-    allExternalizedStr.forEach(function(element) {
+    var allExternalizedStrs = document.querySelectorAll("[data-externalizedString]");
+    allExternalizedStrs.forEach(function(element) {
         element.innerHTML = messages[element.dataset.externalizedstring];
     });
 
-    var externalizedAriaLabels = document.querySelectorAll("[data-externalizedAriaLabel]");
-    externalizedAriaLabels.forEach(function(element) {
+    var allExternalizedAriaLabels = document.querySelectorAll("[data-externalizedAriaLabel]");
+    allExternalizedAriaLabels.forEach(function(element) {
         element.setAttribute("aria-label", messages[element.dataset.externalizedarialabel]);
+    });
+
+    var allExternalizedTitles = document.querySelectorAll("[data-externalizedTitle]");
+    allExternalizedTitles.forEach(function(element) {
+        element.setAttribute("title", messages[element.dataset.externalizedtitle]);
+    });
+
+    var allExternalizedAlts = document.querySelectorAll("[data-externalizedAlt]");
+    allExternalizedAlts.forEach(function(element) {
+        element.setAttribute("alt", messages[element.dataset.externalizedalt]);
     });
 };
