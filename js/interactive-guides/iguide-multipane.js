@@ -45,7 +45,7 @@ var iguideMultipane = (function () {
             } else {
                 contentStepDiv.append(widget);
 
-                // adjust the editpr position and height of the widgets in the code_column
+                // adjust the editor position and height of the widgets in the code_column
                 _setTabbedEditorPosition(contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]'), step);
                 _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
                 _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
@@ -136,7 +136,8 @@ var iguideMultipane = (function () {
         if (tabbedEditor.length > 0) {
             if (currentView === 'single') {
                 if (!tabbedEditor.hasClass('disableContainer')) {
-                    tabbedEditor.css('height', 'auto');
+                    // no longer need to set auto height
+                    //tabbedEditor.css('height', 'auto');
                 }
             } else {
                 // not able to use $('#code_column').height() as it may get 0 during resizing

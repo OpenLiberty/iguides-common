@@ -141,6 +141,8 @@ var editor = (function() {
         closeEditorErrorBox: function() {
             if (this.alertFrame.length) {
                 this.alertFrame.addClass("hidden");
+                // recalculate the height when alert pane is closed
+                this.codeEditor.css("height", 'calc(100% - 34px)');
             }
         },
         createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
@@ -190,7 +192,6 @@ var editor = (function() {
                         }
                     }
                     var editor = container.find('.codeeditor');
-                    //console.log("container id", container[0].id);
                     var id = container[0].id + "-codeeditor";
                     editor.attr("id", id);
                     __createEditor(thisEditor, id, container, stepName, content);
@@ -216,7 +217,6 @@ var editor = (function() {
         
         if (content.writable) {
             markTextWritable = __adjustWritableLines(content.writable);
-            //console.log("markTextWritable: ", markTextWritable);
         }
         
         thisEditor.editor = CodeMirror(document.getElementById(id), {
@@ -259,6 +259,8 @@ var editor = (function() {
         runButton.attr('title', messages.runButton);
 
         thisEditor.alertFrame = container.find(".alertFrame");
+
+        thisEditor.codeEditor = container.find(".codeeditor");
 
         if ((content.save === false || content.save === "false")) {
             saveButton.addClass("hidden");
@@ -332,7 +334,6 @@ var editor = (function() {
     
     var __markTextForWritable = function(thisEditor, markTextWritable) {
         $.each(markTextWritable, function(index, writableLine) {
-            //console.log("writableLine ", writableLine.line);
             thisEditor.editor.addLineClass(writableLine.line, 'gutter', 'insertBorderLine');
         });
     }; 
@@ -377,6 +378,11 @@ var editor = (function() {
         var idHere = "here_button_error_editor_" + thisEditor.stepName;
         var idClose = "close_button_error_editor_" + thisEditor.stepName;
         var idError = "error_" + thisEditor.stepName + "_" + thisEditor.fileName; //added filenName to id to avoid duplicate ids
+       
+        var codeEditor = thisEditor.codeEditor;
+        // when alert pane is show, recalculate the editor height 100% - 68px (editor button frame height + alert frame height)
+        codeEditor.css("height", 'calc(100% - 68px)');
+        
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
         if (editorError.length) {
@@ -434,12 +440,14 @@ var editor = (function() {
             thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", true);
             thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", true);
             thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", true);
+            thisEditor.editorButtonFrame.find(".editorCopyButton").prop("disabled", true);
         } else {
             thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorCopyButton").prop("disabled", false);
         }
     };
 
