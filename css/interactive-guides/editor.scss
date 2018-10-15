@@ -16,8 +16,10 @@
   letter-spacing: 0;
   line-height: 21px;
   text-align: left;
-  background-color: #f1f4fe; 
-  height: 100%;
+  background-color: #f1f4fe;
+  @media (min-width: 1170px) {
+    height: 100%;
+  }
 }
 
 .editorContainer {
@@ -123,6 +125,8 @@
 }
 
 .codeeditor {
-  height: calc(100% - 34px);
- }
-
+  height: calc(100% - 66px);
+  @media (min-width: 1170px) {
+   height: calc(100% - 34px);
+  }
+}

@@ -157,9 +157,12 @@ var iguideMultipane = (function () {
     var _resizeActiveWidget = function(containerWidget) {
         var stepName = containerWidget.attr('data-step');
         var webBrowserWidget = containerWidget.find('#' + stepName + '-webBrowser-0');
-        var activeWidgetType = "tabbedEditor";
+        var editorWidget = containerWidget.find("#" + stepName + "-tabbedEditor-0");
+        var activeWidgetType = "pod";
         if (webBrowserWidget.hasClass('activeWidget')) {
             activeWidgetType = "webBrowser";
+        } else if (editorWidget.hasClass('activeWidget')) {
+            activeWidgetType = "tabbedEditor";
         }
         stepContent.resizeStepWidgets(stepContent.getStepWidgets(stepName), activeWidgetType);
     };
