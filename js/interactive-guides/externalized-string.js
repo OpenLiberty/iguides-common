@@ -162,24 +162,30 @@ function appendDate(element, translateMsg) {
 }
 
 /**
- * Query for all data-externalizedString and replace the string for translate messages into key=value array
+ * Query for all strings and replace them with translate messages into key=value array
  */
+
 function replaceExternalizedStrings(responseText) {
     'use strict';  
-       
-    var queryArr = parseQuery(responseText);
+    var messages = parseQuery(responseText);
 
-    var allExternalizedStr = document.querySelectorAll("[data-externalizedString]");
-    
-    var i;
-    
-    for (i = 0; i < allExternalizedStr.length; i++) {
-        var element = allExternalizedStr[i];
-        var msgKey = element.getAttribute("data-externalizedString");
-        var translateMsg = findMatchingKey(queryArr, msgKey);
-        if (msgKey.valueOf() === "MONTH") {
-            translateMsg = appendDate(element, translateMsg);
-        }      
-        element.innerHTML = translateMsg;
-    }
-}
+    var allExternalizedStrs = document.querySelectorAll("[data-externalizedString]");
+    allExternalizedStrs.forEach(function(element) {
+        element.innerHTML = messages[element.dataset.externalizedstring];
+    });
+
+    var allExternalizedAriaLabels = document.querySelectorAll("[data-externalizedAriaLabel]");
+    allExternalizedAriaLabels.forEach(function(element) {
+        element.setAttribute("aria-label", messages[element.dataset.externalizedarialabel]);
+    });
+
+    var allExternalizedTitles = document.querySelectorAll("[data-externalizedTitle]");
+    allExternalizedTitles.forEach(function(element) {
+        element.setAttribute("title", messages[element.dataset.externalizedtitle]);
+    });
+
+    var allExternalizedAlts = document.querySelectorAll("[data-externalizedAlt]");
+    allExternalizedAlts.forEach(function(element) {
+        element.setAttribute("alt", messages[element.dataset.externalizedalt]);
+    });
+};
