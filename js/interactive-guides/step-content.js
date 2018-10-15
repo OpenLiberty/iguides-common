@@ -512,6 +512,25 @@ var stepContent = (function() {
     }
   }
 
+  // change the outline of the widget container when the widget is disable
+  var __changeWidgetBorderColor = function(subContainer, displayType, disable) {
+    var widget;
+    if (displayType === "webBrowser") {
+        widget = subContainer.find(".wb")
+    } else if (displayType === "tabbedEditor") {
+        widget = subContainer.find(".teContainer");
+    } else if (displayType === "pod") {
+        widget = subContainer.find(".podContainer");
+    }
+    if (widget) {
+      if (disable === true) {
+        widget.css("border-color", "#5E6B8D");     
+      } else {
+        widget.css("border-color", "#c8d6fb");
+      }
+    }    
+  }
+
   var __createDefaultWidgets = function(step, widgetContainer, stepWidgets) {
     var displayTypeCounts = {};
 
@@ -542,6 +561,11 @@ var stepContent = (function() {
         }
     
         __createWidget(step.name, widget, displayType, subContainer, displayTypeNum);
+
+        // change the outline of the disable widget container
+        if (isEnable === false) {
+          __changeWidgetBorderColor(subContainer, displayType, true);
+        }
     }
   }
 
@@ -630,6 +654,10 @@ var stepContent = (function() {
 
                   // listen to onclick on webBrowser nav bar
                   var isWidgetEnable = widgetsObjInfo[index].enable;
+                  // change the outline of the disable widget container
+                  if (isWidgetEnable === false) {
+                      __changeWidgetBorderColor(subContainer, content.displayType, true);
+                  }
                   subContainer.on("click", function() {
                     //console.log( "Handler for .click() ", subContainerDiv);
                     if (isWidgetEnable !== false) {

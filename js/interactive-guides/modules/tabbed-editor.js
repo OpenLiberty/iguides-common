@@ -325,18 +325,19 @@ var tabbedEditor = (function() {
             // Fill in the editors for this Tabbed Editor in different tabs
             var editors = content.editorList || [];
 
-            // Determine the width of the tabs based on the bootstrapColSize
-            // that the tabbed editor is given.
+            // Determine the width of the tabs based on the number of tabs
             var numNonActiveEditors = editors.length - 1;
-            if (numNonActiveEditors <= 0  ||
-                content.bootstrapColSize === "col-sm-12") {
+            if (numNonActiveEditors <= 0 ) {
+                // Only one file in tabbed editor
                 numNonActiveEditors = 1; // To avoid division by zero, and to give future tabs added a size.
                 thisTabbedEditor.activeTabSize = '100%';
                 thisTabbedEditor.cssWidthValue = "max-width";   // Display full name of active editor
                                                                 // when we have the room!
             } else {
+                // Let active tab expand to 50% width of tabbed editor so we
+                // can hopefully see the whole name of the active tab.
                 thisTabbedEditor.activeTabSize = '50%';
-                thisTabbedEditor.cssWidthValue = "width";
+                thisTabbedEditor.cssWidthValue = "max-width";
             }
             thisTabbedEditor.tabSize = (50/numNonActiveEditors) + '%';
 
