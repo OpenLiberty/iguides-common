@@ -331,7 +331,9 @@ var stepContent = (function() {
         }        
     } else {
       // Don't dictate the height in single column mode.
-      widgetHeight = "auto";
+      if (type === "tabbedEditor") {
+        widgetHeight = editorWidgetMaxHeight;
+      }
     }
     return widgetHeight;
   }
@@ -631,7 +633,7 @@ var stepContent = (function() {
                 if (content.enable === false) {
                   subContainer.addClass('disableContainer');
                 }
-                if (!inSingleColumnView()) {
+                if (!inSingleColumnView() || content.displayType === "tabbedEditor") {
                   // dynamically setup height for each widget based on each step content    
                   var widgetHeight = widgetsObjInfo[index].height;
                   subContainer.css("height", widgetHeight);

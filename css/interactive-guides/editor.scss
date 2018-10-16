@@ -16,7 +16,7 @@
   letter-spacing: 0;
   line-height: 21px;
   text-align: left;
-  background-color: #f1f4fe; 
+  background-color: #f1f4fe;
   height: 100%;
 }
 
@@ -58,13 +58,7 @@
 .editorButtonFrame {
   background: #c7ccd9 none repeat scroll 0 0;
   height: 34px;
-  /*
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  border-top: 1px solid black;
-  border-bottom: 1px solid #ccc;*/
   position: relative;
-  /*min-height: 30px;*/
   overflow: hidden;
 }
 
@@ -80,28 +74,15 @@
   color: #1b1c34; 
   background-color: transparent;
 }
-/*
-.editorRunButton {
-  display: block;
-  float: right;
-  margin: 1px 8px 1px 0px;
-  padding: 2px;
-  border: none;
-  background-color: transparent;
-  width: 42px;
-}*/
 
 .editorButtonFrame .btn:focus {
    outline: 2px solid blue;
 }
 
 .alertFrame {
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  border-top: 1px solid black;
   border-bottom: 1px solid #ccc;
   position: relative;
-  min-height: 30px;
+  height: 34px;
   padding: 5px;
   overflow: hidden;
 }
@@ -124,5 +105,4 @@
 
 .codeeditor {
   height: calc(100% - 34px);
- }
-
+}
