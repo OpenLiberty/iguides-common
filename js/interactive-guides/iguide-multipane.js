@@ -136,8 +136,9 @@ var iguideMultipane = (function () {
         if (tabbedEditor.length > 0) {
             if (currentView === 'single') {
                 if (!tabbedEditor.hasClass('disableContainer')) {
-                    // in single view set fix height to 400px
-                    tabbedEditor.css('height', '400px');
+                    // in single view set fix height 
+                    var tabbedEditorHeight = _getConfigWidgetHeight('tabbedEditor');
+                    tabbedEditor.css('height', tabbedEditorHeight + 'px');
                 }
             } else {
                 // not able to use $('#code_column').height() as it may get 0 during resizing
