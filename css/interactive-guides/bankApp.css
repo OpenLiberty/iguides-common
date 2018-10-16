@@ -31,7 +31,6 @@ body {
     background-color: #deedf7;
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #95c4f3;
 }
 
 .bankHeadingBlockFlexContainer > span {
