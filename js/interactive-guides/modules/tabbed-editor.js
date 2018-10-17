@@ -13,10 +13,17 @@ var tabbedEditor = (function() {
 
     var tabbedEditorType = function(container, stepName, content) {
         /**
-         * This widget forms a tabbed editor.  It contains an array of fileEditor
-         * widgets as the "editorList" element of its content.
-         *
-         * Content may also contain
+         * This widget forms a tabbed editor. 
+         * The tabbed editor may have the following flag:
+         *   - "enable"  - true or false indicating if the tabbedEditor widget is enabled.
+         *       If false, all editors within the tabbedEditor will be disabled, which means
+         *       all buttons will be deactivated and the text cannot be updated.  This 
+         *       differs from READ-ONLY because with READ-ONLY the copy button is still
+         *       active and a banner indicating that the editor is Read-only is at the top of
+         *       the editor.
+         * 
+         * The tabbed editor contains an array of fileEditor widgets as the "editorList" 
+         * element of its content.  Content may also contain
          *  - "activeTab"- the fileName of the editor that you want to be active,
          *                 or have focus.  If "activeTab" is not specified,
          *                 then we default to the first tab as the active tab.
@@ -68,7 +75,15 @@ var tabbedEditor = (function() {
         this.stepName = stepName;
         this.editorList = {};                 // Tracks editor widget objects by tab id
         this.activeTabChangeCallback = null;  // User-defined callback function
-                                              // invoked when the URL is updated
+                                              // invoked when the #active tab changes.
+        
+        this.enabled = true;  // Default the tabbedEdditor to be enabled, unless content
+                              // indicates "enable": false.
+        if (content.enable !== undefined && (content.enable === false || content.enable === "false")) {
+            // A disabled tabbed editor contains all disabled editors where no action can occur
+            // with the file or editor buttons.
+            this.enabled = false;
+        }
 
         __loadAndCreate(this, container, stepName, content).done(function(result){
             deferred.resolve(result);
@@ -344,6 +359,12 @@ var tabbedEditor = (function() {
             if (editors.length > 0) {
                 for (var i=0; i<editors.length; i++) {
                     var tEditor = editors[i];
+                    if (!thisTabbedEditor.enabled) {
+                        // If the tabbedEditor is not enabled, then each editor within
+                        // must also be marked not enabled to disable its buttons and 
+                        // updates to its content.
+                        tEditor.enable = false;
+                    }
                     thisTabbedEditor.addEditor(tEditor);
                 }
 
