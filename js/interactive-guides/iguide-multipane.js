@@ -142,7 +142,7 @@ var iguideMultipane = (function () {
                 }
             } else {
                 // not able to use $('#code_column').height() as it may get 0 during resizing
-                var codeColumnHeight = window.innerHeight - 101; // not able to use $('.navbar').height() as the navbar height changes
+                var codeColumnHeight = stepContent.getCodeColumnHeight();
                 var tabbedEditorHeight = codeColumnHeight - otherWidgetHeight;
                 tabbedEditor.css('height', tabbedEditorHeight + 'px');
             }
