@@ -16,6 +16,12 @@ var editor = (function() {
         this.stepName = stepName;
         this.saveListenerCallback = null;
         this.fileName = "";
+        this.enabled = true;  // Default the editor to be enabled, unless content
+                              // indicates "enable": false.
+        if (content.enable !== undefined && (content.enable === false || content.enable === "false")) {
+            this.enabled = false;
+        }
+
         __loadAndCreate(this, container, stepName, content).done(function(result){
             deferred.resolve(result);
         });
@@ -180,11 +186,7 @@ var editor = (function() {
                         container.find('.editorContainer').attr("aria-label", content.fileName + " editor");
                         container.find('.editorFileName').text(content.fileName);
                         thisEditor.fileName = content.fileName;              
-                        //$(".editorContainer").css("margin-top", "-20px");
-                        //container.find(".editorContainer").css({
-                        //    "margin-top": "-20px",
-                        //    "margin-bottom": "50px"
-                        //});
+
                         if (content.editorHeight !== undefined) {             
                             container.find(".editorContainer").css({
                                 "height": content.editorHeight
@@ -214,6 +216,12 @@ var editor = (function() {
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
         }
+
+        var setReadOnly = false;
+        if (isReadOnly || !thisEditor.enabled) {
+            // Create the editor as read only so no text can be added or modified.
+            setReadOnly = true;
+        }
         
         if (content.writable) {
             markTextWritable = __adjustWritableLines(content.writable);
@@ -223,7 +231,7 @@ var editor = (function() {
             lineNumbers: true,
             autoRefresh: true,
             theme: 'elegant',
-            readOnly: isReadOnly,
+            readOnly: setReadOnly,
             inputStyle: 'contenteditable',  // for input reader in accessibility
             extraKeys: {Tab: false, "Shift-Tab": false} // disable tab and shift-tab to indent or unindent inside the
                                                         // editor, instead allow accessibility for tab and shift-tab to
@@ -239,6 +247,7 @@ var editor = (function() {
             thisEditor.editor.setValue(preloadEditorContent);
             thisEditor.editor.contentValue = preloadEditorContent;
         }
+
         if (content.callback) {
             var callback = eval(content.callback);
             callback(thisEditor);
@@ -268,10 +277,24 @@ var editor = (function() {
             runButton.addClass("hidden");
         }
 
+        if (content.enable !== undefined && (content.enable === false || content.enable === "false")) {
+            thisEditor.enabled = false;
+        }
+
         // mark any readOnly lines
-        if (isReadOnly) {
+        // setReadOnly is true if the editor content specified the file should be
+        //                     marked as readOnly.  In this case, a banner will be
+        //                     placed at the top of the editor indicating it is a
+        //                     Read Only file.
+        //                     It is also true if the editor is disabled.  Then we
+        //                     want to create the editor as readOnly, but no Read only
+        //                     banner should be shown.
+        if (setReadOnly) {
             __markEditorReadOnly(thisEditor);
-            thisEditor.createReadonlyAlert();
+
+            if (isReadOnly) {
+                thisEditor.createReadonlyAlert();
+            }
         } else {
             thisEditor.markText = markText;
             thisEditor.markTextWritable = markTextWritable;
@@ -440,7 +463,9 @@ var editor = (function() {
             thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", true);
             thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", true);
             thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", true);
-            thisEditor.editorButtonFrame.find(".editorCopyButton").prop("disabled", true);
+            if (!thisEditor.enabled) {
+                thisEditor.editorButtonFrame.find(".editorCopyButton").prop("disabled", true);
+            }
         } else {
             thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
