@@ -288,6 +288,19 @@ var stepContent = (function() {
     return widgetInfo;
   }
 
+  var getCodeColumnHeight = function() {
+    var columnHeight = 0;
+    var rightColumn = $("#code_column:visible");
+    if (rightColumn.length > 0) {
+      columnHeight = rightColumn.height();
+      // not able to use $('#code_column').height() as it may get 0
+      if (columnHeight === 0) {
+        columnHeight = window.innerHeight - 101;
+      }
+    }
+    return columnHeight;  
+  }
+
   // calculate the widget height based on type
   var __calculateWidgetHeight = function(numOfWidgets, isPodHidden, type) { 
     var widgetHeight = "auto";
@@ -319,10 +332,10 @@ var stepContent = (function() {
         if (endOfGuideTopPosition > windowHeight) {
           $("#code_column").css('bottom', '0');
         }
-        var columnHeight = rightColumn.height();
-        if (numOfWidgets === 3) {
+        var columnHeight = getCodeColumnHeight();
+        if (numOfWidgets === 3) {         
           if (isPodHidden === true) {
-            widgetHeight = columnHeight - (wHeight + (marginHeight * (numOfWidgets - 1))) + "px";
+              widgetHeight = columnHeight - (wHeight + (marginHeight * (numOfWidgets - 1))) + "px";
           } else {
             widgetHeight = columnHeight - (wHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
           }
@@ -362,10 +375,13 @@ var stepContent = (function() {
   // - number of widget is 2
   //
   // For web browser, the height is either 300px when active or smaller when not active.
+  // Minimum height for browser will be 70px
   var _setWebBrowserAndEditorHeights = function(activeWidgetType, numOfWidgets, isPodHidden, editorWidget, browserWidget) {
     var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
     var editorWidgetMaxHeight = _mapWidgetsHeight["tabbedEditor"];
 
+    var browserMaxHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.indexOf("px")));
+    var widgetMinHeight = 70;
     if (editorWidget !== undefined) {
       if (activeWidgetType === "tabbedEditor") {
         if (browserWidget !== undefined) {
@@ -373,14 +389,18 @@ var stepContent = (function() {
           browserWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, browserWidget.displayType);
         }
 
-        var browserHeight = parseInt(browserWidget.height.substring(0, browserWidget.height.indexOf("px")));
-        editorWidget.height = editorWidgetMaxHeight;  
-        if (browserHeight > 300) {
+        var browserHeight = parseInt(browserWidget.height.substring(0, browserWidget.height.indexOf("px")));        
+        editorWidget.height = editorWidgetMaxHeight;
+        var editorHeight = parseInt(editorWidget.height.substring(0, editorWidget.height.indexOf("px")));  
+        if (browserHeight > browserMaxHeight) {
           // browser should have a max height of 300; make editor taller
-          browserWidget.height = "300px";
-          var editorHeight = parseInt(editorWidget.height.substring(0, editorWidget.height.indexOf("px")));
-          editorWidget.height = editorHeight + (browserHeight - 300);
-        }         
+          browserWidget.height = browserMaxHeight + "px";        
+          editorWidget.height = editorHeight + (browserHeight - browserMaxHeight) + "px";
+        } else if (browserHeight < widgetMinHeight) {
+          // browser would have a min height of 70 
+          browserWidget.height = widgetMinHeight + "px";
+          editorWidget.height = editorHeight - (widgetMinHeight - browserHeight) + "px";
+        }
       } else {
         if (browserWidget !== undefined) {
           browserWidget.height = browserWidgetHeight;
@@ -397,10 +417,6 @@ var stepContent = (function() {
     var widgetsInfo = (step.content === undefined ? _defaultWidgets : __createWidgetInfo(step));
     var numOfWidgets = widgetsInfo.length; 
     var isPodHidden = false;
-
-    var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
-    var podWidgetHeight = _mapWidgetsHeight["pod"];
-    var editorWidgetMaxHeight = _mapWidgetsHeight["tabbedEditor"];
  
     // pod/browser is fix height
     var podWidget = __getInfoForWidget(widgetsInfo, "pod");;
@@ -408,6 +424,7 @@ var stepContent = (function() {
     var editorWidget = __getInfoForWidget(widgetsInfo, "tabbedEditor");
     
     if (podWidget !== undefined) {
+      var podWidgetHeight = _mapWidgetsHeight["pod"];
       podWidget.height = podWidgetHeight;
       isPodHidden = podWidget.hidden;
     }
@@ -443,7 +460,6 @@ var stepContent = (function() {
 
     var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
     var podWidgetHeight = _mapWidgetsHeight["pod"];
-    var editorWidgetMaxHeight = _mapWidgetsHeight["tabbedEditor"];
 
     // pod is always constant size
     var isPodHidden = true;
@@ -466,7 +482,7 @@ var stepContent = (function() {
           podContainer.removeClass('multicolStepHidden');
           // recalcuate brower/editor height
           browserWidget.height = browserWidgetHeight;
-          editorWidget.height = __calculateWidgetHeight(numOfWidgets, true, editorWidget.displayType);
+          editorWidget.height = __calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
         }
       }
     }
@@ -637,6 +653,10 @@ var stepContent = (function() {
                   // dynamically setup height for each widget based on each step content    
                   var widgetHeight = widgetsObjInfo[index].height;
                   subContainer.css("height", widgetHeight);
+                  // set min height for browser
+                  if (content.displayType === "webBrowser") { 
+                     subContainer.css("min-height", "70px");
+                  }
                 }
                 if (content.active) {
                   subContainer.addClass('activeWidget');
@@ -781,6 +801,7 @@ var stepContent = (function() {
     showStepWidgets: showStepWidgets,
     getStepWidgets: getStepWidgets,
     resizeStepWidgets: resizeWidgets,
-    getConfigWidgetHeights: getConfigWidgetHeights
+    getConfigWidgetHeights: getConfigWidgetHeights,
+    getCodeColumnHeight: getCodeColumnHeight
   };
 })();
