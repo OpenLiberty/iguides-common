@@ -479,7 +479,8 @@ var stepContent = (function() {
         if (enablePod === true) {
           // show pod
           var podContainer = $("#" + podWidget.id);
-          podContainer.removeClass('multicolStepHidden');
+          podContainer.removeClass('multicolStepHidden'); 
+          podWidget.hidden = false;
           // recalcuate brower/editor height
           browserWidget.height = browserWidgetHeight;
           editorWidget.height = __calculateWidgetHeight(numOfWidgets, false, editorWidget.displayType);
@@ -617,9 +618,7 @@ var stepContent = (function() {
     }      
 
     if (step.content) {
-        var content = step.content;
         var displayTypeCounts = {}; // Map of displayType to the displayCount for that type
-        var numOfWidgets = step.content.length;
         
         $.each(step.content, function(index, content) {
             if (content.displayType) {
@@ -637,7 +636,6 @@ var stepContent = (function() {
                 var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';      
                 widgetsObjInfo[index].id = subContainerDivId;
 
-                // stepWidgets.hide();
                 // put the editor first in single column view
                 if (inSingleColumnView() && content.displayType === "tabbedEditor") {
                   stepWidgets.prepend(subContainerDiv);
@@ -668,54 +666,22 @@ var stepContent = (function() {
                 // Enable the click listener all the times for now. Will refactor the codes here so that
                 // it could be called in initial build content + during resize from single to multi pane.
                 //if (!inSingleColumnView()) {
-                  // hide the widget if it's hidden
-                  var isWidgetHidden = widgetsObjInfo[index].hidden;
-                  if (isWidgetHidden === true) {
-                    subContainer.addClass('multicolStepHidden');   
-                  }
+                // hide the widget if it's hidden
+                var isWidgetHidden = widgetsObjInfo[index].hidden;
+                if (isWidgetHidden === true) {
+                  subContainer.addClass('multicolStepHidden');   
+                }
 
-                  // listen to onclick on webBrowser nav bar
-                  var isWidgetEnable = widgetsObjInfo[index].enable;
-                  // change the outline of the disable widget container
-                  if (isWidgetEnable === false) {
-                      __changeWidgetBorderColor(subContainer, content.displayType, true);
-                  }
-                  subContainer.on("click", function() {
-                    //console.log( "Handler for .click() ", subContainerDiv);
-                    if (isWidgetEnable !== false) {
-                      resizeWidgets(widgetsObjInfo, content.displayType);
-                    }
-                  });
+                // listen to onclick on webBrowser nav bar
+                var isWidgetEnable = widgetsObjInfo[index].enable;
+                // change the outline of the disable widget container
+                if (isWidgetEnable === false) {
+                    __changeWidgetBorderColor(subContainer, content.displayType, true);
+                }
 
-                  // listen to onclick on webBrowser content since it's an iframe
-                  if (content.displayType === "webBrowser" && isWidgetEnable !== false) {         
-                    var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
-                    webBrowserContent.load(function() {
-                      $(this).contents().on("click", function() {
-                        //console.log("Click detected inside iframe.");
-                        resizeWidgets(widgetsObjInfo, content.displayType);
-                      });
-                    });
-                  }
+                __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
 
-                  // enable hover on clickable widget
-                  if (content.displayType !== "pod" && isWidgetEnable !== false) {
-                    var widgetOnHover;
-                    if (content.displayType === "webBrowser") {
-                        widgetOnHover = subContainer.find(".wb")
-                    } else if (content.displayType === "tabbedEditor") {
-                        widgetOnHover = subContainer.find(".teContainer");
-                    }
-                    if (widgetOnHover) {
-                      widgetOnHover.hover(function(e) {
-                        if (e.type === "mouseenter") {
-                          $(this).addClass('stepWidgetOnHover');
-                        } else {
-                          $(this).removeClass('stepWidgetOnHover');
-                        }
-                      });
-                    }
-                  }
+                __widgetOnHover(subContainer, content.displayType, isWidgetEnable);
                 //}
             }
       });
@@ -724,6 +690,46 @@ var stepContent = (function() {
       __createDefaultWidgets(step, stepWidgets, widgetsObjInfo);
     }
   };
+
+  var __widgetOnClick = function(subContainer, displayType, widgetsObjInfo, isWidgetEnable) {
+    // handle widget onclick
+    subContainer.on("click", function() {
+      if (isWidgetEnable !== false) {
+        resizeWidgets(widgetsObjInfo, displayType);
+      }
+    });
+
+    // listen to onclick on webBrowser content since it's an iframe
+    if (displayType === "webBrowser" && isWidgetEnable !== false) {         
+      var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
+      webBrowserContent.load(function() {
+        $(this).contents().on("click", function() {
+          resizeWidgets(widgetsObjInfo, displayType);
+        });
+      });
+    }
+  }
+
+  var __widgetOnHover = function(subContainer, displayType, isWidgetEnable) {
+    // enable hover on clickable widget
+    if (displayType !== "pod" && isWidgetEnable !== false) {
+      var widgetOnHover;
+      if (displayType === "webBrowser") {
+          widgetOnHover = subContainer.find(".wb")
+      } else if (displayType === "tabbedEditor") {
+          widgetOnHover = subContainer.find(".teContainer");
+      }
+      if (widgetOnHover) {
+        widgetOnHover.hover(function(e) {
+          if (e.type === "mouseenter") {
+            $(this).addClass('stepWidgetOnHover');
+          } else {
+            $(this).removeClass('stepWidgetOnHover');
+          }
+        });
+      }
+    }
+  }
 
   /* 
    * Update widgets displayed on right-hand side of multipane layout for the specified id.
