@@ -737,10 +737,9 @@ var stepContent = (function() {
    * id - the ID (hash value without the '#') for the given step.
    */
   var showStepWidgets = function(id) {
-    if (window.innerWidth >= twoColumnBreakpoint) {
-      // Find the stepName based on the ID
-      var stepName = getStepNameFromHash(id);
-      
+    // Find the stepName based on the ID
+    var stepName = getStepNameFromHash(id);
+    if (window.innerWidth >= twoColumnBreakpoint) {      
       // #codeColumn is showing.   Only display applicable widgets for the step.
       $('.multicolStepShown').removeClass('multicolStepShown').addClass('multicolStepHidden');
 
@@ -755,6 +754,7 @@ var stepContent = (function() {
         $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
       }
     } 
+    setCurrentStepName(stepName);
   };
 
   var __createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {

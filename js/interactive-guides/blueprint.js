@@ -126,7 +126,12 @@ var blueprint = (function(){
         // Update the selected TOC entry
         updateTOCHighlighting(id);  // In toc-multipane.js in openliberty.io
       }
-      stepContent.setCurrentStepName(id);
+      // look for the step name from the element with the matching id
+      var idElement = $("#" + id);
+      if (idElement.length > 0) {
+        var stepName = idElement.attr('data-step');
+        stepContent.setCurrentStepName(stepName);
+      }
     }
     
     if(window.innerWidth > twoColumnBreakpoint) {
