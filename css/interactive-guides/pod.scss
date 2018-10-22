@@ -29,7 +29,9 @@
   animation-name: animate-slide-from-right;
   animation-duration: 1s;
   height: inherit;
-  background: inherit;
+  @media (max-width: 768px) {
+    background: inherit;
+  }
 }
 
 .pod-animation-slide-from-right:focus {
@@ -43,7 +45,9 @@
   animation-name: animate-slide-from-left;
   animation-duration: 1s;
   height: inherit;
-  background: inherit;
+  @media (max-width: 768px) {
+    background: inherit;
+  }
 }
 
 .pod-animation-slide-from-left:focus {
@@ -76,7 +80,9 @@
   animation-name: animate-slidedown;
   animation-duration: 1s;
   height: inherit;
-  background: inherit;
+  @media (max-width: 768px) {
+    background: inherit;
+  }
 }
 
 .pod-animation-slidedown:focus {

@@ -22,6 +22,10 @@
 
 .editorContainer {
   height: 100%; 
+  @media (max-width: 768px) {
+    border-left: 1px solid #acb3c6;
+    border-right: 1px solid #acb3c6;
+  } 
 }
 
 .editorContainer .CodeMirror-gutters {
