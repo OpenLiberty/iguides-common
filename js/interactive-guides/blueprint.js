@@ -44,10 +44,9 @@ var blueprint = (function(){
             stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
           } else {
             // no hash -> at the top of the guide
-            var hash = "#Intro";
-            accessContentsFromHash(hash);
+            accessContentsFromHash(location.hash);
             // Show the widgets on the right for Intro step
-            stepContent.showStepWidgets(hash.substring(1));
+            stepContent.showStepWidgets(location.hash);
           }
 
           $(window).on('scroll', function(event) {
@@ -126,12 +125,7 @@ var blueprint = (function(){
         // Update the selected TOC entry
         updateTOCHighlighting(id);  // In toc-multipane.js in openliberty.io
       }
-      // look for the step name from the element with the matching id
-      var idElement = $("#" + id);
-      if (idElement.length > 0) {
-        var stepName = idElement.attr('data-step');
-        stepContent.setCurrentStepName(stepName);
-      }
+      stepContent.setCurrentStepName(stepContent.getStepNameFromHash(id));
     }
     
     if(window.innerWidth > twoColumnBreakpoint) {

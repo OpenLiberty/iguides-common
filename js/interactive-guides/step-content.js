@@ -11,7 +11,7 @@
 var stepContent = (function() {
   "use strict";
 
-  var currentStepName;
+  var currentStepName = ""; // Internal ID of the current step.  Not the hash ID.
   var _steps;
   var hashStepNames = {};   // Maps step's hash to its name.  This contains
                             // more entries than the _steps array because it also
@@ -86,8 +86,12 @@ var stepContent = (function() {
     return currentStepName;
   };
 
-  var setCurrentStepName = function(stepName) {    
-    currentStepName = stepName;   
+  /*
+    Tracks the current stepName.  NOTE: this should be the internal stepName for 
+                                        the step and NOT its hash ID.
+  */
+  var setCurrentStepName = function(stepName) {   
+    currentStepName = stepName;
   }
 
   /* 
@@ -196,23 +200,17 @@ var stepContent = (function() {
   };
 
   var __parseInstructionForActionTag = function(instruction) {
-    //console.log("instruction: ", instruction);
     if (instruction) {
       if ($.isArray(instruction)) {
         for (var i in instruction) {
-          //console.log("str ", desc);
           var instrStr = instruction[i];
-          //console.log("instr[" + i + "]", instrStr);
           var newInstrStr = utils.parseActionTag(instrStr);
-          //console.log("new instr ", newInstrStr);
           if (newInstrStr) {
             instruction[i] = newInstrStr;
           }
         }
       } else {
-        //console.log("single instr ");
         var newInstrStr = utils.parseActionTag(instruction);
-        //console.log("new instr ", newInstrStr);
         if (newInstrStr) {
           instruction = newInstrStr;
         }
@@ -734,27 +732,26 @@ var stepContent = (function() {
   /* 
    * Update widgets displayed on right-hand side of multipane layout for the specified id.
    * 
-   * id - the ID (hash value without the '#') for the given step.
+   * id - the step ID (hash value without the '#') for the given step.
    */
   var showStepWidgets = function(id) {
     // Find the stepName based on the ID
     var stepName = getStepNameFromHash(id);
-    if (window.innerWidth >= twoColumnBreakpoint) {      
+    if (window.innerWidth >= twoColumnBreakpoint) {
       // #codeColumn is showing.   Only display applicable widgets for the step.
       $('.multicolStepShown').removeClass('multicolStepShown').addClass('multicolStepHidden');
 
-      // stepName is "" when srollTop displays guide header, or guide meta.
+      // stepName is "" when srollTop displays guide header, or #guide_meta.
       if (stepName === "") {
-        // set stepName to Intro when at the top of the guide to display the widgets
+        // Set stepName to Intro when at the top of the guide to display the widgets
+        // from the first section.
         stepName = "Intro";
       }
-      if (stepName) {
-        // Find the .stepWidgetContainer holding the widgets for the specified step.
-        var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
-        $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
-      }
+
+      // Find the .stepWidgetContainer holding the widgets for the specified step.
+      var $selectedStepContainer =  $('.stepWidgetContainer[data-step=' + stepName + ']');
+      $selectedStepContainer.removeClass('multicolStepHidden').addClass('multicolStepShown');
     } 
-    setCurrentStepName(stepName);
   };
 
   var __createWidget = function(stepName, content, displayType, subContainer, displayTypeNum) {
