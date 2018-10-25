@@ -101,4 +101,30 @@
   to{ top: 0px; opacity:1 }
 }
 
+.pod-animation-slideup {
+  position: relative;
+  -webkit-animation-name: animate-slideup;
+  -webkit-animation-duration: 1s;
+  animation-name: animate-slideup;
+  animation-duration: 1s;
+  height: inherit;
+  background: inherit;
+}
 
+.pod-animation-slideup:focus {
+  outline: none;
+}
+
+@-webkit-keyframes animate-slideup {
+  0% { -webkit-transform: translateY(100%); opacity:0 }
+  65% { -webkit-transform: translateY(4%)}
+  95% { -webkit-transform: translateY(2%)}
+  100% { -webkit-transform: translateY(0%); opacity:1 }
+}
+
+@keyframes animate-slideup { 
+  0% { transform: translateY(100%); opacity:0 }
+  65% { transform: translateY(4%)}
+  90% { transform: translate(2%)}
+  100% { transform: translateY(0%); opacity:1 }
+}
