@@ -779,8 +779,8 @@ var contentManager = (function() {
 
         if(instruction.complete === false) {
           $("#"+instructionID).removeClass("unavailable");
+          $("#"+instructionID).attr('tabindex', '0');
         }
-
       }
     };
 
