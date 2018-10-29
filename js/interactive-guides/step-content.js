@@ -316,6 +316,11 @@ var stepContent = (function() {
     // TBD need to figure out the height of editor using scrollheight
     var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
     var editorHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
+    //if (editorScrollHeight !== undefined) {
+    //  if (editorHeight > editorScrollHeight) {
+    //    editorHeight = editorScrollHeight;
+    //  }
+    //}
 
     var wHeight;
     if (type === "webBrowser") {
@@ -370,6 +375,16 @@ var stepContent = (function() {
     return widgetInfo;
   }
 
+  var __getEditorScrollHeight = function(id) {
+    var height = 0;
+    if (id !== undefined) {
+      var codeMirrorEditor = $("#" + id).find(".CodeMirror-code");
+      var editorHeight = codeMirrorEditor.prop("scrollHeight");
+      height = editorHeight + 66; // 66 = tab editor height + editor button frame height
+    }
+    return height;
+  }
+
   // For tabbed editor, the height could be taller than 400px if
   // - number of widget is 3 and the pod is hidden at the moment
   // - number of widget is 2
@@ -384,6 +399,7 @@ var stepContent = (function() {
     var widgetMinHeight = 70;
     if (editorWidget !== undefined) {
       if (activeWidgetType === "tabbedEditor") {
+        var editorScrollHeight = __getEditorScrollHeight(editorWidget.id);
         if (browserWidget !== undefined) {
           // cal the browser height base on the remaining space
           browserWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, browserWidget.displayType);
@@ -400,6 +416,19 @@ var stepContent = (function() {
           // browser would have a min height of 70 
           browserWidget.height = widgetMinHeight + "px";
           editorWidget.height = editorHeight - (widgetMinHeight - browserHeight) + "px";
+        } else if (browserHeight < browserMaxHeight) {
+          if (editorScrollHeight > 0) {
+            if (editorScrollHeight < editorHeight) {
+              // calculate the diff of editor height and editor scroll height
+              var d = editorHeight - editorScrollHeight;
+              // if we have enough height for browser with editor active then set brower to max height 
+              // and recalculate the editor height
+              if ((browserHeight + d) >= browserMaxHeight) {
+                browserWidget.height = browserMaxHeight + "px";
+                editorWidget.height = editorHeight - (browserMaxHeight - browserHeight) + "px";
+              }
+            }
+          }
         }
       } else {
         if (browserWidget !== undefined) {
@@ -694,13 +723,13 @@ var stepContent = (function() {
   var __widgetOnClick = function(subContainer, displayType, widgetsObjInfo, isWidgetEnable) {
     // handle widget onclick
     subContainer.on("click", function() {
-      if (isWidgetEnable !== false) {
+      //if (isWidgetEnable !== false) {
         resizeWidgets(widgetsObjInfo, displayType);
-      }
+      //}
     });
 
     // listen to onclick on webBrowser content since it's an iframe
-    if (displayType === "webBrowser" && isWidgetEnable !== false) {         
+    if (displayType === "webBrowser") {// && isWidgetEnable !== false) {         
       var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
       webBrowserContent.load(function() {
         $(this).contents().on("click", function() {
@@ -712,7 +741,7 @@ var stepContent = (function() {
 
   var __widgetOnHover = function(subContainer, displayType, isWidgetEnable) {
     // enable hover on clickable widget
-    if (displayType !== "pod" && isWidgetEnable !== false) {
+    if (displayType !== "pod") {// && isWidgetEnable !== false) {
       var widgetOnHover;
       if (displayType === "webBrowser") {
           widgetOnHover = subContainer.find(".wb")
