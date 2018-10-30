@@ -316,11 +316,6 @@ var stepContent = (function() {
     // TBD need to figure out the height of editor using scrollheight
     var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
     var editorHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
-    //if (editorScrollHeight !== undefined) {
-    //  if (editorHeight > editorScrollHeight) {
-    //    editorHeight = editorScrollHeight;
-    //  }
-    //}
 
     var wHeight;
     if (type === "webBrowser") {
@@ -723,13 +718,11 @@ var stepContent = (function() {
   var __widgetOnClick = function(subContainer, displayType, widgetsObjInfo, isWidgetEnable) {
     // handle widget onclick
     subContainer.on("click", function() {
-      //if (isWidgetEnable !== false) {
-        resizeWidgets(widgetsObjInfo, displayType);
-      //}
+      resizeWidgets(widgetsObjInfo, displayType);
     });
 
     // listen to onclick on webBrowser content since it's an iframe
-    if (displayType === "webBrowser") {// && isWidgetEnable !== false) {         
+    if (displayType === "webBrowser") {        
       var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
       webBrowserContent.load(function() {
         $(this).contents().on("click", function() {
@@ -741,7 +734,7 @@ var stepContent = (function() {
 
   var __widgetOnHover = function(subContainer, displayType, isWidgetEnable) {
     // enable hover on clickable widget
-    if (displayType !== "pod") {// && isWidgetEnable !== false) {
+    if (displayType !== "pod") {
       var widgetOnHover;
       if (displayType === "webBrowser") {
           widgetOnHover = subContainer.find(".wb")
