@@ -447,6 +447,7 @@ var editor = (function() {
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
         correctErrorCallback(thisEditor.stepName);
+        thisEditor.closeEditorErrorBox();
         // call save editor
         if (isSave === true) {
             thisEditor.saveEditor();
