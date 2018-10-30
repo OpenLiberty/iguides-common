@@ -423,8 +423,7 @@ var editor = (function() {
         if (correctErrorCallback) {
             var handleOnClickFixContent = function () {
                 __correctEditorError(thisEditor, isSave, correctErrorCallback);
-                // close the alert frame so that each step doesn't have to call the close
-                thisEditor.closeEditorErrorBox();
+                event.stopPropagation(); 
             };
             var hereButton = __createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
             editorError.append(hereButton);
@@ -448,7 +447,6 @@ var editor = (function() {
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
         correctErrorCallback(thisEditor.stepName);
-        // hide the error box
         thisEditor.closeEditorErrorBox();
         // call save editor
         if (isSave === true) {
