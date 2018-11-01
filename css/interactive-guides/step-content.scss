@@ -14,7 +14,7 @@
 
 .stepWidgetOnHover:hover {
   @media (min-width: 1170px) {
-    border: 1px solid #1B1C34;
+    border: 1px solid #1B1C34 !important;
   }
 }
 
