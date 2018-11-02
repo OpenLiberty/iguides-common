@@ -187,6 +187,7 @@ var stepContent = (function() {
       instructionTag.attr("data-step", stepName); // Set a data tag to identify the instruction block with this step
       if (index > 0) {
         instructionTag.addClass("unavailable");
+        instructionTag.attr('tabindex', '-1');
       }
       //var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
       var instructionContentDiv = $("<div class='instructionContent'></div>");
