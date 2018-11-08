@@ -169,22 +169,22 @@ function replaceExternalizedStrings(responseText) {
     'use strict';  
     var messages = parseQuery(responseText);
 
-    var allExternalizedStrs = document.querySelectorAll("[data-externalizedString]");
+    var allExternalizedStrs = Array.prototype.slice.call(document.querySelectorAll("[data-externalizedString]"));
     allExternalizedStrs.forEach(function(element) {
         element.innerHTML = messages[element.dataset.externalizedstring];
     });
 
-    var allExternalizedAriaLabels = document.querySelectorAll("[data-externalizedAriaLabel]");
+    var allExternalizedAriaLabels = Array.prototype.slice.call(document.querySelectorAll("[data-externalizedAriaLabel]"));
     allExternalizedAriaLabels.forEach(function(element) {
         element.setAttribute("aria-label", messages[element.dataset.externalizedarialabel]);
     });
 
-    var allExternalizedTitles = document.querySelectorAll("[data-externalizedTitle]");
+    var allExternalizedTitles = Array.prototype.slice.call(document.querySelectorAll("[data-externalizedTitle]"));
     allExternalizedTitles.forEach(function(element) {
         element.setAttribute("title", messages[element.dataset.externalizedtitle]);
     });
 
-    var allExternalizedAlts = document.querySelectorAll("[data-externalizedAlt]");
+    var allExternalizedAlts = Array.prototype.slice.call(document.querySelectorAll("[data-externalizedAlt]"));
     allExternalizedAlts.forEach(function(element) {
         element.setAttribute("alt", messages[element.dataset.externalizedalt]);
     });
