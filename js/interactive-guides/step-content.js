@@ -188,6 +188,8 @@ var stepContent = (function() {
       if (index > 0) {
         instructionTag.addClass("unavailable");
         instructionTag.attr('tabindex', '-1');
+        // Mark the instruction's actions disabled
+        instruction = instruction.replace("tabindex='0'", "tabindex='-1'");
       }
       //var instrCompleteMark = $('<span>', {class: 'instrCompleteMark glyphicon glyphicon-check'});
       var instructionContentDiv = $("<div class='instructionContent'></div>");

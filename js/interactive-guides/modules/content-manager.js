@@ -790,6 +790,8 @@ var contentManager = (function() {
         if(instruction.complete === false) {
           $("#"+instructionID).removeClass("unavailable");
           $("#"+instructionID).attr('tabindex', '0');
+          var actions = $("#"+instructionID).find('action');
+          actions.prop('tabindex', '0');
         }
       }
     };
