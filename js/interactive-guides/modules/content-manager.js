@@ -336,10 +336,20 @@ var contentManager = (function() {
     }
 
 // ==== Pod Functions ====
-    var setPodContent = function(stepName, content, instanceNumber, podCallback) {
+    /**
+     * Change the contents of the pod
+     * @param {} stepName 
+     * @param {*} content   - String of html or filename to get html from
+     * @param {*} instanceNumber 
+     * @param {*} podCallback - invoked AFTER the html was added to the dom
+     * @param {*} append - true if you should append (add) the content to the 
+     *                     end of the dom.  Otherwise, assumed false which means
+     *                     the pod contents should be replaced with the new content.
+     */
+    var setPodContent = function(stepName, content, instanceNumber, podCallback, append) {
         var pod = __getPodInstance(stepName, instanceNumber);
         if (pod) {
-            pod.setContent(content, podCallback);
+            pod.setContent(content, podCallback, append);
         }
     };
 
