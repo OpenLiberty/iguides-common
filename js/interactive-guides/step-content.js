@@ -376,7 +376,10 @@ var stepContent = (function() {
     if (id !== undefined) {
       var codeMirrorEditor = $("#" + id).find(".CodeMirror-code");
       var editorHeight = codeMirrorEditor.prop("scrollHeight");
-      height = editorHeight + 66; // 66 = tab editor height + editor button frame height
+      // editorHeight could be 0, only calculate if > 0
+      if (editorHeight > 0) {
+        height = editorHeight + 66; // 66 = tab editor height + editor button frame height
+      }
     }
     return height;
   }
