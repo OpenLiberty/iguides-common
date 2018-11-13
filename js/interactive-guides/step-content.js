@@ -405,15 +405,15 @@ var stepContent = (function() {
           browserWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, browserWidget.displayType);
         }
 
-        var browserHeight = parseInt(browserWidget.height.substring(0, browserWidget.height.indexOf("px")));        
+        var browserHeight = parseInt(browserWidget.height.substring(0, browserWidget.height.indexOf("px")));
         editorWidget.height = editorWidgetMaxHeight;
         var editorHeight = parseInt(editorWidget.height.substring(0, editorWidget.height.indexOf("px")));  
         if (browserHeight > browserMaxHeight) {
           // browser should have a max height of 300; make editor taller
-          browserWidget.height = browserMaxHeight + "px";        
+          browserWidget.height = browserMaxHeight + "px";
           editorWidget.height = editorHeight + (browserHeight - browserMaxHeight) + "px";
         } else if (browserHeight < widgetMinHeight) {
-          // browser would have a min height of 70 
+          // browser would have a min height of 70
           browserWidget.height = widgetMinHeight + "px";
           editorWidget.height = editorHeight - (widgetMinHeight - browserHeight) + "px";
         } else if (browserHeight < browserMaxHeight) {
@@ -435,8 +435,10 @@ var stepContent = (function() {
           browserWidget.height = browserWidgetHeight;
         }
 
-        // cal the editor height base on the remaining space         
-        editorWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
+        // cal the editor height base on the remaining space
+        if (editorWidget != undefined) {
+          editorWidget.height = __calculateWidgetHeight(numOfWidgets, isPodHidden, editorWidget.displayType);
+        }
       }
     }      
   }
@@ -698,7 +700,8 @@ var stepContent = (function() {
                 // hide the widget if it's hidden
                 var isWidgetHidden = widgetsObjInfo[index].hidden;
                 if (isWidgetHidden === true) {
-                  subContainer.addClass('multicolStepHidden');   
+                  // The widget should be hidden all the times
+                  subContainer.addClass('hiddenWidget');
                 }
 
                 // listen to onclick on webBrowser nav bar
