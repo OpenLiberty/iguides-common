@@ -26,9 +26,9 @@
 
 .wbStatusBar {
     background-color: lightgrey;
-    height: 20px;
+    height: 25px;
     width: 100%;
-    padding: 3px;
+    padding: 5px;
     color: black;
     font-size: 12px;
     text-overflow: ellipsis;
@@ -78,7 +78,7 @@
 }
 
 .wbContent {
-    height: calc( 100% - 60px ); /* 60px = wbNavBar + wbStatusBar */
+    height: calc( 100% - 65px ); /* 65px = wbNavBar 40px + wbStatusBar 25px */
 }
 
 .wbOverlay:after {
