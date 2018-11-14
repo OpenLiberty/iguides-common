@@ -30,7 +30,7 @@
   -webkit-animation-duration: 1s;
   animation-name: animate-slide-from-right;
   animation-duration: 1s;
-  height: inherit;
+  height: 100%;
   @media (max-width: 768px) {
     background: inherit;
   }
@@ -46,7 +46,7 @@
   -webkit-animation-duration: 1s;
   animation-name: animate-slide-from-left;
   animation-duration: 1s;
-  height: inherit;
+  height: 100%;
   @media (max-width: 768px) {
     background: inherit;
   }
