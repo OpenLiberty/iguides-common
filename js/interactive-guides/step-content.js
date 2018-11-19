@@ -19,6 +19,7 @@ var stepContent = (function() {
   var _defaultWidgets;
   var _mapStepWidgets = {};
   var _mapWidgetsHeight = {}; // store widgets height
+  var _mapWidgetsSingleColumnHeight = {}; // widget height for single column if different
 
   var setSteps = function(steps, defaultWidgets, configWidgets) {
     _steps = steps;
@@ -357,6 +358,9 @@ var stepContent = (function() {
       for (var i = 0; i < configWidgets.length; i++) {
         var widget = configWidgets[i];
         _mapWidgetsHeight[widget.displayType] = configWidgets[i].height;
+        if (configWidgets[i].singleColumnHeight) {
+          _mapWidgetsSingleColumnHeight[widget.displayType] = configWidgets[i].singleColumnHeight;
+        }
       }
   }
 
@@ -820,7 +824,10 @@ var stepContent = (function() {
   }
 
   var getConfigWidgetHeights = function() {
-    return _mapWidgetsHeight;
+    var configWidgetHeights = {};
+    configWidgetHeights['multiColumnHeights'] = _mapWidgetsHeight;
+    configWidgetHeights['singleColumnHeights'] = _mapWidgetsSingleColumnHeight;
+    return configWidgetHeights;
   }
 
   return {
