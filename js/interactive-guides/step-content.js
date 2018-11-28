@@ -294,13 +294,7 @@ var stepContent = (function() {
     var columnHeight = 0;
     var rightColumn = $("#code_column:visible");
     if (rightColumn.length > 0) {
-      columnHeight = rightColumn.height();
-      // sometimes columnHeight is not the same as window.innerHeight - 101
-      var actualColumnHeight = window.innerHeight - 101;
-      // not able to use $('#code_column').height() as it may get 0
-      if (columnHeight === 0 || columnHeight < actualColumnHeight) {
-        columnHeight = actualColumnHeight;
-      }
+      columnHeight = window.innerHeight - 101;
     }
     return columnHeight;  
   }
