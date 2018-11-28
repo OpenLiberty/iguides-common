@@ -86,8 +86,15 @@ var iguideMultipane = (function () {
         }
     };
 
-    var _getConfigWidgetHeight = function(widgetType) {
-        var height = stepContent.getConfigWidgetHeights()[widgetType];
+    var _getConfigWidgetHeight = function(widgetType, isSingleColumnHeight) {
+        var widgetHeights = stepContent.getConfigWidgetHeights();
+        var multiColumnHeights = widgetHeights['multiColumnHeights'];
+        var singleColumnHeights = widgetHeights['singleColumnHeights'];
+        var height = widgetHeights['multiColumnHeights'][widgetType];
+        // return the single column height if requested and available
+        if (isSingleColumnHeight && singleColumnHeights[widgetType]) {
+            height = widgetHeights['singleColumnHeights'][widgetType];
+        }
         if (height.indexOf('px') !== -1) { 
             height = height.substring(0, height.indexOf('px'));
         }
@@ -113,17 +120,11 @@ var iguideMultipane = (function () {
         var height = _getConfigWidgetHeight('webBrowser');
         if (browser.length > 0) {
             if (currentView === 'single') {
-                var balanceContainer = browser.find('.wbContent').find('iframe').contents().find('div.checkBalanceContainer');                
-                // One will think that checkBalanceContainer may not be there depending on the step progress.
-                // However, neither checkBalanceContainer nor flexWarningContainer selector was returned.
-                // As a result the height for browser is always 300 in single column view.
-                if (balanceContainer.length > 0) {
-                    height = balanceContainer.height() + 126;
-                } 
+                height = _getConfigWidgetHeight('webBrowser', true);
             } else {
                 if (browser.hasClass('disableContainer') && (numOfWidgets > 2)) {
                     height = height - 100;
-                }               
+                }
             }
             browser.css('height', height + 'px');
         } else {
