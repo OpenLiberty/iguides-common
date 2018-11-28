@@ -158,7 +158,7 @@ var tabbedEditor = (function() {
                 }
 
                 // Resize the editor to match the widget next to it.
-                thisTabbedEditor.resize();
+                //thisTabbedEditor.resize();
             });
             this.$teTabList.append($tabItem);
 
@@ -382,15 +382,15 @@ var tabbedEditor = (function() {
 
             }       
 
-            $(window).on('resize', function(event){
-                event.preventDefault();           
-                thisTabbedEditor.resize();
-            });            
+            // $(window).on('resize', function(event){
+            //     event.preventDefault();           
+            //     //thisTabbedEditor.resize();
+            // });            
 
             // Initial resize to adjust the height of this tabbedEditor to match the browser if there is one.
-            setTimeout(function(){
-                thisTabbedEditor.resize();
-            }, 500);
+            // setTimeout(function(){
+            //     thisTabbedEditor.resize();
+            // }, 500);
 
             if (content.callback) {
                 var callback = eval(content.callback);

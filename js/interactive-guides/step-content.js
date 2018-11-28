@@ -284,6 +284,9 @@ var stepContent = (function() {
           widgetObj.enable = (content.enable === false) ? content.enable : true;
           widgetObj.active = (content.active === true) ? content.active : false;
           widgetObj.hidden = (content.hidden === true) ? content.hidden : false;
+          if (content.singleColumnOrder) {
+            widgetObj.singleColumnOrder = content.singleColumnOrder;
+          }
           widgetInfo.push(widgetObj);
       });
     }
@@ -670,11 +673,12 @@ var stepContent = (function() {
                 widgetsObjInfo[index].id = subContainerDivId;
 
                 // put the editor first in single column view
-                if (inSingleColumnView() && content.displayType === "tabbedEditor") {
-                  stepWidgets.prepend(subContainerDiv);
-                } else {
-                  stepWidgets.append(subContainerDiv);
-                }
+                // if (inSingleColumnView() && content.displayType === "tabbedEditor") {
+                //   stepWidgets.prepend(subContainerDiv);
+                // } else {
+                //   stepWidgets.append(subContainerDiv);
+                // }
+                stepWidgets.append(subContainerDiv);
                 var subContainer = $("#" + subContainerDivId);
                 // always disable the widget if specified
                 if (content.enable === false) {
@@ -841,6 +845,7 @@ var stepContent = (function() {
     getStepWidgets: getStepWidgets,
     resizeStepWidgets: resizeWidgets,
     getConfigWidgetHeights: getConfigWidgetHeights,
-    getCodeColumnHeight: getCodeColumnHeight
+    getCodeColumnHeight: getCodeColumnHeight,
+    getInfoForWidget: __getInfoForWidget
   };
 })();

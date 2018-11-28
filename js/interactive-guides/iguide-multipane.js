@@ -45,11 +45,14 @@ var iguideMultipane = (function () {
             } else {
                 contentStepDiv.append(widget);
 
+                var stepWidgetContainer = contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]');
                 // adjust the editor position and height of the widgets in the code_column
-                _setTabbedEditorPosition(contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]'), step);
+                _setTabbedEditorPosition(stepWidgetContainer, step);
                 _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
                 _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
                 _adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
+                _adjustWidgetOrdering(stepWidgetContainer);
+                //_resizeActiveWidget(stepWidgetContainer);
             }
         });
     };
@@ -64,9 +67,10 @@ var iguideMultipane = (function () {
             // adjust the editpr position and height of the widgets in the code_column
             widget = $(widget);
             var step = widget.attr('data-step');
-            _setTabbedEditorPosition(widget, step);
+            //_setTabbedEditorPosition(widget, step);
             _adjustPodHeight(widget.find('#' + step + '-pod-0'));
             _adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
+            _adjustWidgetOrdering(widget);
             _resizeActiveWidget(widget);
         });
     };
@@ -110,6 +114,7 @@ var iguideMultipane = (function () {
             } else {
                 pod.css('height', height + 'px');
             }
+            //pod.css('height', height + 'px');
         } else {
             height = 0;
         }
@@ -146,6 +151,44 @@ var iguideMultipane = (function () {
                 var codeColumnHeight = stepContent.getCodeColumnHeight();
                 var tabbedEditorHeight = codeColumnHeight - otherWidgetHeight;
                 tabbedEditor.css('height', tabbedEditorHeight + 'px');
+            }
+        }
+    };
+
+    var _adjustWidgetOrdering = function(stepWidgetContainer) {
+        var widgets = stepWidgetContainer.find('.subContainerDiv');
+        if (widgets.length > 0) {
+            var stepName = stepWidgetContainer.attr('data-step');
+            var browser = stepWidgetContainer.find('#' + stepName + '-webBrowser-0');
+            var pod = stepWidgetContainer.find('#' + stepName + '-pod-0');
+            var editor = stepWidgetContainer.find('#' + stepName + '-tabbedEditor-0');
+
+            var stepWidgetsInfo = stepContent.getStepWidgets(stepName);
+            var orderingWidgets = [];
+            for (var i = 0; i < stepWidgetsInfo.length; i++) {
+                if (inSingleColumnView()) {
+                    var order = stepWidgetsInfo[i].singleColumnOrder;
+                    if (order && $.isNumeric(order) && parseInt(order)) {
+                        //orderingWidget.splice(parseInt(order), 0, widgetsInfo[i].displayType);
+                        orderingWidgets[parseInt(order)] = stepWidgetsInfo[i].displayType;
+                    } else {
+                        orderingWidgets[i] = stepWidgetsInfo[i].displayType;
+                    }
+                } else {
+                    orderingWidgets[i] = stepWidgetsInfo[i].displayType;
+                }
+            }
+            for (var i = 0; i < orderingWidgets.length; i++){
+                if (orderingWidgets[i] === "webBrowser") {
+                    browser.detach();
+                    stepWidgetContainer.append(browser);
+                } else if (orderingWidgets[i] === "pod") {
+                    pod.detach();
+                    stepWidgetContainer.append(pod);
+                } else if (orderingWidgets[i] === "tabbedEditor") {
+                    editor.detach();
+                    stepWidgetContainer.append(editor);
+                }
             }
         }
     };
