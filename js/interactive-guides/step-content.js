@@ -322,8 +322,8 @@ var stepContent = (function() {
   }
 
   // WebBrowser: the height is either set in json for widget height when active or 70px when not active.
-  // Pod is always same fix height that is set in json
-  // Editor: if active then the remaining height of columnHeight - (pod + min browser height)
+  // Pod: always same fix height that is set in json
+  // Editor: if active then use fix height in the json, inactive is the remaining height - (pod + browser)
   var __setWidgetsHeight = function(widgetsInfo, activeWidgetType, enablePod) {
 
     var columnHeight = getCodeColumnHeight();
@@ -343,14 +343,15 @@ var stepContent = (function() {
     // this is for the margin-top + margin-bottom space surrounding each widget in the 3rd column.
     var marginHeight = parseInt("5");
 
-    var browserMaxHeight =  _mapWidgetsHeight["webBrowser"];
-    var browserHeight = parseInt(browserMaxHeight.substring(0, browserMaxHeight.length - 2));
+    var browserWidgetHeight =  _mapWidgetsHeight["webBrowser"];
+    var browserMaxHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.length - 2));
     var browserMinHeight = 70;
 
     var podWidgetHeight =  _mapWidgetsHeight["pod"];
     var podHeight = parseInt(podWidgetHeight.substring(0, podWidgetHeight.length - 2));
 
     var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
+    var editorMaxHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
 
     var podWidget = __getInfoForWidget(widgetsInfo, "pod");;
     var browserWidget = __getInfoForWidget(widgetsInfo, "webBrowser");
@@ -365,49 +366,62 @@ var stepContent = (function() {
             
     if (activeWidgetType === "webBrowser") {
       // set browser height
-      browserWidget.height = browserMaxHeight;
+      browserWidget.height = browserMaxHeight + "px";
 
       // set editor height
       if (editorWidget !== undefined) {
         var editorHeight;
         if (numOfWidgets === 3) {
             if (isPodHidden === true) {
-                editorHeight = columnHeight - (browserHeight + (marginHeight * (numOfWidgets - 1))) + "px";
+                editorHeight = columnHeight - (browserMaxHeight + (marginHeight * (numOfWidgets - 1)));
             } else {
-                editorHeight = columnHeight - (browserHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
+                editorHeight = columnHeight - (browserMaxHeight + podHeight + (marginHeight * numOfWidgets));
             }   
         } else if (numOfWidgets === 2) {
-            editorHeight = columnHeight - (browserHeight + (marginHeight * numOfWidgets)) + "px";
+            editorHeight = columnHeight - (browserMaxHeight + (marginHeight * numOfWidgets));
         }
-        editorWidget.height = editorHeight;
+        editorWidget.height = editorHeight + "px";
       }
     } else if (activeWidgetType === "tabbedEditor") {
         // set editor height
-        var editorHeight = editorWidgetMaxHeight;
+        var editorHeight = editorMaxHeight;
         if (numOfWidgets === 3) {
-            if (isPodHidden === true) {
-              editorHeight = columnHeight - (browserHeight + (marginHeight * (numOfWidgets - 1))) + "px";
-              // set browser height
-              if (browserWidget !== undefined) {
-                browserWidget.height = browserMaxHeight;
+            if (browserWidget !== undefined) {
+              var browserHeight;
+              if (isPodHidden === true) {
+                  browserHeight = columnHeight - (editorMaxHeight + (marginHeight * (numOfWidgets - 1)));
+              } else {
+                  browserHeight = columnHeight - (editorMaxHeight + podHeight + (marginHeight * numOfWidgets));
+              } 
+            
+              // recalculate browser height if too tall or too short
+              if (browserHeight < browserMinHeight) {
+                  browserHeight = browserMinHeight;
+                  editorHeight = editorMaxHeight - (browserMinHeight - browserHeight);
+              } else if (browserHeight > browserMaxHeight) {
+                  browserHeight = browserMaxHeight;
+                  editorHeight = editorMaxHeight + (browserHeight - browserMaxHeight);
               }
-            } else {
-              editorHeight = columnHeight - (browserMinHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
-              // set browser height
-              if (browserWidget !== undefined) {
-                browserWidget.height = browserMinHeight;
+              
+              // set browser height to minimum if browser is disable and editor is not at max height
+              if (editorHeight < editorMaxHeight && browserWidget.enable === false) {
+                  if (browserHeight > browserMinHeight) {
+                      browserHeight = browserMinHeight;
+                      editorHeight = editorMaxHeight - (browserMinHeight - browserHeight);
+                  }
               }
-            }  
+              browserWidget.height = browserHeight + "px";
+            } 
         } else if (numOfWidgets === 2) {
             if (browserWidget !== undefined) {
-              editorHeight = columnHeight - (browserHeight + (marginHeight * numOfWidgets)) + "px";
-              browserWidget.height = browserMaxHeight;
+                editorHeight = columnHeight - (browserMaxHeight + (marginHeight * numOfWidgets));
+                browserWidget.height = browserMaxHeight + "px";
             } 
             if (podWidget !== undefined) {
-              editorHeight = columnHeight - (podHeight + (marginHeight * numOfWidgets)) + "px";
+                editorHeight = columnHeight - (podHeight + (marginHeight * numOfWidgets));
             } 
         }
-        editorWidget.height = editorHeight;
+        editorWidget.height = editorHeight + "px";
     } else if (activeWidgetType === "pod") {
         if (enablePod === true) {
           // show pod
@@ -417,11 +431,11 @@ var stepContent = (function() {
 
           if (numOfWidgets === 3) {
             // recalculate brower/editor height
-            browserWidget.height = browserMaxHeight;
-            editorWidget.height = columnHeight - (browserHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
+            browserWidget.height = browserMaxHeight + "px";
+            editorWidget.height = columnHeight - (browserMaxHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
           } else if (numOfWidgets === 2) {
             if (browserWidget !== undefined) {
-              browserWidget.height = browserMaxHeight; 
+              browserWidget.height = browserMaxHeight + "px"; 
             }
             if (editorWidget !== undefined) {
               editorWidget.height = columnHeight - (podHeight + (marginHeight * numOfWidgets)) + "px";
@@ -431,22 +445,22 @@ var stepContent = (function() {
     } else if (activeWidgetType === undefined) {
         // default widgets
         if (browserWidget !== undefined) {
-            browserWidget.height = browserMaxHeight;
+            browserWidget.height = browserMaxHeight + "px";
         } 
         if (editorWidget !== undefined) {
-          var editorHeight = editorWidgetMaxHeight;
+          var editorHeight = editorMaxHeight;
           if (podWidget !== undefined) {
             if (browserWidget !== undefined) {
-                editorHeight = columnHeight - (browserHeight + podHeight + (marginHeight * numOfWidgets)) + "px";
+                editorHeight = columnHeight - (browserMaxHeight + podHeight + (marginHeight * numOfWidgets));
             } else {
-              editorHeight = columnHeight - (podHeight + (marginHeight * numOfWidgets)) + "px";
+                editorHeight = columnHeight - (podHeight + (marginHeight * numOfWidgets));
             }
           } else {
             if (browserWidget !== undefined) {
-                editorHeight = columnHeight - (browserHeight + (marginHeight * numOfWidgets)) + "px";           
+                editorHeight = columnHeight - (browserMaxHeight + (marginHeight * numOfWidgets));           
             }
           }        
-          editorWidget.height = editorHeight;
+          editorWidget.height = editorHeight + "px";
         }
     }
   }
