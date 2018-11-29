@@ -168,7 +168,40 @@ var editor = (function() {
         },
         createCustomAlertMessage: function(alertMsg) {
             __createErrorAlertPane(this, 'alert-warning', false, true, alertMsg);
-        }
+        },
+        addCodeUpdated: function(isFadeInFadeOut) {
+            // The default is to have the "code updated" text displayed without animation but
+            // fade out the text. If fade in for the text is needed, then use the isFadeInFadeOut
+            // parameter.
+            var codeUpdatedElement = this.editorButtonFrame.find(".codeUpdated");
+            if (codeUpdatedElement.length > 0) {
+                this.editorButtonFrame.find(".editorSaveButton").prop("disabled", true);
+                this.editorButtonFrame.find(".editorRunButton").prop("disabled", true);
+                codeUpdatedElement.removeClass('codeUpdatedHidden');
+                if (isFadeInFadeOut) {
+                    codeUpdatedElement.addClass('codeUpdatedToFadeInAndOut');
+                } else {
+                    codeUpdatedElement.addClass('codeUpdatedVisible');
+                    setTimeout(function () {
+                        codeUpdatedElement.addClass('codeUpdatedToFadeOut');
+                    }, 2000);
+                }
+
+                var editor = this;
+                setTimeout(function() {
+                    codeUpdatedElement.addClass('codeUpdatedHidden');
+                    if (isFadeInFadeOut) {
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
+                    } else {
+                        codeUpdatedElement.removeClass('codeUpdatedVisible');
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
+                    }
+                    editor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
+                    editor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
+                }, 4000);
+            }
+        },
+
     };
 
     var __loadAndCreate = function(thisEditor, container, stepName, content) {
