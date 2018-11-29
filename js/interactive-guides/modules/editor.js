@@ -175,6 +175,8 @@ var editor = (function() {
             // parameter.
             var codeUpdatedElement = this.editorButtonFrame.find(".codeUpdated");
             if (codeUpdatedElement.length > 0) {
+                this.editorButtonFrame.find(".editorSaveButton").prop("disabled", true);
+                this.editorButtonFrame.find(".editorRunButton").prop("disabled", true);
                 codeUpdatedElement.removeClass('codeUpdatedHidden');
                 if (isFadeInFadeOut) {
                     codeUpdatedElement.addClass('codeUpdatedToFadeInAndOut');
@@ -185,6 +187,7 @@ var editor = (function() {
                     }, 2000);
                 }
 
+                var editor = this;
                 setTimeout(function() {
                     codeUpdatedElement.addClass('codeUpdatedHidden');
                     if (isFadeInFadeOut) {
@@ -193,6 +196,8 @@ var editor = (function() {
                         codeUpdatedElement.removeClass('codeUpdatedVisible');
                         codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
                     }
+                    editor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
+                    editor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
                 }, 4000);
             }
         },
