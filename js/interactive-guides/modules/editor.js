@@ -184,7 +184,7 @@ var editor = (function() {
                 // clear out current animation before starting another one
                 if (codeUpdatedElement.hasClass('codeUpdatedVisible')) {
                     if (isFadeInFadeOut) {
-                        odeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
                     } else {
                         codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
                     }
