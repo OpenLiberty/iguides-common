@@ -175,20 +175,30 @@ var editor = (function() {
             // parameter.
             var codeUpdatedElement = this.editorButtonFrame.find(".codeUpdated");
             if (codeUpdatedElement.length > 0) {
-                this.editorButtonFrame.find(".editorSaveButton").prop("disabled", true);
-                this.editorButtonFrame.find(".editorRunButton").prop("disabled", true);
                 codeUpdatedElement.removeClass('codeUpdatedHidden');
+                var animationClass = 'codeUpdatedToFadeOut';
                 if (isFadeInFadeOut) {
-                    codeUpdatedElement.addClass('codeUpdatedToFadeInAndOut');
-                } else {
-                    codeUpdatedElement.addClass('codeUpdatedVisible');
-                    setTimeout(function () {
-                        codeUpdatedElement.addClass('codeUpdatedToFadeOut');
-                    }, 2000);
+                    animationClass = 'codeUpdatedToFadeInAndOut';
                 }
 
-                var editor = this;
-                setTimeout(function() {
+                // clear out current animation before starting another one
+                if (codeUpdatedElement.hasClass('codeUpdatedVisible')) {
+                    if (isFadeInFadeOut) {
+                        odeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
+                    } else {
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
+                    }
+                    if (this.codeUpdatedTimeout) {
+                        clearTimeout(this.codeUpdatedTimeout);
+                    }
+                } else {
+                    codeUpdatedElement.addClass('codeUpdatedVisible');
+                }
+                setTimeout(function () {
+                    codeUpdatedElement.addClass(animationClass);
+                }, 2000);
+
+                this.codeUpdatedTimeout = setTimeout(function() {
                     codeUpdatedElement.addClass('codeUpdatedHidden');
                     if (isFadeInFadeOut) {
                         codeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
@@ -196,8 +206,7 @@ var editor = (function() {
                         codeUpdatedElement.removeClass('codeUpdatedVisible');
                         codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
                     }
-                    editor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
-                    editor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
+                    this.codeUpdatedTimeout = undefined;
                 }, 4000);
             }
         },
