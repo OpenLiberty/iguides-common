@@ -69,7 +69,7 @@
 .editorButtonFrame .btn {
   display: block;
   float: left;
-  margin: 1px 8px 1px 8px;
+  margin: 1px 5px 1px 5px;
   padding: 2px;
   border: none;
   line-height: 26px;
@@ -81,6 +81,58 @@
 
 .editorButtonFrame .btn:focus {
    outline: 2px solid blue;
+}
+
+.editorButtonFrame {
+
+  .codeUpdated {
+    float: right; 
+    padding-right: 30px; 
+    height: 100%;
+    display: flex;
+    align-items: center;
+    @media (max-width: 450px) {
+      padding-right: 10px;
+    }
+  }
+
+  .codeUpdatedHidden {
+    visibility: hidden;
+  }
+
+  .codeUpdatedVisible {
+    visibility: visible;
+  } 
+
+  .codeUpdatedText {
+    padding-left: 10px;
+    @media (max-width: 500px) {
+      display: none;
+    }
+  }
+
+  .codeUpdatedToFadeOut {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 2s, opacity 2s linear;
+  }
+
+  .codeUpdatedToFadeInAndOut {
+    -webkit-animation: fadeinout 4s linear 1 forwards;
+    animation: fadeinout 4s linear 1 forwards;
+  }
+
+  @-webkit-keyframes fadeinout {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes fadeinout {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 }
 
 .alertFrame {
