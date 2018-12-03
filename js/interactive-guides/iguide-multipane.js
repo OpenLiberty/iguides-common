@@ -46,8 +46,6 @@ var iguideMultipane = (function () {
                 contentStepDiv.append(widget);
 
                 var stepWidgetContainer = contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]');
-                // adjust the editor position and height of the widgets in the code_column by default
-                //_setTabbedEditorPosition(stepWidgetContainer, step);
                 _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
                 _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
                 _adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
@@ -71,21 +69,6 @@ var iguideMultipane = (function () {
             _adjustWidgetOrdering(widget);
             _resizeActiveWidget(widget);
         });
-    };
-    
-    var _setTabbedEditorPosition = function (stepWidgetContainer, step) {
-        if (stepWidgetContainer.length > 0) {
-            var tabbedEditorWidget = stepWidgetContainer.find('#' + step + '-tabbedEditor-0');
-            if (tabbedEditorWidget.length > 0) {
-                if (currentView === 'multi') {
-                    tabbedEditorWidget.detach();
-                    stepWidgetContainer.append(tabbedEditorWidget);
-                } else {
-                    tabbedEditorWidget.detach();
-                    stepWidgetContainer.prepend(tabbedEditorWidget);
-                }
-            }
-        }
     };
 
     var _getConfigWidgetHeight = function(widgetType, isSingleColumnHeight) {
