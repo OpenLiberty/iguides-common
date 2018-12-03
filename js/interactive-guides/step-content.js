@@ -284,8 +284,13 @@ var stepContent = (function() {
           widgetObj.enable = (content.enable === false) ? content.enable : true;
           widgetObj.active = (content.active === true) ? content.active : false;
           widgetObj.hidden = (content.hidden === true) ? content.hidden : false;
+          // override the default ordering in single column view
           if (content.singleColumnOrder) {
             widgetObj.singleColumnOrder = content.singleColumnOrder;
+          }
+          // override the default configured height
+          if (content.height) {
+            widgetObj.height = content.height;
           }
           widgetInfo.push(widgetObj);
       });
@@ -342,28 +347,37 @@ var stepContent = (function() {
     }   
 
     var numOfWidgets = widgetsInfo.length;
+
+    var podWidget = __getInfoForWidget(widgetsInfo, "pod");;
+    var browserWidget = __getInfoForWidget(widgetsInfo, "webBrowser");
+    var editorWidget = __getInfoForWidget(widgetsInfo, "tabbedEditor");
     
     // this is for the margin-top + margin-bottom space surrounding each widget in the 3rd column.
     var marginHeight = parseInt("5");
 
     var browserWidgetHeight =  _mapWidgetsHeight["webBrowser"];
+    if (browserWidget && browserWidget.height) {
+      browserWidgetHeight = browserWidget.height;
+    }
     var browserMaxHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.length - 2));
     var browserMinHeight = 70;
 
     var podWidgetHeight =  _mapWidgetsHeight["pod"];
+    if (podWidget && podWidget.height) {
+      podWidgetHeight = podWidget.height;
+    }
     var podHeight = parseInt(podWidgetHeight.substring(0, podWidgetHeight.length - 2));
 
     var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
+    if (editorWidget && editorWidget.height) {
+      editorWidgetMaxHeight = editorWidget.height;
+    }
     var editorMaxHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
-
-    var podWidget = __getInfoForWidget(widgetsInfo, "pod");;
-    var browserWidget = __getInfoForWidget(widgetsInfo, "webBrowser");
-    var editorWidget = __getInfoForWidget(widgetsInfo, "tabbedEditor");
 
     // pod is fix height
     var isPodHidden = false;
     if (podWidget !== undefined) {
-      podWidget.height = _mapWidgetsHeight["pod"];
+      podWidget.height = podWidgetHeight;
       isPodHidden = podWidget.hidden;
     }
             
