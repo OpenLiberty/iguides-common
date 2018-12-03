@@ -46,8 +46,6 @@ var iguideMultipane = (function () {
                 contentStepDiv.append(widget);
 
                 var stepWidgetContainer = contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]');
-                // adjust the editor position and height of the widgets in the code_column
-                //_setTabbedEditorPosition(stepWidgetContainer, step);
                 _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
                 _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
                 _adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
@@ -72,23 +70,6 @@ var iguideMultipane = (function () {
             _resizeActiveWidget(widget);
         });
     };
-
-    /*
-    var _setTabbedEditorPosition = function (stepWidgetContainer, step) {
-        if (stepWidgetContainer.length > 0) {
-            var tabbedEditorWidget = stepWidgetContainer.find('#' + step + '-tabbedEditor-0');
-            if (tabbedEditorWidget.length > 0) {
-                if (currentView === 'multi') {
-                    tabbedEditorWidget.detach();
-                    stepWidgetContainer.append(tabbedEditorWidget);
-                } else {
-                    tabbedEditorWidget.detach();
-                    stepWidgetContainer.prepend(tabbedEditorWidget);
-                }
-            }
-        }
-    };
-    */
 
     var _getConfigWidgetHeight = function(widgetType, isSingleColumnHeight) {
         var widgetHeights = stepContent.getConfigWidgetHeights();
@@ -157,6 +138,9 @@ var iguideMultipane = (function () {
     var _adjustWidgetOrdering = function(stepWidgetContainer) {
         var widgets = stepWidgetContainer.find('.subContainerDiv');
         if (widgets.length > 0) {
+            // flag to determine whether to move the editor as the first editor by default
+            var isSingleColumnOrderSet = false;
+
             var stepName = stepWidgetContainer.attr('data-step');
             var browser = stepWidgetContainer.find('#' + stepName + '-webBrowser-0');
             var pod = stepWidgetContainer.find('#' + stepName + '-pod-0');
@@ -164,11 +148,14 @@ var iguideMultipane = (function () {
 
             var stepWidgetsInfo = stepContent.getStepWidgets(stepName);
             var orderingWidgets = [];
+
+            // figuring out the order of the widgets
             for (var i = 0; i < stepWidgetsInfo.length; i++) {
                 if (inSingleColumnView()) {
                     var order = stepWidgetsInfo[i].singleColumnOrder;
                     if (order && $.isNumeric(order) && parseInt(order)) {
                         orderingWidgets[parseInt(order)] = stepWidgetsInfo[i].displayType;
+                        isSingleColumnOrderSet = true;
                     } else {
                         orderingWidgets[i] = stepWidgetsInfo[i].displayType;
                     }
@@ -176,6 +163,8 @@ var iguideMultipane = (function () {
                     orderingWidgets[i] = stepWidgetsInfo[i].displayType;
                 }
             }
+
+            // put the widgets in the order determined
             for (var i = 0; i < orderingWidgets.length; i++){
                 if (orderingWidgets[i] === "webBrowser") {
                     browser.detach();
@@ -187,6 +176,12 @@ var iguideMultipane = (function () {
                     editor.detach();
                     stepWidgetContainer.append(editor);
                 }
+            }
+
+            if (inSingleColumnView() && !isSingleColumnOrderSet) {
+                // if no single column ordering is set, then move the editor as the first widget
+                editor.detach();
+                stepWidgetContainer.prepend(editor);
             }
         }
     };
