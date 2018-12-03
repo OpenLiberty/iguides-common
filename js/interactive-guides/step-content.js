@@ -290,7 +290,7 @@ var stepContent = (function() {
           }
           // override the default configured height
           if (content.height) {
-            widgetObj.height = content.height;
+            widgetObj.customheight = content.height;
           }
           widgetInfo.push(widgetObj);
       });
@@ -356,21 +356,21 @@ var stepContent = (function() {
     var marginHeight = parseInt("5");
 
     var browserWidgetHeight =  _mapWidgetsHeight["webBrowser"];
-    if (browserWidget && browserWidget.height) {
-      browserWidgetHeight = browserWidget.height;
+    if (browserWidget && browserWidget.customheight) {
+      browserWidgetHeight = browserWidget.customheight;
     }
     var browserMaxHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.length - 2));
     var browserMinHeight = 70;
 
     var podWidgetHeight =  _mapWidgetsHeight["pod"];
-    if (podWidget && podWidget.height) {
-      podWidgetHeight = podWidget.height;
+    if (podWidget && podWidget.customheight) {
+      podWidgetHeight = podWidget.customheight;
     }
     var podHeight = parseInt(podWidgetHeight.substring(0, podWidgetHeight.length - 2));
 
     var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
-    if (editorWidget && editorWidget.height) {
-      editorWidgetMaxHeight = editorWidget.height;
+    if (editorWidget && editorWidget.customheight) {
+      editorWidgetMaxHeight = editorWidget.customheight;
     }
     var editorMaxHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
 
