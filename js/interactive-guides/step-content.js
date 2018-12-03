@@ -671,12 +671,6 @@ var stepContent = (function() {
                 var subContainerDiv = '<div id="' + subContainerDivId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';      
                 widgetsObjInfo[index].id = subContainerDivId;
 
-                // put the editor first in single column view
-                // if (inSingleColumnView() && content.displayType === "tabbedEditor") {
-                //   stepWidgets.prepend(subContainerDiv);
-                // } else {
-                //   stepWidgets.append(subContainerDiv);
-                // }
                 stepWidgets.append(subContainerDiv);
                 var subContainer = $("#" + subContainerDivId);
                 // always disable the widget if specified

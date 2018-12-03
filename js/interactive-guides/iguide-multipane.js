@@ -47,12 +47,11 @@ var iguideMultipane = (function () {
 
                 var stepWidgetContainer = contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]');
                 // adjust the editor position and height of the widgets in the code_column
-                _setTabbedEditorPosition(stepWidgetContainer, step);
+                //_setTabbedEditorPosition(stepWidgetContainer, step);
                 _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
                 _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
                 _adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
                 _adjustWidgetOrdering(stepWidgetContainer);
-                //_resizeActiveWidget(stepWidgetContainer);
             }
         });
     };
@@ -67,7 +66,6 @@ var iguideMultipane = (function () {
             // adjust the editpr position and height of the widgets in the code_column
             widget = $(widget);
             var step = widget.attr('data-step');
-            //_setTabbedEditorPosition(widget, step);
             _adjustPodHeight(widget.find('#' + step + '-pod-0'));
             _adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
             _adjustWidgetOrdering(widget);
@@ -75,6 +73,7 @@ var iguideMultipane = (function () {
         });
     };
 
+    /*
     var _setTabbedEditorPosition = function (stepWidgetContainer, step) {
         if (stepWidgetContainer.length > 0) {
             var tabbedEditorWidget = stepWidgetContainer.find('#' + step + '-tabbedEditor-0');
@@ -89,6 +88,7 @@ var iguideMultipane = (function () {
             }
         }
     };
+    */
 
     var _getConfigWidgetHeight = function(widgetType, isSingleColumnHeight) {
         var widgetHeights = stepContent.getConfigWidgetHeights();
@@ -114,7 +114,6 @@ var iguideMultipane = (function () {
             } else {
                 pod.css('height', height + 'px');
             }
-            //pod.css('height', height + 'px');
         } else {
             height = 0;
         }
@@ -169,7 +168,6 @@ var iguideMultipane = (function () {
                 if (inSingleColumnView()) {
                     var order = stepWidgetsInfo[i].singleColumnOrder;
                     if (order && $.isNumeric(order) && parseInt(order)) {
-                        //orderingWidget.splice(parseInt(order), 0, widgetsInfo[i].displayType);
                         orderingWidgets[parseInt(order)] = stepWidgetsInfo[i].displayType;
                     } else {
                         orderingWidgets[i] = stepWidgetsInfo[i].displayType;
