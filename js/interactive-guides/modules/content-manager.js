@@ -669,6 +669,9 @@ var contentManager = (function() {
         if (tabbedEditor) {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
+                // Put the correct Tab into focus prior to processing save.
+                contentManager.focusTabbedEditorByName(stepName, fileName);
+
                 teditor.saveEditor();
             }
         }

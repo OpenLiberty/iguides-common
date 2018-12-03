@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 var tabbedEditor = (function() {
-    var __editors = [];
 
     var tabbedEditorType = function(container, stepName, content) {
         /**

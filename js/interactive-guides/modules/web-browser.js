@@ -67,7 +67,6 @@ var webBrowser = (function(){
       var file =  extension === 'html' || extension === 'htm' ? true: false;
       if (file) {
         var fileLocation = content;
-        var $iframe = $webContentElement.find('iframe');
         $iframe.attr('src', fileLocation);
 
         /* Do we need to try to see if the file is available?

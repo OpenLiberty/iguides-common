@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 var editor = (function() {
-    var __editors = {}; // ToDo: __editors is no longer needed with the new changes
 
     var editorType = function(container, stepName, content) {
         var deferred = new $.Deferred();
@@ -349,8 +348,6 @@ var editor = (function() {
             __addRedoOnClickListener(thisEditor, redoButton);
             __addSaveOnClickListener(thisEditor, runButton);
         }
-
-        __editors[stepName] = thisEditor.editor;
     };
 
     var __adjustReadOnlyLines = function(readonlyLinesArray) {
