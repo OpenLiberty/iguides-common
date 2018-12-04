@@ -16,7 +16,7 @@ var blueprint = (function(){
           var defaultWidgets = jsonGuide.getStepsDefaultWidgets(blueprintName);
           var configWidgets = jsonGuide.getStepsConfigWidgets(blueprintName);
           stepContent.setSteps(steps, defaultWidgets, configWidgets);
-          tableofcontents.create(steps);
+          tableofcontents.create(steps);          
           stepContent.createGuideContents();
           iguideMultipane.initView();
       
@@ -59,6 +59,7 @@ var blueprint = (function(){
             }
             handleSectionChanging(event);
           });
+          setInitialTOCLineHeight();
     });    
   };
  
