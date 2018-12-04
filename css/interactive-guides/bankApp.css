@@ -81,7 +81,7 @@ body {
 
 #fail, #welcome {
     display: flex;  /** Initially the spinner is showing so hide this div **/
-    height: calc(100% - 85px);    /** 85px is height of check balance + global ebank headers **/
+    height: calc(100% - 36px);    /** 36px is the global ebank headers **/
 }
 
 .flexWarningContainer {
@@ -136,7 +136,7 @@ body {
     flex-direction: column;
     flex: 3;  /* text part will take up 3 flex space */
     overflow: hidden;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .welcomeBorderWrapper > p {
