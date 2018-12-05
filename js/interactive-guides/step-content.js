@@ -553,7 +553,9 @@ var stepContent = (function() {
      
       if (widgetOnHover) {
         widgetOnHover.off('mouseenter mouseleave');
+        if (widgetOnHover.hasClass('stepWidgetOnHover')) {
         widgetOnHover.removeClass('stepWidgetOnHover');
+        }
       }
       if (__isWidgetAtConfigurableHeight(widgetInfo) === false) {   
            __widgetOnHover(subContainer, widgetInfo.displayType);
@@ -756,7 +758,7 @@ var stepContent = (function() {
                 __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
                 
                 if (__isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
-                __widgetOnHover(subContainer, content.displayType);
+                    __widgetOnHover(subContainer, content.displayType);
                 }
                 //}
             }
@@ -817,10 +819,8 @@ var stepContent = (function() {
         widgetOnHover.hover(function(e) {
           if (e.type === "mouseenter") {
             $(this).addClass('stepWidgetOnHover');
-            console.log("hover ON");
           } else {
             $(this).removeClass('stepWidgetOnHover');
-            console.log("hover OFF");
           }
         });
       }
