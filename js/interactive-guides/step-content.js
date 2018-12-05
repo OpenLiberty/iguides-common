@@ -290,7 +290,7 @@ var stepContent = (function() {
           }
           // override the default configured height
           if (content.height) {
-            widgetObj.customheight = content.height;
+            widgetObj.customHeight = content.height;
           }
           widgetInfo.push(widgetObj);
       });
@@ -356,21 +356,21 @@ var stepContent = (function() {
     var marginHeight = parseInt("5");
 
     var browserWidgetHeight =  _mapWidgetsHeight["webBrowser"];
-    if (browserWidget && browserWidget.customheight) {
-      browserWidgetHeight = browserWidget.customheight;
+    if (browserWidget && browserWidget.customHeight) {
+      browserWidgetHeight = browserWidget.customHeight;
     }
     var browserMaxHeight = parseInt(browserWidgetHeight.substring(0, browserWidgetHeight.length - 2));
     var browserMinHeight = 70;
 
     var podWidgetHeight =  _mapWidgetsHeight["pod"];
-    if (podWidget && podWidget.customheight) {
-      podWidgetHeight = podWidget.customheight;
+    if (podWidget && podWidget.customHeight) {
+      podWidgetHeight = podWidget.customHeight;
     }
     var podHeight = parseInt(podWidgetHeight.substring(0, podWidgetHeight.length - 2));
 
     var editorWidgetMaxHeight =  _mapWidgetsHeight["tabbedEditor"];
-    if (editorWidget && editorWidget.customheight) {
-      editorWidgetMaxHeight = editorWidget.customheight;
+    if (editorWidget && editorWidget.customHeight) {
+      editorWidgetMaxHeight = editorWidget.customHeight;
     }
     var editorMaxHeight = parseInt(editorWidgetMaxHeight.substring(0, editorWidgetMaxHeight.length - 2));
 
@@ -773,14 +773,14 @@ var stepContent = (function() {
     var isWidgetAtFullHeight = false;
     if (widgetObjInfo.displayType === "webBrowser") {
       if (widgetObjInfo.height === _mapWidgetsHeight["webBrowser"] ||
-          widgetObjInfo.height === widgetObjInfo.customheight) {
+          widgetObjInfo.height === widgetObjInfo.customHeight) {
         isWidgetAtFullHeight = true;
       }
     } else if (widgetObjInfo.displayType === "tabbedEditor") {
       var editorHeight = parseInt(widgetObjInfo.height.substring(0, widgetObjInfo.height.length - 2));
       var editorConfigurableHeight = parseInt(_mapWidgetsHeight["tabbedEditor"].substring(0, _mapWidgetsHeight["tabbedEditor"].length - 2));
       if (editorHeight >= editorConfigurableHeight ||
-          widgetObjInfo.height === widgetObjInfo.customheight) {
+          widgetObjInfo.height === widgetObjInfo.customHeight) {
         isWidgetAtFullHeight = true;
       }
     } else if (widgetObjInfo.displayType === "pod") {
@@ -888,11 +888,25 @@ var stepContent = (function() {
       }
   }
 
-  var getConfigWidgetHeights = function() {
-    var configWidgetHeights = {};
-    configWidgetHeights['multiColumnHeights'] = _mapWidgetsHeight;
-    configWidgetHeights['singleColumnHeights'] = _mapWidgetsSingleColumnHeight;
-    return configWidgetHeights;
+  /*
+   * Return the heights of all the widgets belonging to the step. 
+   * If custom height is set for the widget, use it.
+   * If single column view and single column height is set, use it.
+   * Otherwise, use the configured height.
+   */
+  var getStepWidgetHeights = function(stepName, isSingleColumnView) {
+    var widgetHeights = {};
+    var widgetsInfo = getStepWidgets(stepName);
+    widgetsInfo.forEach(function(widgetInfo) {
+      if (widgetInfo.customHeight) {
+        widgetHeights[widgetInfo.displayType] = widgetInfo.customHeight;
+      } else if (isSingleColumnView && _mapWidgetsSingleColumnHeight[widgetInfo.displayType]) {
+        widgetHeights[widgetInfo.displayType] = _mapWidgetsSingleColumnHeight[widgetInfo.displayType];
+      } else {
+        widgetHeights[widgetInfo.displayType] = _mapWidgetsHeight[widgetInfo.displayType];
+      }
+    });
+    return widgetHeights;
   }
 
   return {
@@ -905,8 +919,7 @@ var stepContent = (function() {
     showStepWidgets: showStepWidgets,
     getStepWidgets: getStepWidgets,
     resizeStepWidgets: resizeWidgets,
-    getConfigWidgetHeights: getConfigWidgetHeights,
     getCodeColumnHeight: getCodeColumnHeight,
-    getInfoForWidget: __getInfoForWidget
+    getStepWidgetHeights: getStepWidgetHeights
   };
 })();
