@@ -432,12 +432,20 @@ var stepContent = (function() {
         } else if (numOfWidgets === 2) {
             if (browserWidget !== undefined) {
                 editorHeight = columnHeight - (browserMaxHeight + (marginHeight * numOfWidgets));
-                browserWidget.height = browserMaxHeight + "px";
+                var browserHeight = browserMaxHeight;
+
+                // shortern browser height if browser is disable to give editor max height
+                if (editorHeight < editorMaxHeight && browserWidget.enable === false) {
+                  editorHeight = editorMaxHeight;
+                  browserHeight = columnHeight - (editorMaxHeight + (marginHeight * numOfWidgets));
+                }
+                browserWidget.height = browserHeight + "px";
             } 
             if (podWidget !== undefined) {
                 editorHeight = columnHeight - (podHeight + (marginHeight * numOfWidgets));
             } 
         }
+      
         editorWidget.height = editorHeight + "px";
     } else if (activeWidgetType === "pod") {
         if (enablePod === true) {
@@ -530,6 +538,30 @@ var stepContent = (function() {
 
     // actual resize of widgets
     __resizeWidgets(widgetsInfo);
+
+    // add hover over container if widget is not at full configurable height
+    for (var i = 0; i < widgetsInfo.length; i++) {
+      var widgetInfo = widgetsInfo[i];
+      var subContainer = $("#" + widgetInfo.id);
+      // unbind all the hover event
+      var widgetOnHover = undefined;
+      if (widgetInfo.displayType === "webBrowser") {
+          widgetOnHover = subContainer.find(".wb")
+      } else if (widgetInfo.displayType === "tabbedEditor") {
+          widgetOnHover = subContainer.find(".teContainer");
+      }
+     
+      if (widgetOnHover) {
+        widgetOnHover.off('mouseenter mouseleave');
+        if (widgetOnHover.hasClass('stepWidgetOnHover')) {
+        widgetOnHover.removeClass('stepWidgetOnHover');
+        }
+      }
+      if (__isWidgetAtConfigurableHeight(widgetInfo) === false) {   
+           __widgetOnHover(subContainer, widgetInfo.displayType);
+      }
+    }
+    
   }
 
   var __resizeWidgets = function(widgetsInfo) {
@@ -724,8 +756,10 @@ var stepContent = (function() {
                 }
 
                 __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
-
-                __widgetOnHover(subContainer, content.displayType, isWidgetEnable);
+                
+                if (__isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
+                    __widgetOnHover(subContainer, content.displayType);
+                }
                 //}
             }
       });
@@ -734,6 +768,26 @@ var stepContent = (function() {
       __createDefaultWidgets(step, stepWidgets, widgetsObjInfo);
     }
   };
+
+  var __isWidgetAtConfigurableHeight = function(widgetObjInfo) {
+    var isWidgetAtFullHeight = false;
+    if (widgetObjInfo.displayType === "webBrowser") {
+      if (widgetObjInfo.height === _mapWidgetsHeight["webBrowser"] ||
+          widgetObjInfo.height === widgetObjInfo.customheight) {
+        isWidgetAtFullHeight = true;
+      }
+    } else if (widgetObjInfo.displayType === "tabbedEditor") {
+      var editorHeight = parseInt(widgetObjInfo.height.substring(0, widgetObjInfo.height.length - 2));
+      var editorConfigurableHeight = parseInt(_mapWidgetsHeight["tabbedEditor"].substring(0, _mapWidgetsHeight["tabbedEditor"].length - 2));
+      if (editorHeight >= editorConfigurableHeight ||
+          widgetObjInfo.height === widgetObjInfo.customheight) {
+        isWidgetAtFullHeight = true;
+      }
+    } else if (widgetObjInfo.displayType === "pod") {
+      isWidgetAtFullHeight = true;
+    }
+    return isWidgetAtFullHeight; 
+  }
 
   var __widgetOnClick = function(subContainer, displayType, widgetsObjInfo, isWidgetEnable) {
     // handle widget onclick
@@ -752,7 +806,7 @@ var stepContent = (function() {
     }
   }
 
-  var __widgetOnHover = function(subContainer, displayType, isWidgetEnable) {
+  var __widgetOnHover = function(subContainer, displayType) {
     // enable hover on clickable widget
     if (displayType !== "pod") {
       var widgetOnHover;
