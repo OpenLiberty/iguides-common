@@ -540,28 +540,29 @@ var stepContent = (function() {
     __resizeWidgets(widgetsInfo);
 
     // add hover over container if widget is not at full configurable height
-    for (var i = 0; i < widgetsInfo.length; i++) {
-      var widgetInfo = widgetsInfo[i];
-      var subContainer = $("#" + widgetInfo.id);
-      // unbind all the hover event
-      var widgetOnHover = undefined;
-      if (widgetInfo.displayType === "webBrowser") {
+    if (!inSingleColumnView()) {
+      for (var i = 0; i < widgetsInfo.length; i++) {
+        var widgetInfo = widgetsInfo[i];
+        var subContainer = $("#" + widgetInfo.id);
+        // unbind all the hover event
+        var widgetOnHover = undefined;
+        if (widgetInfo.displayType === "webBrowser") {
           widgetOnHover = subContainer.find(".wb")
-      } else if (widgetInfo.displayType === "tabbedEditor") {
+        } else if (widgetInfo.displayType === "tabbedEditor") {
           widgetOnHover = subContainer.find(".teContainer");
-      }
-     
-      if (widgetOnHover) {
-        widgetOnHover.off('mouseenter mouseleave');
-        if (widgetOnHover.hasClass('stepWidgetOnHover')) {
-        widgetOnHover.removeClass('stepWidgetOnHover');
+        }
+      
+        if (widgetOnHover) {
+          widgetOnHover.off('mouseenter mouseleave');
+          if (widgetOnHover.hasClass('stepWidgetOnHover')) {
+          widgetOnHover.removeClass('stepWidgetOnHover');
+          }
+        }
+        if (__isWidgetAtConfigurableHeight(widgetInfo) === false) {   
+          __widgetOnHover(subContainer, widgetInfo.displayType);
         }
       }
-      if (__isWidgetAtConfigurableHeight(widgetInfo) === false) {   
-           __widgetOnHover(subContainer, widgetInfo.displayType);
-      }
     }
-    
   }
 
   var __resizeWidgets = function(widgetsInfo) {
@@ -757,7 +758,7 @@ var stepContent = (function() {
 
                 __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
                 
-                if (__isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
+                if (!inSingleColumnView() && __isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
                     __widgetOnHover(subContainer, content.displayType);
                 }
                 //}
