@@ -778,7 +778,7 @@ var stepContent = (function() {
         isWidgetAtFullHeight = true;
       }
     } else if (widgetObjInfo.displayType === "tabbedEditor") {
-      if (widgetObjInfo.height !== undefined) {
+      if (widgetObjInfo.height) {
         var editorHeight = parseInt(widgetObjInfo.height.substring(0, widgetObjInfo.height.length - 2));
         var editorConfigurableHeight = parseInt(_mapWidgetsHeight["tabbedEditor"].substring(0, _mapWidgetsHeight["tabbedEditor"].length - 2));
         if (editorHeight >= editorConfigurableHeight ||
