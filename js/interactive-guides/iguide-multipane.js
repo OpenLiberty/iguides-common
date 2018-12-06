@@ -44,13 +44,14 @@ var iguideMultipane = (function () {
                 subsection.before(widget);
             } else {
                 contentStepDiv.append(widget);
-
-                var stepWidgetContainer = contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]');
-                _adjustBrowserHeight(contentStepDiv.find('#' + step + '-webBrowser-0'));
-                _adjustTabbedEditorHeight(contentStepDiv.find('#' + step + '-tabbedEditor-0'));
-                _adjustPodHeight(contentStepDiv.find('#' + step + '-pod-0'));
-                _adjustWidgetOrdering(stepWidgetContainer);
             }
+
+            var stepWidgetContainer = contentStepDiv.find('.stepWidgetContainer[data-step="' + step + '"]');
+            var stepWidgetHeights = stepContent.getStepWidgetHeights(step, true);
+            _adjustBrowserHeight(stepWidgetHeights, contentStepDiv.find('#' + step + '-webBrowser-0'));
+            _adjustTabbedEditorHeight(stepWidgetHeights, contentStepDiv.find('#' + step + '-tabbedEditor-0'));
+            _adjustPodHeight(stepWidgetHeights, contentStepDiv.find('#' + step + '-pod-0'));
+            _adjustWidgetOrdering(stepWidgetContainer);           
         });
     };
 
@@ -61,34 +62,23 @@ var iguideMultipane = (function () {
         widgetDivsArray.map(function (widget) {
             codeColumnDiv.append(widget);
 
-            // adjust the editpr position and height of the widgets in the code_column
+            // adjust the widget ordering and height of the widgets (with stepContent.resizeStepWidgets) in the code_column
             widget = $(widget);
-            var step = widget.attr('data-step');
-            _adjustPodHeight(widget.find('#' + step + '-pod-0'));
-            _adjustBrowserHeight(widget.find('#' + step + '-webBrowser-0'), widget.children().length);
             _adjustWidgetOrdering(widget);
             _resizeActiveWidget(widget);
         });
     };
 
-    var _getConfigWidgetHeight = function(widgetType, isSingleColumnHeight) {
-        var widgetHeights = stepContent.getConfigWidgetHeights();
-        var multiColumnHeights = widgetHeights['multiColumnHeights'];
-        var singleColumnHeights = widgetHeights['singleColumnHeights'];
-        var height = widgetHeights['multiColumnHeights'][widgetType];
-        // return the single column height if requested and available
-        if (isSingleColumnHeight && singleColumnHeights[widgetType]) {
-            height = widgetHeights['singleColumnHeights'][widgetType];
+    var _getWidgetHeight = function(stepWidgetHeights, widgetType) {
+        var height = stepWidgetHeights[widgetType];
+        if (height && height.indexOf('px') !== -1) { 
+            height = parseInt(height.substring(0, height.indexOf('px')));
         }
-        if (height.indexOf('px') !== -1) { 
-            height = height.substring(0, height.indexOf('px'));
-        }
-        height = parseInt(height);
         return height;
     }
 
-    var _adjustPodHeight = function (pod) {
-        var height = _getConfigWidgetHeight('pod');
+    var _adjustPodHeight = function (stepWidgetHeights, pod) {
+        var height = _getWidgetHeight(stepWidgetHeights, 'pod');
         if (pod.length > 0) {
             if (currentView === 'single') {
                 pod.css('height', 'auto');
@@ -101,36 +91,24 @@ var iguideMultipane = (function () {
         return height;
     };
 
-    var _adjustBrowserHeight = function (browser, numOfWidgets) {
-        var height = _getConfigWidgetHeight('webBrowser');
+    var _adjustBrowserHeight = function (stepWidgetHeights, browser) {
+        var height = _getWidgetHeight(stepWidgetHeights, 'webBrowser');
         if (browser.length > 0) {
-            if (currentView === 'single') {
-                height = _getConfigWidgetHeight('webBrowser', true);
-            } else {
-                if (browser.hasClass('disableContainer') && (numOfWidgets > 2)) {
-                    height = height - 100;
-                }
-            }
-            browser.css('height', height + 'px');
+           browser.css('height', height + 'px');
         } else {
             height = 0;
         }
         return height;
     };
 
-    var _adjustTabbedEditorHeight = function (tabbedEditor, otherWidgetHeight) {
+    var _adjustTabbedEditorHeight = function (stepWidgetHeights, tabbedEditor) {
         if (tabbedEditor.length > 0) {
             if (currentView === 'single') {
                 if (!tabbedEditor.hasClass('disableContainer')) {
                     // in single view set fix height 
-                    var tabbedEditorHeight = _getConfigWidgetHeight('tabbedEditor');
+                    var tabbedEditorHeight = _getWidgetHeight(stepWidgetHeights, 'tabbedEditor');
                     tabbedEditor.css('height', tabbedEditorHeight + 'px');
                 }
-            } else {
-                // not able to use $('#code_column').height() as it may get 0 during resizing
-                var codeColumnHeight = stepContent.getCodeColumnHeight();
-                var tabbedEditorHeight = codeColumnHeight - otherWidgetHeight;
-                tabbedEditor.css('height', tabbedEditorHeight + 'px');
             }
         }
     };
