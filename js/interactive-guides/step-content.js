@@ -778,11 +778,13 @@ var stepContent = (function() {
         isWidgetAtFullHeight = true;
       }
     } else if (widgetObjInfo.displayType === "tabbedEditor") {
-      var editorHeight = parseInt(widgetObjInfo.height.substring(0, widgetObjInfo.height.length - 2));
-      var editorConfigurableHeight = parseInt(_mapWidgetsHeight["tabbedEditor"].substring(0, _mapWidgetsHeight["tabbedEditor"].length - 2));
-      if (editorHeight >= editorConfigurableHeight ||
-          widgetObjInfo.height === widgetObjInfo.customHeight) {
-        isWidgetAtFullHeight = true;
+      if (widgetObjInfo.height !== undefined) {
+        var editorHeight = parseInt(widgetObjInfo.height.substring(0, widgetObjInfo.height.length - 2));
+        var editorConfigurableHeight = parseInt(_mapWidgetsHeight["tabbedEditor"].substring(0, _mapWidgetsHeight["tabbedEditor"].length - 2));
+        if (editorHeight >= editorConfigurableHeight ||
+            widgetObjInfo.height === widgetObjInfo.customHeight) {
+          isWidgetAtFullHeight = true;
+        }
       }
     } else if (widgetObjInfo.displayType === "pod") {
       isWidgetAtFullHeight = true;
