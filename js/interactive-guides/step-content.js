@@ -431,14 +431,15 @@ var stepContent = (function() {
             } 
         } else if (numOfWidgets === 2) {
             if (browserWidget !== undefined) {
-                editorHeight = columnHeight - (browserMaxHeight + (marginHeight * numOfWidgets));
-                var browserHeight = browserMaxHeight;
+                editorHeight = editorMaxHeight;
+                var browserHeight = columnHeight - (editorMaxHeight + (marginHeight * numOfWidgets));
 
-                // shortern browser height if browser is disable to give editor max height
-                if (editorHeight < editorMaxHeight && browserWidget.enable === false) {
-                  editorHeight = editorMaxHeight;
-                  browserHeight = columnHeight - (editorMaxHeight + (marginHeight * numOfWidgets));
+                // extend editor height to make it taller and keep browser height to its max height
+                if (browserHeight > browserMaxHeight) {
+                    editorHeight = columnHeight - (browserMaxHeight + (marginHeight * numOfWidgets));
+                    browserHeight = browserMaxHeight;
                 }
+
                 browserWidget.height = browserHeight + "px";
             } 
             if (podWidget !== undefined) {
