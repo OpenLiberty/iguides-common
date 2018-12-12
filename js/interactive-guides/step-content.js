@@ -21,9 +21,6 @@ var stepContent = (function() {
   var _mapWidgetsHeight = {}; // store widgets height
   var _mapWidgetsSingleColumnHeight = {}; // widget height for single column if different
 
-  // this is for the margin-top + margin-bottom space surrounding each widget in the 3rd column.
-  var marginHeight = parseInt("5");
-
   var setSteps = function(steps, defaultWidgets, configWidgets) {
     _steps = steps;
     _defaultWidgets = defaultWidgets;
@@ -175,7 +172,6 @@ var stepContent = (function() {
     for (var index = 0; index < step.instruction.length; index ++ ) {
       var instruction = contentManager.getInstructionAtIndex(index, stepName);
       instruction = __parseInstructionForActionTag(instruction);
-      //console.log("new instruction ", instruction);
       if(instruction){
         // Append the instruction to the bottom of the current content.
         var instr = $(".instructionContent[data-step='" + stepName + "'][data-instruction='" + index + "']");
@@ -306,9 +302,7 @@ var stepContent = (function() {
     var rightColumn = $("#code_column:visible");
     if (rightColumn.length > 0) {
       columnHeight = window.innerHeight - 101;
-      console.log('getting from inner height ', columnHeight);
     }
-    console.log("returning column height ", columnHeight);
     return columnHeight;  
   }
 
@@ -332,15 +326,6 @@ var stepContent = (function() {
       }
     }
     return widgetInfo;
-  }
-
-  var __calcHeightAfterMargin = function(height, isPodHidden, numOfWidgets) {
-    if (isPodHidden) {
-      height = height - (marginHeight * (numOfWidgets - 1)); 
-    } else {
-      height = height - (marginHeight * numOfWidgets); 
-    }
-    return height;
   }
 
   // WebBrowser: the height is either set in json for widget height when active or 70px when not active.
@@ -369,6 +354,9 @@ var stepContent = (function() {
     var podWidget = __getInfoForWidget(widgetsInfo, "pod");;
     var browserWidget = __getInfoForWidget(widgetsInfo, "webBrowser");
     var editorWidget = __getInfoForWidget(widgetsInfo, "tabbedEditor");
+
+    // this is for the margin-top + margin-bottom space surrounding each widget in the 3rd column.
+    var marginHeight = parseInt("5");
 
     var browserWidgetHeight = _mapWidgetsHeight["webBrowser"];
     if (browserWidget && browserWidget.customHeight) {
