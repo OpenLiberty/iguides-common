@@ -625,9 +625,7 @@ var stepContent = (function() {
           widgetOnHover.removeClass('stepWidgetOnHover');
           }
         }
-        //if (__isWidgetAtConfigurableHeight(widgetInfo) === false &&
-        //    __isDefaultWidget(widgetInfo) === false &&
-        //    widgetInfo.displayType !== activeWidget) { 
+        
         if (__enabledWidgetOnHover(widgetInfo, activeWidget)) {  
           __widgetOnHover(subContainer, widgetInfo.displayType);
         }
@@ -830,7 +828,6 @@ var stepContent = (function() {
                 __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
                 
                 if (!inSingleColumnView() && 
-                    //__isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
                     __enabledWidgetOnHover(widgetsObjInfo[index])) {
                     __widgetOnHover(subContainer, content.displayType);
                 }
