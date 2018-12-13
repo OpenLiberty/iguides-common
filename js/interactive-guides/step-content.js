@@ -603,7 +603,10 @@ var stepContent = (function() {
     // actual resize of widgets
     __resizeWidgets(widgetsInfo);
 
-    // add hover over container if widget is not at full configurable height
+    // add hover over container if 
+    // widget is not at full configurable height/custom height
+    // widget is not a default widget
+    // widget is not an active widget
     if (!inSingleColumnView()) {
       for (var i = 0; i < widgetsInfo.length; i++) {
         var widgetInfo = widgetsInfo[i];
@@ -622,7 +625,9 @@ var stepContent = (function() {
           widgetOnHover.removeClass('stepWidgetOnHover');
           }
         }
-        if (__isWidgetAtConfigurableHeight(widgetInfo) === false) {   
+        if (__isWidgetAtConfigurableHeight(widgetInfo) === false &&
+            __isDefaultWidget(widgetInfo) === false &&
+            widgetInfo.displayType !== activeWidget) {   
           __widgetOnHover(subContainer, widgetInfo.displayType);
         }
       }
@@ -712,6 +717,7 @@ var stepContent = (function() {
         // and __lookForExistingContents.
         var subContainerDivId = '<div id="' + subContainerId + '" data-step="' + step.name + '" class="subContainerDiv col-sm-12"></div>';
         widget.id = subContainerId;
+        widget.default = true;
         var subContainer = $(subContainerDivId);
         if (isEnable === false) {
             subContainer.addClass('disableContainer');
@@ -822,7 +828,8 @@ var stepContent = (function() {
 
                 __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
                 
-                if (!inSingleColumnView() && __isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
+                if (!inSingleColumnView() && 
+                    __isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
                     __widgetOnHover(subContainer, content.displayType);
                 }
                 //}
@@ -833,6 +840,14 @@ var stepContent = (function() {
       __createDefaultWidgets(step, stepWidgets, widgetsObjInfo);
     }
   };
+
+  var __isDefaultWidget = function(widgetObjInfo) {
+    var isDefaultWidget = false;
+    if (widgetObjInfo.default) {
+        isDefaultWidget = true;
+    }
+    return isDefaultWidget; 
+  }
 
   var __isWidgetAtConfigurableHeight = function(widgetObjInfo) {
     var isWidgetAtFullHeight = false;
