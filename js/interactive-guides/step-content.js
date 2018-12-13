@@ -625,9 +625,10 @@ var stepContent = (function() {
           widgetOnHover.removeClass('stepWidgetOnHover');
           }
         }
-        if (__isWidgetAtConfigurableHeight(widgetInfo) === false &&
-            __isDefaultWidget(widgetInfo) === false &&
-            widgetInfo.displayType !== activeWidget) {   
+        //if (__isWidgetAtConfigurableHeight(widgetInfo) === false &&
+        //    __isDefaultWidget(widgetInfo) === false &&
+        //    widgetInfo.displayType !== activeWidget) { 
+        if (__enabledWidgetOnHover(widgetInfo, activeWidget)) {  
           __widgetOnHover(subContainer, widgetInfo.displayType);
         }
       }
@@ -829,7 +830,8 @@ var stepContent = (function() {
                 __widgetOnClick(subContainer, content.displayType, widgetsObjInfo, isWidgetEnable);
                 
                 if (!inSingleColumnView() && 
-                    __isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
+                    //__isWidgetAtConfigurableHeight(widgetsObjInfo[index]) === false) {
+                    __enabledWidgetOnHover(widgetsObjInfo[index])) {
                     __widgetOnHover(subContainer, content.displayType);
                 }
                 //}
@@ -841,12 +843,22 @@ var stepContent = (function() {
     }
   };
 
-  var __isDefaultWidget = function(widgetObjInfo) {
-    var isDefaultWidget = false;
-    if (widgetObjInfo.default) {
-        isDefaultWidget = true;
+  var __enabledWidgetOnHover = function(widgetInfo, activeWidget) {
+    var isActiveWidget = false;
+    if (activeWidget) {
+        if (widgetInfo.displayType === activeWidget) {
+            isActiveWidget = true;
+        }
+    } else {
+        isActiveWidget = (widgetInfo.active === true);
     }
-    return isDefaultWidget; 
+    var isDefaultWidget = false;
+    if (widgetInfo.default) {
+      isDefaultWidget = true;
+    }
+    return (__isWidgetAtConfigurableHeight(widgetInfo) === false &&
+            isDefaultWidget === false &&
+            isActiveWidget === false);  
   }
 
   var __isWidgetAtConfigurableHeight = function(widgetObjInfo) {
