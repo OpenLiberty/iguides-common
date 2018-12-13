@@ -464,8 +464,8 @@ var stepContent = (function() {
             // browser height already factors in margin space ... recalculate just using editor height
             editorHeight = editorHeight + browserHeight - browserMaxHeight;
             browserHeight = browserMaxHeight;
-          } if (browserHeight < 0) {
-            // take care of negative browser height
+          } if (browserHeight < browserMinHeight) {
+            // take care of negative and shorter than minimum browser height
             browserHeight = browserMinHeight;
             // recalculate editor height from column height with margin space factoring in
             editorHeight = columnHeight - browserHeight;
@@ -506,11 +506,11 @@ var stepContent = (function() {
             editorHeight = 0;
           }
         } else if (numOfWidgets === 2) {
-          if (browserWidget !== undefined) {
+          if (browserWidget) {
             // use the remaining height
             browserHeight = columnHeight;
           }
-          if (editorWidget !== undefined) {
+          if (editorWidget) {
             // use the remaining height
             editorHeight = columnHeight;
           }
