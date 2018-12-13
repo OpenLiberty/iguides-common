@@ -160,5 +160,5 @@
 }
 
 .codeeditor {
-  height: calc(100% - 34px);
+  height: calc(100% - 35px);  /* button frame + 1px for the border to show up */
 }

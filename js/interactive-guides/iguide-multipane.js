@@ -13,6 +13,7 @@ var iguideMultipane = (function () {
 
     var currentView;  // value is "single" or "multi"
     var widgetDivs, codeColumnDiv;
+    var currentStepShow;  // keep track of where we are so that it calls resizeWidget only when step is changed
 
     var initView = function () {
         widgetDivs = $('.stepWidgetContainer');
@@ -164,10 +165,15 @@ var iguideMultipane = (function () {
         }
     };
 
-    var resizeCodeColumnHeightInStepShown = function() {
+    var resizeCodeColumnHeightInStepShown = function(isCallFromResize) {
         var stepContainer = $('.stepWidgetContainer.multicolStepShown');
         if (stepContainer.length > 0) {
-            _resizeActiveWidget(stepContainer);
+            var stepToResize = stepContainer.attr('data-step');
+            // resize widgets only if different step or call from the resize listener
+            if (isCallFromResize || stepToResize !== currentStepShow) {
+                currentStepShow = stepToResize;
+                _resizeActiveWidget(stepContainer);
+            }
         }
     };
 
@@ -175,11 +181,14 @@ var iguideMultipane = (function () {
         var stepName = containerWidget.attr('data-step');
         var webBrowserWidget = containerWidget.find('#' + stepName + '-webBrowser-0');
         var editorWidget = containerWidget.find("#" + stepName + "-tabbedEditor-0");
-        var activeWidgetType = "pod";
-        if (webBrowserWidget.hasClass('activeWidget')) {
+        var podWidget = containerWidget.find("#" + stepName + "-pod-0");
+        var activeWidgetType;
+        if (webBrowserWidget && webBrowserWidget.hasClass('activeWidget')) {
             activeWidgetType = "webBrowser";
-        } else if (editorWidget.hasClass('activeWidget')) {
+        } else if (editorWidget && editorWidget.hasClass('activeWidget')) {
             activeWidgetType = "tabbedEditor";
+        } else if (podWidget && podWidget.hasClass('activeWidget')) {
+            activeWidgetType = "pod";
         }
         stepContent.resizeStepWidgets(stepContent.getStepWidgets(stepName), activeWidgetType);
     };
@@ -203,7 +212,8 @@ $(document).ready(function () {
         } else if (currentView === 'single' && !inSingleColumnView()) {
             iguideMultipane.singleToMultiColumn();
         } else if (currentView === 'multi' && !inSingleColumnView()) {
-            iguideMultipane.resizeCodeColumnHeightInStepShown();
+            // passing in true to resize the widgets in the step
+            iguideMultipane.resizeCodeColumnHeightInStepShown(true);
         }
     });
 
