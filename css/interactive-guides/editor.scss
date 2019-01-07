@@ -138,9 +138,12 @@
 .alertFrame {
   border-bottom: 1px solid #ccc;
   position: relative;
-  height: 34px;
   padding: 5px;
   overflow: hidden;
+  min-height: 34px;
+  @media (min-width: 768px) {
+    height: 34px;
+  }
 }
 
 .here_button_error_editor {
