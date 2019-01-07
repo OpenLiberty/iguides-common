@@ -227,12 +227,6 @@ var editor = (function() {
                         container.find('.editorContainer').attr("aria-label", content.fileName + " editor");
                         container.find('.editorFileName').text(content.fileName);
                         thisEditor.fileName = content.fileName;              
-
-                        if (content.editorHeight !== undefined) {             
-                            container.find(".editorContainer").css({
-                                "height": content.editorHeight
-                            });
-                        }
                     }
                     var editor = container.find('.codeeditor');
                     var id = container[0].id + "-codeeditor";
