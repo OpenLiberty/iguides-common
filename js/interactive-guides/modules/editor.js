@@ -373,24 +373,34 @@ var editor = (function() {
     var __adjustWritableLines = function(writableLinesArray) {
         var markText = [];
         $.each(writableLinesArray, function(index, writableLines) {
-            var writableLine;
+            var fromLine;
+            var toLine;
 
-            if ($.isNumeric(writableLines.line)) {
-                writableLine = parseInt(writableLines.line) - 1;
-            } else {
-                //console.log("invalid from line", writableLines.from);
-            }
+            if ($.isNumeric(writableLines.from)) {
+                fromLine = parseInt(writableLines.from) - 1;
+            } 
+            if ($.isNumeric(writableLines.to)) {
+                toLine = parseInt(writableLines.to) - 1;
+            } 
             
-            if (writableLine !== undefined) {
-                markText.push({line: writableLine});
+            if (fromLine !== undefined && toLine !== undefined) {
+                markText.push({
+                    from: fromLine,
+                    to: toLine
+                });
             }
         });
         return markText;
     }
-    
+
     var __markTextForWritable = function(thisEditor, markTextWritable) {
         $.each(markTextWritable, function(index, writableLine) {
-            thisEditor.editor.addLineClass(writableLine.line, 'gutter', 'insertBorderLine');
+            var writeFrom = parseInt(writableLine.from);
+            var writeTo = parseInt(writableLine.to);
+            var line;
+            for (line = writeFrom; line <= writeTo; line++) {
+              thisEditor.editor.addLineClass(line, 'gutter', 'insertBorderLine');
+            }
         });
     }; 
 
