@@ -243,8 +243,6 @@ var editor = (function() {
     };
 
     var __createEditor = function(thisEditor, id, container, stepName, content) {
-        console.log(stepName);
-        console.log(content.save);
         var isReadOnly = false;
         var markText = [];
         var markTextWritable = [];
