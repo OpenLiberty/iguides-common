@@ -243,6 +243,8 @@ var editor = (function() {
     };
 
     var __createEditor = function(thisEditor, id, container, stepName, content) {
+        console.log(stepName);
+        console.log(content.save);
         var isReadOnly = false;
         var markText = [];
         var markTextWritable = [];
@@ -306,7 +308,7 @@ var editor = (function() {
 
         thisEditor.codeEditor = container.find(".codeeditor");
 
-        if ((content.save === false || content.save === "false")) {
+        if ((content.save === undefined || content.save === false || content.save === "false")) {
             saveButton.addClass("hidden");
         } else if ((content.save === true || content.save === "true")) {
             runButton.addClass("hidden");
