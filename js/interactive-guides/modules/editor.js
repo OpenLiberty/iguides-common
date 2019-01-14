@@ -209,6 +209,11 @@ var editor = (function() {
                 }, 4000);
             }
         },
+        
+        scrollToLine: function(i) {
+            // scroll the editor content to the specified line i
+            this.editor.scrollIntoView({line: i, ch: 0});
+        }
 
     };
 

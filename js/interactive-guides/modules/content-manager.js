@@ -601,6 +601,22 @@ var contentManager = (function() {
         }
     };
 
+    /** Scroll the editor content into view with specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     * @param {Integer} lineNumber - the line number in the editor to scroll to view 
+     */
+    var scrollTabbedEditorToView = function(stepName, fileName, instanceNumber, lineNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.scrollToLine(lineNumber);
+            }
+        }
+    };
+
     /** Insert content before a certain line in a specified FileEditor instance
      *  within a TabbedEditor.
      * @param {String} stepName - name of step where TabbedEditor is located
@@ -941,6 +957,7 @@ var contentManager = (function() {
         saveTabbedEditor: saveTabbedEditor,
         markTabbedEditorReadOnlyLines: markTabbedEditorReadOnlyLines,
         resizeTabbedEditor: resizeTabbedEditor,
+        scrollTabbedEditorToView: scrollTabbedEditorToView,
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,
