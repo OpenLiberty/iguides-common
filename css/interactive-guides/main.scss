@@ -97,6 +97,11 @@ action:focus {
   color:#1b1c34;
 }
 
+.actionAddedText {    // Text added to an action button (built on from a previous button's text)
+  color: #1F242F;
+  font-weight: 500;  // Bold this text
+}
+
 instruction {
   width: 100%;
   margin-bottom: 25px;
