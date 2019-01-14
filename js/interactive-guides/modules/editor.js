@@ -306,7 +306,7 @@ var editor = (function() {
 
         thisEditor.codeEditor = container.find(".codeeditor");
 
-        if ((content.save === false || content.save === "false")) {
+        if ((content.save === undefined || content.save === false || content.save === "false")) {
             saveButton.addClass("hidden");
         } else if ((content.save === true || content.save === "true")) {
             runButton.addClass("hidden");

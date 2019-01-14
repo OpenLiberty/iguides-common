@@ -51,8 +51,7 @@ var tabbedEditor = (function() {
          *                               "      <feature>cdi-1.2</feature>",
          *                               "   </featureManager>",
          *                               "</server>"
-         *                             ],
-         *                             "save": true
+         *                             ]
          *                         },
          *                         {
          *                             "displayType":"fileEditor",
