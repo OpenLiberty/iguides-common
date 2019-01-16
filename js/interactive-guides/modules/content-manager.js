@@ -603,11 +603,11 @@ var contentManager = (function() {
 
     /** Scroll the editor content into view with specified FileEditor instance within a TabbedEditor
      * @param {String} stepName - name of step where FileEditor is located
-     * @param {String} fileName - file name of editor within TabbedEditor
+     * @param {String} fileName - file name of editor within TabbedEditor   
+     * @param {Integer} lineNumber - the line number in the editor to scroll to view
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
-     * @param {Integer} lineNumber - the line number in the editor to scroll to view 
      */
-    var scrollTabbedEditorToView = function(stepName, fileName, instanceNumber, lineNumber) {
+    var scrollTabbedEditorToView = function(stepName, fileName, lineNumber, instanceNumber) {
         var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
         if (tabbedEditor) {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
