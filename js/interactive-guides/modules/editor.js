@@ -649,7 +649,7 @@ var editor = (function() {
             // calculate the remaining height for code mirror when alert/error is displayed
             codeEditor.find('.CodeMirror').css("height", 'calc(100% - ' + editorError.outerHeight() + 'px)');
         }
-    }
+    };
 
     return {
         //getEditor: __getEditor
