@@ -151,6 +151,12 @@ var tabbedEditor = (function() {
                 thisTabbedEditor.$active.parent().css(thisTabbedEditor.cssWidthValue, thisTabbedEditor.activeTabSize);  // <li> element
                 thisTabbedEditor.$content.show();
 
+                if (activeTabChanged) {
+                    // call the editor to adjust the content height if alert is shown
+                    var editor = thisTabbedEditor.getEditorByFileName(newActiveFileName);
+                    editor.resizeContent();
+                }
+
                 if (activeTabChanged && thisTabbedEditor.activeTabChangeCallback) {
                     thisTabbedEditor.activeTabChangeCallback(newActiveFileName);
                 }
