@@ -102,7 +102,6 @@ var editor = (function() {
             } 
         },
         addSaveListener: function(callback) {
-            //console.log("saveListener callback", callback);
             this.saveListenerCallback = callback;
         },
         addContentChangeListener: function(callback) {
@@ -146,8 +145,8 @@ var editor = (function() {
         closeEditorErrorBox: function() {
             if (this.alertFrame.length) {
                 this.alertFrame.addClass("hidden");
-                // recalculate the height when alert pane is closed
-                this.codeEditor.css("height", 'calc(100% - 34px)');
+                // reset the height when alert pane is closed
+                this.codeEditor.find('.CodeMirror').css("height", '100%');
             }
         },
         createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
@@ -209,11 +208,12 @@ var editor = (function() {
                 }, 4000);
             }
         },
-
+        resizeContent: function() {
+            __resizeAlertFrame(this);
+        }
     };
 
     var __loadAndCreate = function(thisEditor, container, stepName, content) {
-            //console.log("using ajax to load editor.html", container);
             var deferred = new $.Deferred();
             $.ajax({
                 context: thisEditor,
@@ -235,7 +235,6 @@ var editor = (function() {
                     deferred.resolve(thisEditor);
                 },
                 error: function (result) {
-                    //console.error("Could not load the edittor.html");
                     deferred.resolve(thisEditor);
                 }
             });
@@ -278,7 +277,6 @@ var editor = (function() {
             if ($.isArray(content.preload)) {
                 preloadEditorContent = content.preload.join("\n");
             }
-            //console.log("formatted preloadEditorContent", preloadEditorContent);
             thisEditor.editor.setValue(preloadEditorContent);
             thisEditor.editor.contentValue = preloadEditorContent;
         }
@@ -352,13 +350,9 @@ var editor = (function() {
 
             if ($.isNumeric(readonlyLines.from)) {
                 fromLine = parseInt(readonlyLines.from) - 2;
-            } else {
-                //console.log("invalid from line", readonlyLines.from);
             }
             if ($.isNumeric(readonlyLines.to)) {
                 toLine = parseInt(readonlyLines.to) - 1;
-            } else {
-                //console.log("invalid to line", readonlyLines.to);
             }
             if (fromLine !== undefined && toLine !== undefined) {
                 markText.push({
@@ -446,8 +440,6 @@ var editor = (function() {
         var idError = "error_" + thisEditor.stepName + "_" + thisEditor.fileName; //added filenName to id to avoid duplicate ids
        
         var codeEditor = thisEditor.codeEditor;
-        // when alert pane is show, recalculate the editor height 100% - 68px (editor button frame height + alert frame height)
-        codeEditor.css("height", 'calc(100% - 68px)');
         
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
@@ -486,6 +478,7 @@ var editor = (function() {
             editorError.append(closeButton);
         }
         editorError.append('</span>');
+        __resizeAlertFrame(thisEditor);
     };
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
@@ -636,6 +629,21 @@ var editor = (function() {
     var __create = function(container, stepName, content) {
         return new editorType(container, stepName, content);
     };
+
+    var __resizeAlertFrame = function(thisEditor) {
+        var codeEditor = thisEditor.codeEditor;
+        var editorError = thisEditor.alertFrame;
+
+        if (editorError.is(':visible')) {
+            // reset the height to fit the content
+            editorError.css('height', 'auto');
+            var errorText = editorError.find('span');
+            // change display so that the close button will position correctly
+            errorText.css('display', "inline-block");
+            // calculate the remaining height for code mirror when alert/error is displayed
+            codeEditor.find('.CodeMirror').css("height", 'calc(100% - ' + editorError.outerHeight() + 'px)');
+        }
+    }
 
     return {
         //getEditor: __getEditor
