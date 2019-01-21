@@ -188,4 +188,9 @@ function replaceExternalizedStrings(responseText) {
     allExternalizedAlts.forEach(function(element) {
         element.setAttribute("alt", messages[element.dataset.externalizedalt]);
     });
+
+    var allExternalizedValues = Array.prototype.slice.call(document.querySelectorAll("[data-externalizedValue]"));
+    allExternalizedValues.forEach(function(element) {
+        element.setAttribute("value", messages[element.dataset.externalizedvalue]);
+    });
 };
