@@ -190,10 +190,18 @@ var utils = (function() {
             if (contentManager.getCurrentInstructionIndex(stepName) === 0) {
                 contentManager.markCurrentInstructionComplete(stepName);
                 editor.addCodeUpdated();
-                // Put the browser into focus.
+                // Put the browser into focus if it is enabled
                 var stepBrowser = contentManager.getBrowser(stepName);
                 if (stepBrowser) {
-                    stepBrowser.contentRootElement.trigger("click");
+                    var stepWidgetContainer = $('.stepWidgetContainer[data-step="' + stepName + '"]');
+                    if (stepWidgetContainer.length > 0) {
+                        var browserContainer = stepWidgetContainer.find('#' + stepName + '-webBrowser-0');
+                        if (browserContainer.length > 0) {
+                            if (!browserContainer.hasClass('disableContainer')) {
+                                stepBrowser.contentRootElement.trigger("click");
+                            }
+                        }
+                    }
                 }
             }
         } else {
