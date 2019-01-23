@@ -184,13 +184,55 @@ var utils = (function() {
         return (testRE.test(value));
     };
 
+    var handleEditorSave = function(stepName, editor, isUpdateSuccess, correctErrorBlock) {
+        editor.closeEditorErrorBox();
+        if (isUpdateSuccess) {
+            if (contentManager.getCurrentInstructionIndex(stepName) === 0) {
+                contentManager.markCurrentInstructionComplete(stepName);
+                editor.addCodeUpdated();
+                // Put the browser into focus if it is enabled
+                var stepBrowser = contentManager.getBrowser(stepName);
+                if (stepBrowser) {
+                    var stepWidgetContainer = $('.stepWidgetContainer[data-step="' + stepName + '"]');
+                    if (stepWidgetContainer.length > 0) {
+                        var browserContainer = stepWidgetContainer.find('#' + stepName + '-webBrowser-0');
+                        if (browserContainer.length > 0) {
+                            if (!browserContainer.hasClass('disableContainer')) {
+                                stepBrowser.contentRootElement.trigger("click");
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            if (contentManager.getCurrentInstructionIndex(stepName) === 0) {
+                // display error
+                editor.createErrorLinkForCallBack(true, correctErrorBlock);
+            } else {
+                editor.createResetScenarioMessage();
+                correctErrorBlock(stepName);
+                //editor.resetEditorContent();
+            }
+        }
+    };
+
+    var validateContentAndSave = function(stepName, editor, content, validateContentBlock, correctErrorBlock) {
+        var updateSuccess = false;
+        if (validateContentBlock(content)) {
+            updateSuccess = true;
+        }
+        utils.handleEditorSave(stepName, editor, updateSuccess, correctErrorBlock);
+    };
+
     return {
         formatString: __formatString,
         parseString: __parseString,
         replaceString: __replaceString,
         parseActionTag: __parseActionTag,
         isElementActivated: isElementActivated,
-        isInteger: isInteger
+        isInteger: isInteger,
+        handleEditorSave: handleEditorSave,
+        validateContentAndSave: validateContentAndSave
     };
 
 })();

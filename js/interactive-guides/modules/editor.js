@@ -167,6 +167,10 @@ var editor = (function() {
         createCustomAlertMessage: function(alertMsg) {
             __createErrorAlertPane(this, 'alert-warning', false, true, alertMsg);
         },
+        createResetScenarioMessage: function() {
+            var resetMsg = messages.editorResetContent;
+            __createErrorAlertPane(this, 'alert-warning', false, true, resetMsg);
+        },
         addCodeUpdated: function(isFadeInFadeOut) {
             // The default is to have the "code updated" text displayed without animation but
             // fade out the text. If fade in for the text is needed, then use the isFadeInFadeOut
@@ -591,6 +595,7 @@ var editor = (function() {
         if (thisEditor.editor.contentValue !== undefined) {
             thisEditor.editor.setValue(thisEditor.editor.contentValue);
             __markTextForReadOnly(thisEditor, thisEditor.markText);
+            __markTextForWritable(thisEditor, thisEditor.markTextWritable);
         }
     };
 

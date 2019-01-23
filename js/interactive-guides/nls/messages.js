@@ -36,5 +36,6 @@ var messages = {
   "editorReadonlyAlert": "Read-only mode",
   "hereButton": "here",
   "closeButton": "close",
-  "tabbedEditorContainer": "Tabbed container for file editors."
+  "tabbedEditorContainer": "Tabbed container for file editors.",
+  "editorResetContent": "An unexpected value was found. The contents were reset for the scenario."
 };
