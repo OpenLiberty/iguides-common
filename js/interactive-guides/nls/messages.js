@@ -9,17 +9,17 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 var messages = {
-  // Left pane
-  "tableOfContentsTitle":"BluePrint Overview",
-  // Web Browser
+  ABOUT: "About",
+  USER: "User",
+  BANK_LOGO: "Bank Logo",
+  WELCOME: "Welcome to ",
+   // Web Browser
   "browserSample": "Sample browser window",
   "browserAddressBar": "Sample browser address bar",
   "browserContentIdentifier": "Sample browser display window",
   "browserRefreshButton": "Refresh sample browser page",
   "navigationButtons": "Guide navigation buttons",
   "browserStatusBar": "Sample browser status bar",
-  "prevButton": "Previous",
-  "nextButton": "Next",
   "cmdPromptSample": "Terminal window",
   "cmdPromptHelpMessage": "Type \'help\' to get started.",
   "cmdPromptInput": "Enter a command",
@@ -36,5 +36,6 @@ var messages = {
   "editorReadonlyAlert": "Read-only mode",
   "hereButton": "here",
   "closeButton": "close",
-  "tabbedEditorContainer": "Tabbed container for file editors."
+  "tabbedEditorContainer": "Tabbed container for file editors.",
+  "editorResetContent": "An unexpected value was found. The contents were reset for the scenario."
 };

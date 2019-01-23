@@ -8,17 +8,47 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-#blueprint_step_content{
+.stepWidgetContainer {
+  height: 100%;
+}
+
+.stepWidgetOnHover:hover {
+  @media (min-width: 1170px) {
+    border: 1px solid #1B1C34 !important;
+  }
 }
 
 .subContainerDiv {
   padding: 0px 5px;
-  margin-bottom: 25px;  
+  margin-bottom: 2.5px;
+  margin-top: 2.5px;
+
+  @media (max-width: 1170px) {
+    margin: 10px 0px;
+  }
 }
 
-@media (max-width: 450px) {
-  .subContainerDiv {
-    margin-bottom: 60px;
+.disableContainer {
+  opacity: 0.3;
+
+  @media (max-width: 1170px) {
+      display: none;
+  }
+}
+
+.hiddenContainer {
+  display: none;
+}
+
+.multicolStepShown {
+  display: block;
+}
+
+.multicolStepHidden {
+  display: none;
+
+  @media (max-width: 1170px) {
+    display: block;
   }
 }
 
@@ -36,3 +66,6 @@
   padding-right: 20px;
 }
 
+#code_column { /* do not show scrollbar for the code column */
+  overflow: hidden !important;
+}

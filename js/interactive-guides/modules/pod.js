@@ -24,7 +24,7 @@ var pod = (function(){
 
   podType.prototype = {
 
-    setContent: function(content, callback) {
+    setContent: function(content, callback, append) {
        if (!content) {
          content = "";
          this.contentRootElement.html(content);
@@ -40,7 +40,13 @@ var pod = (function(){
            async: true,
            cache: true,
            success: function(result) {
-            $(thisPod.contentRootElement).html($(result));
+
+            if (append) {
+              $(thisPod.contentRootElement).append($(result));
+            } else {
+              $(thisPod.contentRootElement).html($(result));
+            }
+
             if(callback){
               callback = eval(callback);
               // Identify this pod instance with the updateCallback
@@ -85,6 +91,13 @@ var pod = (function(){
         success: function(result) {
           container.append($(result));
           thisPod.contentRootElement = container.find('.podContainer').first();          
+
+          // set the pod height for the right column
+          if (content.height !== undefined) {
+            container.find(".podContainer").css({
+              "height": content.height
+            });
+          }
 
           // fill in contents
           thisPod.setContent(content.content, content.callback);

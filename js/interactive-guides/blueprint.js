@@ -11,105 +11,56 @@
 var blueprint = (function(){
   var create = function(blueprintName) {
     __load().done(function(){
-      __setupLocalSession();      
+          __setupLocalSession();
           var steps = jsonGuide.getSteps(blueprintName);
+          var defaultWidgets = jsonGuide.getStepsDefaultWidgets(blueprintName);
+          var configWidgets = jsonGuide.getStepsConfigWidgets(blueprintName);
+          stepContent.setSteps(steps, defaultWidgets, configWidgets);
+          tableofcontents.create(steps);          
+          stepContent.createGuideContents();
+          iguideMultipane.initView();
       
-          //TODO: do some smart checking to make sure it's Github link, and append paths better
-          var repo = jsonGuide.getGithubRepo(blueprintName);
-          if (repo) {
-            var repoIssues = repo + "/issues";
-            var repoPR = repo + "/pulls";
-        
-            var contributeStep = {
-              "name": "Contribute",
-              "title": "Contribute to this guide",
-              "description": [ "Is something missing or broken? Raise an <a target='_blank' rel='noopener noreferrer' href='" + repoIssues + "'>issue</a>, or send us a <a target='_blank' rel='noopener noreferrer' href='" + repoPR + "'>pull request</a>.",
-                                "<br><a target='_blank' rel='noopener noreferrer' href='" + repo + "'>View this guide on github.</a>"]
-            };
-            steps.push(contributeStep);
-
-            var relateGuides = $("#related-guides");
-            if (relateGuides.length > 0) {
-              var relateGuidesStep = {
-                "name": "RelateGuides",
-                "title": "Related guides",
-                "description": ["<div id=\"relateGuidesContent\"/>"]
-              };
-              steps.push(relateGuidesStep);
-            }          
-          }
-     
-          // Hide the #blueprint_title as it is not used in the interactive guides
-          $(ID.blueprintTitle).hide();      
-          
-          stepContent.setSteps(steps);
-          var toc_title = jsonGuide.getGuideDisplayTitle(blueprintName);
-          tableofcontents.create(toc_title, steps);        
-      
-          if (window.location.hash === "") {
-            // No step specified in the URL, so display the first page.
-            stepContent.createContents(steps[0], false);
-          } else {    
-            // The URL fragment indentifier (first hash (#) after the URL) indicates
-            // the user requested a specific page within the guide.  Go to it.
-            var hashValue = window.location.hash.substring(1);  // get rid of '#'
-            stepContent.createContentsFromHash(hashValue);
-          }
-
-          //On click listener functions for Previous and Next buttons
-          $(ID.prevButton).on('click', function(){
-            var prevStepName = tableofcontents.prevStepFromName(stepContent.getCurrentStepName());
-            stepContent.updateURLfromStepName(prevStepName);
-            // Updating the hash in the URL will kick off the window.onhashchange
-            // event which will update the page contents.  See window.onhashchange below.
-          });
-      
-          $(ID.nextButton).on('click', function(){
-            var nextStepName = tableofcontents.nextStepFromName(stepContent.getCurrentStepName());
-            stepContent.updateURLfromStepName(nextStepName);
-            // Updating the hash in the URL will kick off the window.onhashchange
-            // event which will update the page contents.  See window.onhashchange below.
-          });
-
           // Monitor for hash changes to show the requested page.
           // Hash changes occur when the URL is updated with a new hash
-          // value (as in someone bookmarked one of the pages), when a new
-          // page is selected from the table of contents, or when the next
-          // or previous buttons are selected.
-          window.onhashchange = function() {
-            var hashValue = window.location.hash.substring(1);  // get rid of '#'
-            stepContent.createContentsFromHash(hashValue);
-          };
-      
-          //adding aria-labels to previous/next buttons and using messages file for button text
-          $(ID.navButtons).attr('aria-label', messages.navigationButtons);
-          $(ID.prevButton).attr('aria-label', messages.prevButton);
-          $(ID.prevButton).append(messages.prevButton);
-          $(ID.nextButton).attr('aria-label', messages.nextButton);
-          $(ID.nextButton).prepend(messages.nextButton);
-      
-          // Todo move these
-          var guideName = jsonGuide.getGuideDisplayTitle(blueprintName);
-          $(ID.tableOfContentsTitle).text(guideName);
-      
-          calculateBackgroundContainer();    
-      
-          $(window).resize(function(){
-            calculateBackgroundContainer();
+          // value (as in someone bookmarked one of the pages) or when a new
+          // page is selected from the table of contents.
+          // HashChange event processing also occurs in content\common-multipane.js.
+          window.addEventListener("hashchange", function(){
+            event.preventDefault();
+
+            var hash = location.hash.substring(1);
+            stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash));
           });
+
+          if (window.location.hash !== "") {   
+            handleFloatingTableOfContent();
+            
+            // The URL fragment indentifier (first hash (#) after the URL) indicates
+            // the user requested a specific page within the guide.  Go to it.
+            var hash = location.hash;
+            accessContentsFromHash(hash);
+            // Match the widgets on the right to id
+            stepContent.showStepWidgets(hash.substring(1));
+            stepContent.setCurrentStepName(stepContent.getStepNameFromHash(hash.substring(1)));
+          } else {
+            // no hash -> at the top of the guide
+            accessContentsFromHash(location.hash);
+            // Show the widgets on the right for Intro step
+            stepContent.showStepWidgets(location.hash);
+          }
+
+          $(window).on('scroll', function(event) {
+            // Check if a scroll animation from another piece of code is taking
+            // place and prevent normal behavior.
+            // NOTE: 'scrolling' flag is set in common-multipane.js accessContentsFromHash()
+            //       to indicate when scrolling to a selected section is in progress.
+            if($("body").data('scrolling') === true) {
+                return;
+            }
+            handleSectionChanging(event);
+          });
+          setInitialTOCLineHeight();
     });    
-  };
-
-  calculateBackgroundContainer = function(){
-    // Calculate the bottom of the table of contents
-    var tocParent = $("#toc_container").parent();
-    var backgroundMargin = parseInt($("#background_container").css('margin-top')) + parseInt($("#background_container").css('margin-bottom'));
-    var backgroundPadding = parseInt($("#background_container").css('padding-top')) + parseInt($("#background_container").css('padding-bottom'));
-    var minHeight = tocParent.offset().top + tocParent.height() + backgroundMargin + backgroundPadding;
-
-    // Extend the background container's min-height to cover the table of contents
-    $("#background_container").css('min-height', minHeight);
-    $("#background_container").css('background-size', "100% calc(100% - 50px)");
   };
  
   var __load = function() {
@@ -122,7 +73,7 @@ var blueprint = (function(){
         deferred.resolve();
       },
       error: function (result) {
-        console.error("Could not load the edittor.html");
+        console.error("Could not load blueprint.html");
         deferred.resolve();
       }
     });
@@ -153,7 +104,37 @@ var blueprint = (function(){
         }
       });
     }
-  }
+  };
+
+  var handleSectionChanging = function(event) {
+    // Get the id of the section most in view
+    var id = getScrolledVisibleSectionID();
+
+    if (id !== null) {
+      var windowHash = window.location.hash;
+      var scrolledToHash = id === "" ? id : '#' + id;
+      if (windowHash !== scrolledToHash) {
+        // Update the URL hash with new section we scrolled into....
+        var currentPath = window.location.pathname;
+        var newPath = currentPath.substring(currentPath.lastIndexOf('/')+1) + scrolledToHash;
+        // Not setting window.location.hash here because that causes an
+        // onHashChange event to fire which will scroll to the top of the
+        // section.  pushState updates the URL without causing an
+        // onHashChange event.
+        history.pushState(null, null, newPath);
+
+        // Update the selected TOC entry
+        updateTOCHighlighting(id);  // In toc-multipane.js in openliberty.io
+      }
+      stepContent.setCurrentStepName(stepContent.getStepNameFromHash(id));
+    }
+    
+    if(window.innerWidth > twoColumnBreakpoint) {
+      // Multipane view
+      // Match the widgets on the right to the new id
+      stepContent.showStepWidgets(id);
+    }
+  };
 
   return {
     create: create

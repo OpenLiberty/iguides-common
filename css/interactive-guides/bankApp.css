@@ -10,6 +10,11 @@
  *******************************************************************************/
  @import url("https://fonts.googleapis.com/css?family=Asap:300,400,500");
 
+ @font-face {
+    font-family: BunueloLight;
+    src: url("/fonts/BunueloCleanPro-Light.otf");
+}
+
 body {
     font-family: Asap;
     margin: 0 1px;
@@ -21,14 +26,31 @@ body {
     background-color: #deedf7;
 }
 
+.bankHeadingBlockFlexContainer { /* The same flexbox will be used to hold the bank heading with and without the account in it */
+    height: 36px;
+    background-color: #deedf7;
+    display: flex;
+    justify-content: space-between;
+}
+
+.bankHeadingBlockFlexContainer > span {
+    margin: auto 10px auto auto;
+}
+
+.bankHeadingBlockFlexContainer > span > img {
+    height: 24px;
+    width: 24px;
+    opacity: 0.41;
+    padding-left: 10px;
+}
+
 .bankHeading {
     font-weight: 500;
     font-size: 16px;
-    color: #343334;
+    color: #5E6B8D;
     letter-spacing: 0;
     text-align: left;
     padding: 9px 0px 9px 18px;
-    border-bottom: 1px solid #95c4f3;
 }
 
 .stepIntro {
@@ -37,7 +59,7 @@ body {
 }
 
 .stepIntroText {
-    font-size: 16px;
+    font-size: 14px;
     color: #272727;
     letter-spacing: 0;
     text-align: left;
@@ -57,28 +79,123 @@ body {
     animation: spin 2s linear infinite;
 }
 
-#fail {
+#fail, #welcome {
     display: flex;  /** Initially the spinner is showing so hide this div **/
-    height: calc(100% - 85px);    /** 85px is height of check balance + global ebank headers **/
+    height: calc(100% - 36px);    /** 36px is the global ebank headers **/
 }
 
 .flexWarningContainer {
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
-    background:rgba(231,29,50,0.07);
     justify-content: center;
     margin: 24px 24px 0; 
     flex-grow: 1;
+    overflow: hidden;
 }
-
+  
 .flexWarningContainer > div {
     text-align: center;
-    line-height: 26px;
-    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+    font-size: 14px;
     align-self: center;
-    color: #272727;
+    color: #1B1C34;
     letter-spacing: 0;
+}
+
+.flexWelcomeContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex: 1;
+}
+
+
+.flexWelcomeContainer > figure {
+    flex: 1;  /* image will take up 1 flex space */
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    margin: 10px;
+}
+
+.flexWarningContainer > figure > img, .flexWelcomeContainer > figure > img {
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.welcomeTextWrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 3;  /* text part will take up 3 flex space */
+    overflow: hidden;
+    justify-content: center;
+}
+
+.welcomeBorderWrapper > p {
+    font-size: 16px;
+    font-weight: 500;
+    color: #5E6B8D;
+    letter-spacing: 0;
+}
+
+.welcomeBorderWrapper {
+    display: flex;
+    align-items: center;
+    width: 88%;  /* to control how long the border line is displayed */
+}
+
+.welcomeLine {
+    border-top: 1px solid #C3C8D7;
+    flex-grow: 1;
+    margin: 0 10px;
+}
+
+.welcomeBankTitle {
+    font-family: BunueloLight;
+    font-size: 12vw;  /* use vw (viewport width) as the unit instead of hardcoding the font size sp
+                         that the font size is scalable */
+    color: #5E6B8D;
+    letter-spacing: 0;
+}
+
+.welcomeBankTitle > p {
+    margin: 0;
+}
+
+@media (max-width: 375px) {
+    .bankHeading {
+        font-size: 14px;
+        padding-left: 5px;
+    }
+
+    .bankHeadingBlockFlexContainer > span {
+        margin-right: 5px;
+    }
+
+    .bankHeadingBlockFlexContainer > span > img {
+        padding-left: 0px;
+    }
+}
+
+@media (max-width: 620px) {
+    .welcomeTextWrapper {
+        justify-content: center;  /* need to adjust the alignment to the center because the image 
+                                     shrinks causing mis-alignment */
+    }
+}
+
+@media (min-width: 950px) {
+    .welcomeBankTitle {
+        font-size: 10vw; /* to tone down the text as the image won't stretch past its max size */
+    }
 }
 
 @-webkit-keyframes spin {
