@@ -184,12 +184,12 @@ var utils = (function() {
         return (testRE.test(value));
     };
 
-    var handleEditorSave = function(stepName, editor, isUpdateSuccess, correctErrorBlock) {
+    var handleEditorSave = function(stepName, editor, isUpdateSuccess, correctErrorBlock, lineNumToScroll, fileName) {
         editor.closeEditorErrorBox();
         if (isUpdateSuccess) {
             if (contentManager.getCurrentInstructionIndex(stepName) === 0) {
                 contentManager.markCurrentInstructionComplete(stepName);
-                editor.addCodeUpdated();
+                editor.addCodeUpdated();          
                 // Put the browser into focus if it is enabled
                 var stepBrowser = contentManager.getBrowser(stepName);
                 if (stepBrowser) {
@@ -202,6 +202,9 @@ var utils = (function() {
                             }
                         }
                     }
+                }
+                if (lineNumToScroll) {
+                    contentManager.scrollTabbedEditorToView(stepName, fileName, lineNumToScroll);
                 }
             }
         } else {
