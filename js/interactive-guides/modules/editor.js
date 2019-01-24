@@ -9,13 +9,18 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 var editor = (function() {
-    var __editors = {}; // ToDo: __editors is no longer needed with the new changes
 
     var editorType = function(container, stepName, content) {
         var deferred = new $.Deferred();
         this.stepName = stepName;
         this.saveListenerCallback = null;
         this.fileName = "";
+        this.enabled = true;  // Default the editor to be enabled, unless content
+                              // indicates "enable": false.
+        if (content.enable !== undefined && (content.enable === false || content.enable === "false")) {
+            this.enabled = false;
+        }
+
         __loadAndCreate(this, container, stepName, content).done(function(result){
             deferred.resolve(result);
         });
@@ -46,6 +51,14 @@ var editor = (function() {
             }
             this.editor.replaceRange(content, {line: lineNumber-2});
             this.editor.markText({line: lineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
+            if (numberOfLines !== undefined) {
+                var i;
+                for (i = 0; i < numberOfLines; i++) {
+                    this.editor.addLineClass((lineNumber + i) - 1, 'gutter', 'insertBorderLine');
+                } 
+            } else {
+                this.editor.addLineClass(lineNumber - 1, 'gutter', 'insertBorderLine');   
+            }      
         },
         // append content after the specified line number
         appendContent: function(lineNumber, content, numberOfLines) {
@@ -58,6 +71,15 @@ var editor = (function() {
             }
             this.editor.replaceRange(content, {line: lineNumber-1});
             this.editor.markText({line: lineNumber-1}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
+            
+            if (numberOfLines !== undefined) {
+                var i;
+                for (i = 0; i < numberOfLines; i++) {
+                    this.editor.addLineClass((lineNumber + i), 'gutter', 'insertBorderLine');
+                } 
+            } else {
+                this.editor.addLineClass(lineNumber, 'gutter', 'insertBorderLine');   
+            }      
         },
         // replace content from and to the specified line number
         replaceContent: function(fromLineNumber, toLineNumber, content, numberOfLines) {
@@ -70,9 +92,16 @@ var editor = (function() {
                 markTextToLineNumber = fromLineNumber - 2 + numberOfLines;
             }
             this.editor.markText({line: fromLineNumber-2}, {line: markTextToLineNumber}, {className: "insertTextColor", readOnly: false})
+            
+            if (numberOfLines === undefined) {
+                numberOfLines = (toLineNumber - fromLineNumber) + 1;
+            }
+            var i;
+            for (i = 0; i < numberOfLines; i++) {
+                this.editor.addLineClass((fromLineNumber + i) - 1, 'gutter', 'insertBorderLine');
+            } 
         },
         addSaveListener: function(callback) {
-            //console.log("saveListener callback", callback);
             this.saveListenerCallback = callback;
         },
         addContentChangeListener: function(callback) {
@@ -116,6 +145,8 @@ var editor = (function() {
         closeEditorErrorBox: function() {
             if (this.alertFrame.length) {
                 this.alertFrame.addClass("hidden");
+                // reset the height when alert pane is closed
+                this.codeEditor.find('.CodeMirror').css("height", '100%');
             }
         },
         createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
@@ -135,11 +166,64 @@ var editor = (function() {
         },
         createCustomAlertMessage: function(alertMsg) {
             __createErrorAlertPane(this, 'alert-warning', false, true, alertMsg);
+        },
+        createResetScenarioMessage: function() {
+            var resetMsg = messages.editorResetContent;
+            __createErrorAlertPane(this, 'alert-warning', false, true, resetMsg);
+        },
+        addCodeUpdated: function(isFadeInFadeOut) {
+            // The default is to have the "code updated" text displayed without animation but
+            // fade out the text. If fade in for the text is needed, then use the isFadeInFadeOut
+            // parameter.
+            var codeUpdatedElement = this.editorButtonFrame.find(".codeUpdated");
+            if (codeUpdatedElement.length > 0) {
+                codeUpdatedElement.removeClass('codeUpdatedHidden');
+                var animationClass = 'codeUpdatedToFadeOut';
+                if (isFadeInFadeOut) {
+                    animationClass = 'codeUpdatedToFadeInAndOut';
+                }
+
+                // clear out current animation before starting another one
+                if (codeUpdatedElement.hasClass('codeUpdatedVisible')) {
+                    if (isFadeInFadeOut) {
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
+                    } else {
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
+                    }
+                    if (this.codeUpdatedTimeout) {
+                        clearTimeout(this.codeUpdatedTimeout);
+                    }
+                } else {
+                    codeUpdatedElement.addClass('codeUpdatedVisible');
+                }
+                setTimeout(function () {
+                    codeUpdatedElement.addClass(animationClass);
+                }, 2000);
+
+                this.codeUpdatedTimeout = setTimeout(function() {
+                    codeUpdatedElement.addClass('codeUpdatedHidden');
+                    if (isFadeInFadeOut) {
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeInAndOut');
+                    } else {
+                        codeUpdatedElement.removeClass('codeUpdatedVisible');
+                        codeUpdatedElement.removeClass('codeUpdatedToFadeOut');
+                    }
+                    this.codeUpdatedTimeout = undefined;
+                }, 4000);
+            }
+        },
+        
+        scrollToLine: function(i) {
+            // scroll the editor content to the specified line i
+            this.editor.scrollIntoView({line: i, ch: 0});
+        },
+
+        resizeContent: function() {
+            __resizeAlertFrame(this);
         }
     };
 
     var __loadAndCreate = function(thisEditor, container, stepName, content) {
-            //console.log("using ajax to load editor.html", container);
             var deferred = new $.Deferred();
             $.ajax({
                 context: thisEditor,
@@ -148,30 +232,19 @@ var editor = (function() {
                 cache: true,
                 success: function (result) {
                     container.append($(result));
+                    
                     if (content.fileName) {
                         container.find('.editorContainer').attr("aria-label", content.fileName + " editor");
                         container.find('.editorFileName').text(content.fileName);
                         thisEditor.fileName = content.fileName;              
-                        //$(".editorContainer").css("margin-top", "-20px");
-                        container.find(".editorContainer").css({
-                            "margin-top": "-20px",
-                            "margin-bottom": "50px"
-                        });
-                        if (content.editorHeight !== undefined) {                       
-                            container.find(".editorContainer").css({
-                                "height": content.editorHeight
-                            });
-                        }
                     }
                     var editor = container.find('.codeeditor');
-                    //console.log("container id", container[0].id);
                     var id = container[0].id + "-codeeditor";
                     editor.attr("id", id);
                     __createEditor(thisEditor, id, container, stepName, content);
                     deferred.resolve(thisEditor);
                 },
                 error: function (result) {
-                    //console.error("Could not load the edittor.html");
                     deferred.resolve(thisEditor);
                 }
             });
@@ -181,16 +254,28 @@ var editor = (function() {
     var __createEditor = function(thisEditor, id, container, stepName, content) {
         var isReadOnly = false;
         var markText = [];
+        var markTextWritable = [];
         if (content.readonly === true || content.readonly === "true") {
             isReadOnly = true;
         } else if ($.isArray(content.readonly)) {
            markText = __adjustReadOnlyLines(content.readonly);
         }
+
+        var setReadOnly = false;
+        if (isReadOnly || !thisEditor.enabled) {
+            // Create the editor as read only so no text can be added or modified.
+            setReadOnly = true;
+        }
+        
+        if (content.writable) {
+            markTextWritable = __adjustWritableLines(content.writable);
+        }
+        
         thisEditor.editor = CodeMirror(document.getElementById(id), {
             lineNumbers: true,
             autoRefresh: true,
             theme: 'elegant',
-            readOnly: isReadOnly,
+            readOnly: setReadOnly,
             inputStyle: 'contenteditable',  // for input reader in accessibility
             extraKeys: {Tab: false, "Shift-Tab": false} // disable tab and shift-tab to indent or unindent inside the
                                                         // editor, instead allow accessibility for tab and shift-tab to
@@ -202,10 +287,10 @@ var editor = (function() {
             if ($.isArray(content.preload)) {
                 preloadEditorContent = content.preload.join("\n");
             }
-            //console.log("formatted preloadEditorContent", preloadEditorContent);
             thisEditor.editor.setValue(preloadEditorContent);
             thisEditor.editor.contentValue = preloadEditorContent;
         }
+
         if (content.callback) {
             var callback = eval(content.callback);
             callback(thisEditor);
@@ -227,19 +312,37 @@ var editor = (function() {
 
         thisEditor.alertFrame = container.find(".alertFrame");
 
-        if ((content.save === false || content.save === "false")) {
+        thisEditor.codeEditor = container.find(".codeeditor");
+
+        if ((content.save === undefined || content.save === false || content.save === "false")) {
             saveButton.addClass("hidden");
         } else if ((content.save === true || content.save === "true")) {
             runButton.addClass("hidden");
         }
 
+        if (content.enable !== undefined && (content.enable === false || content.enable === "false")) {
+            thisEditor.enabled = false;
+        }
+
         // mark any readOnly lines
-        if (isReadOnly) {
+        // setReadOnly is true if the editor content specified the file should be
+        //                     marked as readOnly.  In this case, a banner will be
+        //                     placed at the top of the editor indicating it is a
+        //                     Read Only file.
+        //                     It is also true if the editor is disabled.  Then we
+        //                     want to create the editor as readOnly, but no Read only
+        //                     banner should be shown.
+        if (setReadOnly) {
             __markEditorReadOnly(thisEditor);
-            thisEditor.createReadonlyAlert();
+
+            if (isReadOnly) {
+                thisEditor.createReadonlyAlert();
+            }
         } else {
             thisEditor.markText = markText;
-            __markTextForReadOnly(thisEditor, thisEditor.markText);
+            thisEditor.markTextWritable = markTextWritable;
+            __markTextForWritable(thisEditor, thisEditor.markTextWritable);
+            __markTextForReadOnly(thisEditor, thisEditor.markText);           
             __addSaveOnClickListener(thisEditor, saveButton);
             __addResetOnClickListener(thisEditor, resetButton);
             __addCopyOnClickListener(thisEditor, copyButton);
@@ -247,8 +350,6 @@ var editor = (function() {
             __addRedoOnClickListener(thisEditor, redoButton);
             __addSaveOnClickListener(thisEditor, runButton);
         }
-
-        __editors[stepName] = thisEditor.editor;
     };
 
     var __adjustReadOnlyLines = function(readonlyLinesArray) {
@@ -259,13 +360,9 @@ var editor = (function() {
 
             if ($.isNumeric(readonlyLines.from)) {
                 fromLine = parseInt(readonlyLines.from) - 2;
-            } else {
-                //console.log("invalid from line", readonlyLines.from);
             }
             if ($.isNumeric(readonlyLines.to)) {
                 toLine = parseInt(readonlyLines.to) - 1;
-            } else {
-                //console.log("invalid to line", readonlyLines.to);
             }
             if (fromLine !== undefined && toLine !== undefined) {
                 markText.push({
@@ -277,11 +374,45 @@ var editor = (function() {
         return markText;
     }
 
+    var __adjustWritableLines = function(writableLinesArray) {
+        var markText = [];
+        $.each(writableLinesArray, function(index, writableLines) {
+            var fromLine;
+            var toLine;
+
+            if ($.isNumeric(writableLines.from)) {
+                fromLine = parseInt(writableLines.from) - 1;
+            } 
+            if ($.isNumeric(writableLines.to)) {
+                toLine = parseInt(writableLines.to) - 1;
+            } 
+            
+            if (fromLine !== undefined && toLine !== undefined) {
+                markText.push({
+                    from: fromLine,
+                    to: toLine
+                });
+            }
+        });
+        return markText;
+    }
+
+    var __markTextForWritable = function(thisEditor, markTextWritable) {
+        $.each(markTextWritable, function(index, writableLine) {
+            var writeFrom = parseInt(writableLine.from);
+            var writeTo = parseInt(writableLine.to);
+            var line;
+            for (line = writeFrom; line <= writeTo; line++) {
+              thisEditor.editor.addLineClass(line, 'gutter', 'insertBorderLine');
+            }
+        });
+    }; 
+
     var __markTextForReadOnly = function(thisEditor, markText) {
          $.each(markText, function(index, readOnlyFromAndTo) {
              thisEditor.editor.markText({line: readOnlyFromAndTo.from}, {line: readOnlyFromAndTo.to}, {readOnly: true, className: "readonlyLines"});
          });
-     };
+    };
 
     var __markEditorReadOnly = function(thisEditor) {
         thisEditor.markText = [];
@@ -317,6 +448,9 @@ var editor = (function() {
         var idHere = "here_button_error_editor_" + thisEditor.stepName;
         var idClose = "close_button_error_editor_" + thisEditor.stepName;
         var idError = "error_" + thisEditor.stepName + "_" + thisEditor.fileName; //added filenName to id to avoid duplicate ids
+       
+        var codeEditor = thisEditor.codeEditor;
+        
         // With the tabbedEditor, use the cached alertFrame.
         var editorError = thisEditor.alertFrame;
         if (editorError.length) {
@@ -334,8 +468,7 @@ var editor = (function() {
         if (correctErrorCallback) {
             var handleOnClickFixContent = function () {
                 __correctEditorError(thisEditor, isSave, correctErrorCallback);
-                // close the alert frame so that each step doesn't have to call the close
-                thisEditor.closeEditorErrorBox();
+                event.stopPropagation(); 
             };
             var hereButton = __createEditorErrorButton(idHere, messages.hereButton, "here_button_error_editor", handleOnClickFixContent, "Here");
             editorError.append(hereButton);
@@ -355,11 +488,11 @@ var editor = (function() {
             editorError.append(closeButton);
         }
         editorError.append('</span>');
+        __resizeAlertFrame(thisEditor);
     };
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
         correctErrorCallback(thisEditor.stepName);
-        // hide the error box
         thisEditor.closeEditorErrorBox();
         // call save editor
         if (isSave === true) {
@@ -374,12 +507,16 @@ var editor = (function() {
             thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", true);
             thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", true);
             thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", true);
+            if (!thisEditor.enabled) {
+                thisEditor.editorButtonFrame.find(".editorCopyButton").prop("disabled", true);
+            }
         } else {
             thisEditor.editorButtonFrame.find(".editorSaveButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorRunButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorRedoButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorUndoButton").prop("disabled", false);
             thisEditor.editorButtonFrame.find(".editorResetButton").prop("disabled", false);
+            thisEditor.editorButtonFrame.find(".editorCopyButton").prop("disabled", false);
         }
     };
 
@@ -458,6 +595,7 @@ var editor = (function() {
         if (thisEditor.editor.contentValue !== undefined) {
             thisEditor.editor.setValue(thisEditor.editor.contentValue);
             __markTextForReadOnly(thisEditor, thisEditor.markText);
+            __markTextForWritable(thisEditor, thisEditor.markTextWritable);
         }
     };
 
@@ -501,6 +639,21 @@ var editor = (function() {
 
     var __create = function(container, stepName, content) {
         return new editorType(container, stepName, content);
+    };
+
+    var __resizeAlertFrame = function(thisEditor) {
+        var codeEditor = thisEditor.codeEditor;
+        var editorError = thisEditor.alertFrame;
+
+        if (editorError.is(':visible')) {
+            // reset the height to fit the content
+            editorError.css('height', 'auto');
+            var errorText = editorError.find('span');
+            // change display so that the close button will position correctly
+            errorText.css('display', "inline-block");
+            // calculate the remaining height for code mirror when alert/error is displayed
+            codeEditor.find('.CodeMirror').css("height", 'calc(100% - ' + editorError.outerHeight() + 'px)');
+        }
     };
 
     return {

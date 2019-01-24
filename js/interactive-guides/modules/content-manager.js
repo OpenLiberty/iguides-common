@@ -39,7 +39,7 @@ var contentManager = (function() {
     /** Generic method to add modules to their respective step
      * @param {String} stepName - stepName where module is located
      * @param {Module Object} module - the module object
-     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor', 
+     * @param {String} moduleType - 'webBrowser', 'fileBrowser', 'fileEditor',
      *                              'commandPrompt', 'pod', or 'tabbedEditor'
      * @param {Integer} index - Index in which the module should be stored to preserve order with async loading of modules
      */
@@ -99,8 +99,8 @@ var contentManager = (function() {
                 moduleList.splice(index, 0, module); // Insert module at specificed index in the array, to maintain order due to asynchronous loading
             } else{
                 moduleList.push(module);
-            }            
-        } 
+            }
+        }
     };
 
 // ==== GET FUNCTIONS ====
@@ -336,10 +336,20 @@ var contentManager = (function() {
     }
 
 // ==== Pod Functions ====
-    var setPodContent = function(stepName, content, instanceNumber) {
+    /**
+     * Change the contents of the pod
+     * @param {} stepName 
+     * @param {*} content   - String of html or filename to get html from
+     * @param {*} instanceNumber 
+     * @param {*} podCallback - invoked AFTER the html was added to the dom
+     * @param {*} append - true if you should append (add) the content to the 
+     *                     end of the dom.  Otherwise, assumed false which means
+     *                     the pod contents should be replaced with the new content.
+     */
+    var setPodContent = function(stepName, content, instanceNumber, podCallback, append) {
         var pod = __getPodInstance(stepName, instanceNumber);
         if (pod) {
-            pod.setContent(content);
+            pod.setContent(content, podCallback, append);
         }
     };
 
@@ -347,6 +357,26 @@ var contentManager = (function() {
         var pod = __getPodInstance(stepName, instanceNumber);
         if (pod) {
             var podContent = "<div class=\"pod-animation-slide-from-right\" tabindex=\"0\">" +
+                content +
+                "</div>";
+            pod.setContent(podContent);
+        }
+    };
+
+    var setPodContentWithSlideDown = function(stepName, content, instanceNumber) {
+        var pod = __getPodInstance(stepName, instanceNumber);
+        if (pod) {
+            var podContent = "<div class=\"pod-animation-slidedown\" tabindex=\"0\">" +
+                content +
+                "</div>";
+            pod.setContent(podContent);
+        }
+    };
+
+    var setPodContentWithSlideUp = function(stepName, content, instanceNumber) {
+        var pod = __getPodInstance(stepName, instanceNumber);
+        if (pod) {
+            var podContent = "<div class=\"pod-animation-slideup\" tabindex=\"0\">" +
                 content +
                 "</div>";
             pod.setContent(podContent);
@@ -445,7 +475,7 @@ var contentManager = (function() {
 
     /** Set readonly lines in a specified FileEditor instance
      * @param {String} stepName - name of step where FileEditor is located
-     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as, 
+     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as,
      * readonly, example to mark lines 1 thru 4 and lines 8 thru 12 readonly:
      *      [ {from: 1, to: 4} {from: 8, to: 12} ]
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
@@ -458,7 +488,7 @@ var contentManager = (function() {
     }
 
 
-// ==== Tabbed Editor Functions ====
+    // ==== Tabbed Editor Functions ====
     /** Add an editor to the tabbed editor in a new tab.
      *  @param {String} stepName
      *  @param {*} file editor creation object
@@ -496,7 +526,7 @@ var contentManager = (function() {
 
     /**
      * Get the active Tab fileName in the Tabbed Editor.
-     * 
+     *
      * @returns {String} fileName of active Tab || undefined.
      */
     var getActiveTabFileName = function(stepName, instanceNumber) {
@@ -535,11 +565,11 @@ var contentManager = (function() {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
                 return teditor.getEditorContent();
-            }           
+            }
         }
     };
 
-    /** Set (replace) the content in a specified FileEditor instance within a 
+    /** Set (replace) the content in a specified FileEditor instance within a
      *  TabbedEditor
      * @param {String} stepName - name of step where FileEditor is located
      * @param {String} fileName - file name of editor within TabbedEditor
@@ -552,8 +582,8 @@ var contentManager = (function() {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
                 teditor.setEditorContent(content);
-            }           
-        }        
+            }
+        }
     };
 
     /** Reset the content in a specified FileEditor instance within a TabbedEditor
@@ -567,8 +597,24 @@ var contentManager = (function() {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
                 teditor.resetEditorContent();
-            }           
-        }        
+            }
+        }
+    };
+
+    /** Scroll the editor content into view with specified FileEditor instance within a TabbedEditor
+     * @param {String} stepName - name of step where FileEditor is located
+     * @param {String} fileName - file name of editor within TabbedEditor   
+     * @param {Integer} lineNumber - the line number in the editor to scroll to view
+     * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
+     */
+    var scrollTabbedEditorToView = function(stepName, fileName, lineNumber, instanceNumber) {
+        var tabbedEditor = __getTabbedEditorInstance(stepName, instanceNumber);
+        if (tabbedEditor) {
+            var teditor = tabbedEditor.getEditorByFileName(fileName);
+            if (teditor) {
+                teditor.scrollToLine(lineNumber);
+            }
+        }
     };
 
     /** Insert content before a certain line in a specified FileEditor instance
@@ -639,6 +685,9 @@ var contentManager = (function() {
         if (tabbedEditor) {
             var teditor = tabbedEditor.getEditorByFileName(fileName);
             if (teditor) {
+                // Put the correct Tab into focus prior to processing save.
+                contentManager.focusTabbedEditorByName(stepName, fileName);
+
                 teditor.saveEditor();
             }
         }
@@ -647,7 +696,7 @@ var contentManager = (function() {
     /** Set readonly lines in a specified FileEditor instance within a TabbedEditor
      * @param {String} stepName - name of step where FileEditor is located
      * @param {String} fileName - file name of editor within TabbedEditor
-     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as, 
+     * @param {array} readOnlyLines - specify an array with from and to line numbers to be marked as,
      * readonly, example to mark lines 1 thru 4 and lines 8 thru 12 readonly:
      *      [ {from: 1, to: 4} {from: 8, to: 12} ]
      * @param {Integer} instanceNumber - (optional) zero-indexed instance number of FileEditor
@@ -673,7 +722,7 @@ var contentManager = (function() {
         }
     };
 
-    
+
 // ==== Instruction Functions ====
     /** Store the instructions for the given step
      * @param {String} stepName
@@ -722,73 +771,58 @@ var contentManager = (function() {
         return (stepInstruction && stepInstruction.instructions.length > 0);
     }
 
-    var updateWithNewInstructionNoMarkComplete = function(stepName) {
-        stepContent.createInstructionBlock(stepName);        
-    }
-
-    var updateWithNewInstruction = function(stepName) {
-        contentManager.markCurrentInstructionComplete(stepName);
-        stepContent.createInstructionBlock(stepName);
-    };
-
+    /* Made changes to implement the new multipane design, but can't test until widgets are working*/
     var markCurrentInstructionComplete = function(stepName){
         var stepInstruction = __getStepInstruction(stepName);
         var currentInstructionIndex = stepInstruction.currentInstructionIndex;
         var instruction = stepInstruction.instructions[currentInstructionIndex];
-        
+
         if(instruction){
             var instructionID = stepName + '-instruction-' + currentInstructionIndex;
-            if($("#"+instructionID).length > 0){
-                $("html, body").animate({ scrollTop: $("#"+instructionID).offset().top }, 750);
-            }            
+
+            //scroll so the recently completed instruction is at the top of the browser window
+            if (($("#"+instructionID).length > 0) && (window.innerWidth <= twoColumnBreakpoint)) {
+              //subtract 40 to consider the TOC button height in single column view
+              $("html, body").animate({ scrollTop: ($("#"+instructionID).offset().top - 40)}, 750);
+            }
 
             if(instruction.complete === false){
                 instruction.complete = true;
-                addCheckmarkToInstruction(stepName, currentInstructionIndex);
+                $("#"+instructionID).addClass("completed");
                 if(stepInstruction.currentInstructionIndex < stepInstruction.instructions.length-1){
                     stepInstruction.currentInstructionIndex++;
+                    enableNextInstruction(stepName);
                 }
                 else{
                     stepInstruction.currentInstructionIndex = -1;
-                    colorNextButton(true);
                 }
+                 
+                // Mark the completed instruction's actions disabled
+                var instructions = $("instruction.completed:visible");
+                var actions = instructions.find('action');
+                actions.prop('tabindex', '-1');
+                actions.off('click');
+                actions.off('keypress');
             }
-        }
-
-        // Mark the completed instruction's actions disabled
-        var instructions = $("instruction.completed:visible");
-        var actions = instructions.find('action');
-        actions.prop('tabindex', '-1');
-        actions.off('click');
-        actions.off('keypress');
-
-        // If there are tabbedEditors, resize them according to the widget next to it.
-        var tabbedEditors = __getTabbedEditors(stepName);
-        if(tabbedEditors){
-            tabbedEditors.forEach(function(tabbedEditor){
-                tabbedEditor.resize();
-            });
         }
     };
 
-    var markInstructionDisable = function() {
-        // Mark the completed instruction's actions disabled
-        var instructions = $("instruction.completed:visible");
-        var actions = instructions.find('action');
-        actions.prop('tabindex', '-1');
-        actions.off('click');
-        actions.off('keypress');
-    }
+    // May need to change for cases where you have to wait a set time before activating
+    var enableNextInstruction = function(stepName){
+      var stepInstruction = __getStepInstruction(stepName);
+      var nextInstructionIndex = stepInstruction.currentInstructionIndex; //this is the instruction that needs to be activated
+      var instruction = stepInstruction.instructions[nextInstructionIndex];
 
-    var addCheckmarkToInstruction = function(stepName, instructionIndex) {
-        var stepInstruction = __getStepInstruction(stepName);
-        // var currentInstructionIndex = stepInstruction.currentInstructionIndex;
-        var instruction = stepInstruction.instructions[instructionIndex];
-        
-        if(instruction && instruction.complete) {
-            var instructionID = stepName + '-instruction-' + instructionIndex;        
-            $("#"+instructionID).addClass("completed");    
+      if(instruction) {
+        var instructionID = stepName + '-instruction-' + nextInstructionIndex;
+
+        if(instruction.complete === false) {
+          $("#"+instructionID).removeClass("unavailable");
+          $("#"+instructionID).attr('tabindex', '0');
+          var actions = $("#"+instructionID).find('action');
+          actions.prop('tabindex', '0');
         }
+      }
     };
 
     var isInstructionComplete = function(stepName, index) {
@@ -838,24 +872,11 @@ var contentManager = (function() {
       return stepInstruction ? stepInstruction.instructions.length-1 : -1;
     };
 
-    var colorNextButton = function(isComplete){
-        // Mark next button green if all instructions are complete
-        var nextButton = $('#next_button');
-        if(nextButton && nextButton.length > 0){
-            if(isComplete){
-                nextButton.addClass('green');
-            }     
-            else{
-                nextButton.removeClass('green');
-            }
-        }
-    };
-
     /*
         Check if all of the instructions for a given step are complete.
-        Input: {stepName} Step name
+        Input: {step} Step object
     */
-    var enableNextWhenAllInstructionsComplete = function(step) {
+    var determineIfAllInstructionsComplete = function(step) {
         var stepName = step.name;
         var isComplete = true;
         var stepInstruction = __getStepInstruction(stepName);
@@ -864,7 +885,7 @@ var contentManager = (function() {
             if(lastLoadedInstruction !== -1){
                 isComplete = false;
             }
-        }       
+        }
         // Check if there are sections to this step and if they are complete
         if(isComplete && step.sections){
             for(var i = 0; i < step.sections.length; i++){
@@ -874,16 +895,14 @@ var contentManager = (function() {
                     if(lastLoadedInstruction !== -1){
                         isComplete = false;
                     }
-                }                
+                }
             }
-        }        
-        colorNextButton(isComplete);        
-        return isComplete;        
+        }
+        return isComplete;
     };
 
     var resetInstruction = function(stepName) {
         var stepInstruction = __getStepInstruction(stepName);
-        // TODO
     };
 
     return {
@@ -911,6 +930,8 @@ var contentManager = (function() {
 
         setPodContent: setPodContent,
         setPodContentWithRightSlide: setPodContentWithRightSlide,
+        setPodContentWithSlideDown: setPodContentWithSlideDown,
+        setPodContentWithSlideUp: setPodContentWithSlideUp,
         getPod: __getPodInstance,
         getPlayground: __getPlaygroundInstance,
 
@@ -936,18 +957,16 @@ var contentManager = (function() {
         saveTabbedEditor: saveTabbedEditor,
         markTabbedEditorReadOnlyLines: markTabbedEditorReadOnlyLines,
         resizeTabbedEditor: resizeTabbedEditor,
+        scrollTabbedEditorToView: scrollTabbedEditorToView,
 
         setInstructions: setInstructions,
         checkIfInstructionsForStep: checkIfInstructionsForStep,
-        updateWithNewInstruction: updateWithNewInstruction,
         markCurrentInstructionComplete: markCurrentInstructionComplete,
-        addCheckmarkToInstruction: addCheckmarkToInstruction,
         isInstructionComplete: isInstructionComplete,
         getCurrentInstruction: getCurrentInstruction,
         getCurrentInstructionIndex: getCurrentInstructionIndex,
         getInstructionAtIndex: getInstructionAtIndex,
         getInstructionsLastIndex: getInstructionsLastIndex,
-        enableNextWhenAllInstructionsComplete: enableNextWhenAllInstructionsComplete,
-        updateWithNewInstructionNoMarkComplete: updateWithNewInstructionNoMarkComplete
+        determineIfAllInstructionsComplete: determineIfAllInstructionsComplete
     };
 })();

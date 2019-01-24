@@ -9,14 +9,20 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 var tabbedEditor = (function() {
-    var __editors = [];
 
     var tabbedEditorType = function(container, stepName, content) {
         /**
-         * This widget forms a tabbed editor.  It contains an array of fileEditor
-         * widgets as the "editorList" element of its content.
-         *
-         * Content may also contain
+         * This widget forms a tabbed editor. 
+         * The tabbed editor may have the following flag:
+         *   - "enable"  - true or false indicating if the tabbedEditor widget is enabled.
+         *       If false, all editors within the tabbedEditor will be disabled, which means
+         *       all buttons will be deactivated and the text cannot be updated.  This 
+         *       differs from READ-ONLY because with READ-ONLY the copy button is still
+         *       active and a banner indicating that the editor is Read-only is at the top of
+         *       the editor.
+         * 
+         * The tabbed editor contains an array of fileEditor widgets as the "editorList" 
+         * element of its content.  Content may also contain
          *  - "activeTab"- the fileName of the editor that you want to be active,
          *                 or have focus.  If "activeTab" is not specified,
          *                 then we default to the first tab as the active tab.
@@ -45,8 +51,7 @@ var tabbedEditor = (function() {
          *                               "      <feature>cdi-1.2</feature>",
          *                               "   </featureManager>",
          *                               "</server>"
-         *                             ],
-         *                             "save": true
+         *                             ]
          *                         },
          *                         {
          *                             "displayType":"fileEditor",
@@ -68,7 +73,15 @@ var tabbedEditor = (function() {
         this.stepName = stepName;
         this.editorList = {};                 // Tracks editor widget objects by tab id
         this.activeTabChangeCallback = null;  // User-defined callback function
-                                              // invoked when the URL is updated
+                                              // invoked when the #active tab changes.
+        
+        this.enabled = true;  // Default the tabbedEdditor to be enabled, unless content
+                              // indicates "enable": false.
+        if (content.enable !== undefined && (content.enable === false || content.enable === "false")) {
+            // A disabled tabbed editor contains all disabled editors where no action can occur
+            // with the file or editor buttons.
+            this.enabled = false;
+        }
 
         __loadAndCreate(this, container, stepName, content).done(function(result){
             deferred.resolve(result);
@@ -138,12 +151,15 @@ var tabbedEditor = (function() {
                 thisTabbedEditor.$active.parent().css(thisTabbedEditor.cssWidthValue, thisTabbedEditor.activeTabSize);  // <li> element
                 thisTabbedEditor.$content.show();
 
+                if (activeTabChanged) {
+                    // call the editor to adjust the content height if alert is shown
+                    var editor = thisTabbedEditor.getEditorByFileName(newActiveFileName);
+                    editor.resizeContent();
+                }
+
                 if (activeTabChanged && thisTabbedEditor.activeTabChangeCallback) {
                     thisTabbedEditor.activeTabChangeCallback(newActiveFileName);
                 }
-
-                // Resize the editor to match the widget next to it.
-                thisTabbedEditor.resize();
             });
             this.$teTabList.append($tabItem);
 
@@ -315,27 +331,41 @@ var tabbedEditor = (function() {
             var containerID = container[0].id;
             thisTabbedEditor.displayTypeNum = containerID.substring(containerID.lastIndexOf('-')+1);
 
+            // set the tabbed editor height for the right column
+            if (content.height !== undefined) {
+                container.find('.teContainer').css({
+                    "height": content.height
+                });
+            }
+
             // Fill in the editors for this Tabbed Editor in different tabs
             var editors = content.editorList || [];
 
-            // Determine the width of the tabs based on the bootstrapColSize
-            // that the tabbed editor is given.
+            // Determine the width of the tabs based on the number of tabs
             var numNonActiveEditors = editors.length - 1;
-            if (numNonActiveEditors <= 0  ||
-                content.bootstrapColSize === "col-sm-12") {
+            if (numNonActiveEditors <= 0 ) {
+                // Only one file in tabbed editor
                 numNonActiveEditors = 1; // To avoid division by zero, and to give future tabs added a size.
                 thisTabbedEditor.activeTabSize = '100%';
                 thisTabbedEditor.cssWidthValue = "max-width";   // Display full name of active editor
                                                                 // when we have the room!
             } else {
+                // Let active tab expand to 50% width of tabbed editor so we
+                // can hopefully see the whole name of the active tab.
                 thisTabbedEditor.activeTabSize = '50%';
-                thisTabbedEditor.cssWidthValue = "width";
+                thisTabbedEditor.cssWidthValue = "max-width";
             }
             thisTabbedEditor.tabSize = (50/numNonActiveEditors) + '%';
 
             if (editors.length > 0) {
                 for (var i=0; i<editors.length; i++) {
                     var tEditor = editors[i];
+                    if (!thisTabbedEditor.enabled) {
+                        // If the tabbedEditor is not enabled, then each editor within
+                        // must also be marked not enabled to disable its buttons and 
+                        // updates to its content.
+                        tEditor.enable = false;
+                    }
                     thisTabbedEditor.addEditor(tEditor);
                 }
 
@@ -352,16 +382,6 @@ var tabbedEditor = (function() {
                 }
 
             }       
-
-            $(window).on('resize', function(event){
-                event.preventDefault();           
-                thisTabbedEditor.resize();
-            });            
-
-            // Initial resize to adjust the height of this tabbedEditor to match the browser if there is one.
-            setTimeout(function(){
-                thisTabbedEditor.resize();
-            }, 500);
 
             if (content.callback) {
                 var callback = eval(content.callback);
