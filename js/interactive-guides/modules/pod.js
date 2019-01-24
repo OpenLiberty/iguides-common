@@ -92,13 +92,6 @@ var pod = (function(){
           container.append($(result));
           thisPod.contentRootElement = container.find('.podContainer').first();          
 
-          // set the pod height for the right column
-          if (content.height !== undefined) {
-            container.find(".podContainer").css({
-              "height": content.height
-            });
-          }
-
           // fill in contents
           thisPod.setContent(content.content, content.callback);
           deferred.resolve(thisPod);
