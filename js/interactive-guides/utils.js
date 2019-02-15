@@ -227,6 +227,77 @@ var utils = (function() {
         utils.handleEditorSave(stepName, editor, updateSuccess, correctErrorBlock);
     };
 
+    var countLinesOfContent = function(content) {
+        var lines = content.match(/\r*\n/g);
+        return lines !== null ? lines.length : 0;
+    };
+
+    /**
+     * Save the feature added to the Server.xml file as currently shown in the 
+     * editor content.  This includes marking the correct lines for writable and
+     * read-only.
+     * 
+     * @param {*} editor - editor object
+     * @param {String} content - tabbed editor contents associated with this editor
+     * @param {String} featureString - Simple string of the feature that was added
+     */
+     var saveFeatureInContent = function(editor, content, featureString) {
+        // Escape any periods (.) within the featureString
+        featureString = featureString.replace(/\./g, '\\.');
+
+        var editableContent = "[\\s\\S]*<feature>\\s*" + featureString + "\\s*<\\/feature>";
+        saveContentInEditor(editor, content, editableContent);
+    };
+
+    /**
+     * Save the contents in the Editor object.  This includes marking the editable
+     * (writable) text lines with the appropriate marker and making the rest 
+     * of the line read-only.
+     * 
+     * @param {*} editor - editor object
+     * @param {String} content - tabbed editor contents associated with this editor
+     * @param {Regex string} editableContent - regex to encapsuate the editable
+     *                              line(s) within the content. For example, the
+     *                              annotation, method, feature line, etc.
+     */
+    var saveContentInEditor = function(editor, content, editableContent) {
+        try {
+            // Save the new content for this editor.  Determine which lines
+            // should be marked editable and which should be read-only.
+            //
+            // Use capture groups to get content before the editable content,
+            // the editable content, and content after the editable part. 
+            // Then we can count the lines of code in each group in order 
+            // to correctly update the saved writable and read-only lines.
+            //
+            // Result:
+            //   groups[0] - same as content
+            //   groups[1] - content before the writable lines
+            //   groups[2] - the editable (writable) lines
+            //   groups[3] - content after the writable lines
+            var codeToMatch = "([\\s\\S]*)" +
+                            "(" + editableContent + ")" +
+                            "([\\s\\S]*)";
+            var regExpToMatch = new RegExp(codeToMatch, "g");
+            var groups = regExpToMatch.exec(content);
+
+            var start = groups[1];
+            var startLines = utils.countLinesOfContent(start);
+            var editable = groups[2];   // Group containing just the editable content
+            var editableLines = utils.countLinesOfContent(editable) + 1;
+            var end = groups[3];
+            var endLines = utils.countLinesOfContent(end);
+
+            var markText = [{from: 1, to: startLines}, {from: startLines + editableLines + 1, to: startLines + editableLines + endLines}];
+            var markTextWritable = [{from: startLines + 1, to: startLines + editableLines}];
+            editor.updateSavedContent(content, markText, markTextWritable);
+        } catch (e) {
+console.log('exception: ');
+console.log(e);
+        }
+    };
+
+
     return {
         formatString: __formatString,
         parseString: __parseString,
@@ -235,7 +306,10 @@ var utils = (function() {
         isElementActivated: isElementActivated,
         isInteger: isInteger,
         handleEditorSave: handleEditorSave,
-        validateContentAndSave: validateContentAndSave
+        validateContentAndSave: validateContentAndSave,
+        countLinesOfContent: countLinesOfContent,
+        saveFeatureInContent: saveFeatureInContent,
+        saveContentInEditor: saveContentInEditor
     };
 
 })();
