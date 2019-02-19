@@ -35,6 +35,11 @@
     &:hover {
         background-color: #D6DAE6;
     }
+
+    &.errorInTab {
+        background-color: #f2dede !important;
+        color: #a94442 !important;
+    }
 }
 
 .teTabContent {
