@@ -28,7 +28,7 @@
     }
 
     &.active {
-        background-color: #c7ccd9;
+        background-color: #c7ccd9 !important;
         color: #3f465a !important;
     }
 
@@ -37,7 +37,7 @@
     }
 
     &.errorInTab {
-        background-color: #f2dede !important;
+        background-color: #f2dede;
         color: #a94442 !important;
     }
 }
