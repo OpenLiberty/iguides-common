@@ -102,6 +102,19 @@ action:focus {
   font-weight: 500;  // Bold this text
 }
 
+codeblock {
+  letter-spacing: 0;
+  color: #5e6b8d;
+  background: #f1f4fe;
+  border: 1px solid #C8D5FF;
+  padding: 9px 12px;
+  margin: 10px 10px 10px 0px;
+  display: inline-block;
+  white-space: pre-wrap;
+  max-width: 600px;
+  min-width: 280px;
+}
+
 instruction {
   width: 100%;
   margin-bottom: 25px;

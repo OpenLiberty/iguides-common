@@ -171,6 +171,7 @@ var tabbedEditor = (function() {
                 // Remove the editor's file name that appears above a single editor
                 $tabContent.find('.editorFileName').parent().remove();
                 thisTabbedEditor.editorList[editorName] = newEditor;
+                newEditor.setTabbedEditor(thisTabbedEditor);
             });
         },
 
@@ -310,7 +311,19 @@ var tabbedEditor = (function() {
                     editorContainer.css('height', newHeight);  
                 }                
             } 
-        }     
+        },
+ 
+        markEditorTabWithErrorByFileName: function(fileName) {
+            var tab = this.findEditorTabByFileName(fileName);
+            tab.addClass('errorInTab');
+            tab.attr("aria-label", 'Error in ' + fileName);
+        },
+
+        resetEditorTabWithNoErrorByFileName: function(fileName) {
+            var tab = this.findEditorTabByFileName(fileName);
+            tab.removeClass('errorInTab');
+            tab.attr("aria-label", fileName);
+        }
     };
 
     var __loadAndCreate = function(thisTabbedEditor, container, stepName, content) {
