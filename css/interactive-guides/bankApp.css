@@ -159,7 +159,7 @@ body {
 }
 
 .welcomeBankTitle {
-    font-family: BunueloLight;
+    font-family: BunueloLight, Arial Narrow, Helvetica, Arial;
     font-size: 12vw;  /* use vw (viewport width) as the unit instead of hardcoding the font size sp
                          that the font size is scalable */
     color: #5E6B8D;
