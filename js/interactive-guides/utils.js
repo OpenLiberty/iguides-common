@@ -213,8 +213,7 @@ var utils = (function() {
                 editor.createErrorLinkForCallBack(true, correctErrorBlock);
             } else {
                 editor.createResetScenarioMessage();
-                correctErrorBlock(stepName);
-                //editor.resetEditorContent();
+                editor.resetEditorContent();
             }
         }
     };
@@ -225,6 +224,8 @@ var utils = (function() {
             updateSuccess = true;
         }
         utils.handleEditorSave(stepName, editor, updateSuccess, correctErrorBlock);
+
+        return updateSuccess;
     };
 
     var countLinesOfContent = function(content) {
@@ -253,6 +254,8 @@ var utils = (function() {
      * Save the contents in the Editor object.  This includes marking the editable
      * (writable) text lines with the appropriate marker and making the rest 
      * of the line read-only.
+     * 
+     * LIMITATION: This only marks one set of editable content.
      * 
      * @param {*} editor - editor object
      * @param {String} content - tabbed editor contents associated with this editor
@@ -288,12 +291,12 @@ var utils = (function() {
             var end = groups[3];
             var endLines = utils.countLinesOfContent(end);
 
-            var markText = [{from: 1, to: startLines}, {from: startLines + editableLines + 1, to: startLines + editableLines + endLines}];
+            var markText = [{from: 1, to: startLines}, 
+                            {from: startLines + editableLines + 1, to: startLines + editableLines + endLines}];
             var markTextWritable = [{from: startLines + 1, to: startLines + editableLines}];
             editor.updateSavedContent(content, markText, markTextWritable);
         } catch (e) {
-console.log('exception: ');
-console.log(e);
+
         }
     };
 
