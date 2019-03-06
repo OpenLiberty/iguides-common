@@ -620,6 +620,7 @@ var editor = (function() {
             thisEditor.editor.setValue(thisEditor.editor.contentValue);
             __markTextForReadOnly(thisEditor, thisEditor.markText);
             __markTextForWritable(thisEditor, thisEditor.markTextWritable);
+            thisEditor.closeEditorErrorBox();
         }
     };
 

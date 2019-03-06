@@ -212,9 +212,8 @@ var utils = (function() {
                 // display error
                 editor.createErrorLinkForCallBack(true, correctErrorBlock);
             } else {
-                editor.createResetScenarioMessage();
                 editor.resetEditorContent();
-            }
+                editor.createResetScenarioMessage();            }
         }
     };
 
