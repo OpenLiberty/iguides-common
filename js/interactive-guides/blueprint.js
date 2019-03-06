@@ -139,36 +139,67 @@ var blueprint = (function(){
 
   var setupClipboardCopy = function() {
     $('#guide_column codeblock').hover(function (event) {
+      //if (!($('#copy_to_clipboard').data('hovering'))) {
+        offset = $('#guide_column').position();
+        target = event.currentTarget;
+        var current_target_object = $(event.currentTarget);
+        target_position = current_target_object.position();
+        target_topMargin = parseInt(current_target_object.css('margin-top'));
+        target_outerWidth = current_target_object.outerWidth();
+        target_outerHeight = current_target_object.outerHeight();
 
-      offset = $('#guide_column').position();
-      target = event.currentTarget;
-      var current_target_object = $(event.currentTarget);
-      target_position = current_target_object.position();
-      target_topMargin = parseInt(current_target_object.css('margin-top'));
-      target_outerWidth = current_target_object.outerWidth();
-      target_outerHeight = current_target_object.outerHeight();
-  
-      $('#copy_to_clipboard').css({
-        top: target_position.top + target_topMargin + 4,
-        left: target_position.left + target_outerWidth - 50
-      });
-      $('#copy_to_clipboard').stop().fadeIn();
-    });
-
-    $('#guide_column codeblock').mouseleave(function (event) {
-      var x = event.clientX - offset.left;
-      var y = event.clientY - offset.top + $(window).scrollTop();
-      if (!(x > target_position.left
+        $('#copy_to_clipboard').css({
+          top: target_position.top + target_topMargin + 4,
+          left: target_position.left + target_outerWidth - 50
+        });
+        console.log('in hover');
+        //$('#copy_to_clipboard').data('hovering', true)
+        $('#copy_to_clipboard').stop().fadeIn();
+      // } else {
+      //   console.log("skip hovering as is there");
+      // }
+    }, function(event) {
+        //if ($('#copy_to_clipboard').is(':visible') &&
+          //$('#copy_to_clipboard').data('hovering')) {
+          var x = event.clientX - offset.left;
+          var y = event.clientY - offset.top + $(window).scrollTop();
+          console.log("event.clientY - " + event.clientY + " offset.top - " + offset.top + " scrollTop - " + $(window).scrollTop());
+          console.log("check position: x - " + x + ' y - ' + y + ' targetPosition.top ' + target_position.top + ' targetPosition.left ' + target_position.left + ' outerwidth ' + target_outerWidth + ' outerheight ' + target_outerHeight + ' topmargin ' + target_topMargin);
+          if (!(x > target_position.left
             && x < target_position.left + target_outerWidth
-            && y > target_position.top
+            && y > target_position.top //+ target_topMargin
             && y < target_position.top + target_outerHeight)) {
+            console.log("fading out visible clipboard copy icon");
             $('#copy_to_clipboard').stop().fadeOut();
             $('#guide_section_copied_confirmation').stop().fadeOut();
+            //$('#copy_to_clipboard').data('hovering', false);
           }
+        // } else {
+        //   console.log("no action in mouseleave");
+        // }
     });
 
-    $('#copy_to_clipboard').click(function (event) {
+    // $('#guide_column codeblock').mouseleave(function (event) {
+    //   if ($('#copy_to_clipboard').is(':visible') &&
+    //       $('#copy_to_clipboard').data('hovering')) {
+    //     var x = event.clientX - offset.left;
+    //     var y = event.clientY - offset.top + $(window).scrollTop();
+    //     console.log("check position: x - " + x + ' y - ' + y + ' targetPosition.top ' + target_position.top + ' targetPosition.left ' + target_position.left + ' outerwidth ' + target_outerWidth + ' outerheight ' + target_outerHeight + ' topmargin ' + target_topMargin);
+    //     if (!(x > target_position.left
+    //       && x < target_position.left + target_outerWidth
+    //       && y > target_position.top  + target_topMargin
+    //       && y < target_position.top + target_outerHeight)) {
+    //       console.log("fading out visible clipboard copy icon");
+    //       $('#copy_to_clipboard').stop(true, false).fadeOut(100);
+    //       $('#guide_section_copied_confirmation').stop(true, false).fadeOut(100);
+    //       $('#copy_to_clipboard').data('hovering', false);
+    //     }
+    //   } else {
+    //     console.log("no action in mouseleave");
+    //   }
+    // });
 
+    $('#copy_to_clipboard').click(function (event) {
       event.preventDefault();
       copy_element_to_clipboard(target, function() {
         var current_target_object = $(event.currentTarget);
