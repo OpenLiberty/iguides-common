@@ -138,66 +138,36 @@ var blueprint = (function(){
   };
 
   var setupClipboardCopy = function() {
+    // offset, target, target_position, target_width, and target_height are global variables in guide.js
+    var target_topMargin;
     $('#guide_column codeblock').hover(function (event) {
-      //if (!($('#copy_to_clipboard').data('hovering'))) {
-        offset = $('#guide_column').position();
-        target = event.currentTarget;
+        offset = $('#guide_column').position();	
+        target = event.currentTarget;	
         var current_target_object = $(event.currentTarget);
         target_position = current_target_object.position();
         target_topMargin = parseInt(current_target_object.css('margin-top'));
-        target_outerWidth = current_target_object.outerWidth();
-        target_outerHeight = current_target_object.outerHeight();
+        target_width = current_target_object.outerWidth();
+        target_height = current_target_object.outerHeight();
 
         $('#copy_to_clipboard').css({
           top: target_position.top + target_topMargin + 4,
-          left: target_position.left + target_outerWidth - 50
+           // backward calculation: calculate the x position till the end of the code block, then subtract the width for the copy icon to be displayed
+          left: target_position.left + target_width - 50
         });
-        console.log('in hover');
-        //$('#copy_to_clipboard').data('hovering', true)
         $('#copy_to_clipboard').stop().fadeIn();
-      // } else {
-      //   console.log("skip hovering as is there");
-      // }
     }, function(event) {
-        //if ($('#copy_to_clipboard').is(':visible') &&
-          //$('#copy_to_clipboard').data('hovering')) {
+        if (offset) {
           var x = event.clientX - offset.left;
           var y = event.clientY - offset.top + $(window).scrollTop();
-          console.log("event.clientY - " + event.clientY + " offset.top - " + offset.top + " scrollTop - " + $(window).scrollTop());
-          console.log("check position: x - " + x + ' y - ' + y + ' targetPosition.top ' + target_position.top + ' targetPosition.left ' + target_position.left + ' outerwidth ' + target_outerWidth + ' outerheight ' + target_outerHeight + ' topmargin ' + target_topMargin);
           if (!(x > target_position.left
-            && x < target_position.left + target_outerWidth
-            && y > target_position.top //+ target_topMargin
-            && y < target_position.top + target_outerHeight)) {
-            console.log("fading out visible clipboard copy icon");
+            && x < target_position.left + target_width
+            && y > target_position.top + target_topMargin // need to factor in top margin to calculate the y co-ordinate
+            && y < target_position.top + target_topMargin + target_height)) {
             $('#copy_to_clipboard').stop().fadeOut();
             $('#guide_section_copied_confirmation').stop().fadeOut();
-            //$('#copy_to_clipboard').data('hovering', false);
           }
-        // } else {
-        //   console.log("no action in mouseleave");
-        // }
+        }
     });
-
-    // $('#guide_column codeblock').mouseleave(function (event) {
-    //   if ($('#copy_to_clipboard').is(':visible') &&
-    //       $('#copy_to_clipboard').data('hovering')) {
-    //     var x = event.clientX - offset.left;
-    //     var y = event.clientY - offset.top + $(window).scrollTop();
-    //     console.log("check position: x - " + x + ' y - ' + y + ' targetPosition.top ' + target_position.top + ' targetPosition.left ' + target_position.left + ' outerwidth ' + target_outerWidth + ' outerheight ' + target_outerHeight + ' topmargin ' + target_topMargin);
-    //     if (!(x > target_position.left
-    //       && x < target_position.left + target_outerWidth
-    //       && y > target_position.top  + target_topMargin
-    //       && y < target_position.top + target_outerHeight)) {
-    //       console.log("fading out visible clipboard copy icon");
-    //       $('#copy_to_clipboard').stop(true, false).fadeOut(100);
-    //       $('#guide_section_copied_confirmation').stop(true, false).fadeOut(100);
-    //       $('#copy_to_clipboard').data('hovering', false);
-    //     }
-    //   } else {
-    //     console.log("no action in mouseleave");
-    //   }
-    // });
 
     $('#copy_to_clipboard').click(function (event) {
       event.preventDefault();
@@ -206,7 +176,8 @@ var blueprint = (function(){
         var position = current_target_object.position();
         $('#guide_section_copied_confirmation').css({
             top: position.top - 20,
-            left: position.left + current_target_object.outerWidth() - 90
+            // backward calculation: calculate the x position till the end of the copy icon, then subtract the width for the copied sentence and take into account of the margin available
+            left: position.left + current_target_object.outerWidth() - 86
         }).stop().fadeIn().delay(3500).fadeOut();
       });
     });
@@ -216,4 +187,3 @@ var blueprint = (function(){
     create: create
   };
 })();
-
