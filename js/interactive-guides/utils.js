@@ -228,6 +228,14 @@ var utils = (function() {
         return updateSuccess;
     };
 
+    /**
+     * Count the physical number of lines that the content passed takes up in the editor.
+     * @param String content String of the line(s) of code from the editor. This utility
+     *                       will count the number of physical lines in the string by 
+     *                       counting lineFeeds.
+     * 
+     * @return int  Number of lines in the content.
+     */
     var countLinesOfContent = function(content) {
         var lines = content.match(/\r*\n/g);
         return lines !== null ? lines.length : 0;
