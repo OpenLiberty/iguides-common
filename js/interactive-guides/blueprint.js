@@ -150,9 +150,9 @@ var blueprint = (function(){
         target_height = current_target_object.outerHeight();
 
         $('#copy_to_clipboard').css({
-          top: target_position.top + target_topMargin + 4,
+          top: target_position.top + target_topMargin + 1,
            // backward calculation: calculate the x position till the end of the code block, then subtract the width for the copy icon to be displayed
-          left: target_position.left + target_width - 50
+          left: target_position.left + target_width - 39
         });
         $('#copy_to_clipboard').stop().fadeIn();
     }, function(event) {
@@ -175,9 +175,9 @@ var blueprint = (function(){
         var current_target_object = $(event.currentTarget);
         var position = current_target_object.position();
         $('#guide_section_copied_confirmation').css({
-            top: position.top - 20,
+            top: position.top - 16,
             // backward calculation: calculate the x position till the end of the copy icon, then subtract the width for the copied sentence and take into account of the margin available
-            left: position.left + current_target_object.outerWidth() - 86
+            left: position.left + current_target_object.outerWidth() - 97
         }).stop().fadeIn().delay(3500).fadeOut();
       });
     });
