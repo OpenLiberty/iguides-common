@@ -247,65 +247,112 @@ var utils = (function() {
      * read-only.
      * 
      * @param {*} editor - editor object
-     * @param {String} content - tabbed editor contents associated with this editor
-     * @param {String} featureString - Simple string of the feature that was added
+     * @param String content - tabbed editor contents associated with this editor
+     * @param String featureString - Simple string of the feature that was added
      */
      var saveFeatureInContent = function(editor, content, featureString) {
         // Escape any periods (.) within the featureString
         featureString = featureString.replace(/\./g, '\\.');
 
-        var editableContent = "[\\s\\S]*<feature>\\s*" + featureString + "\\s*<\\/feature>";
+        var editableContent = "<feature>\\s*" + featureString + "\\s*<\\/feature>";
         saveContentInEditor(editor, content, editableContent);
     };
 
     /**
-     * Save the contents in the Editor object.  This includes marking the editable
-     * (writable) text lines with the appropriate marker and making the rest 
-     * of the line read-only.
+     * Save the contents in the Editor object.  This includes saving the editable
+     * (writable) text line numbers so they can be marked with the appropriate
+     * marker and marking the rest of the lines read-only.
      * 
-     * LIMITATION: This only marks one set of editable content.
+     * LIMITATION: This only looks for one set of editable content.
      * 
      * @param {*} editor - editor object
-     * @param {String} content - tabbed editor contents associated with this editor
-     * @param {Regex string} editableContent - regex to encapsuate the editable
+     * @param String content - tabbed editor contents associated with this editor
+     * @param Regex String editableContent - regex to encapsuate the editable
      *                              line(s) within the content. For example, the
      *                              annotation, method, feature line, etc.
      */
     var saveContentInEditor = function(editor, content, editableContent) {
+        var codeToMatch = "([\\s\\S]*)" +
+                          "(" + editableContent + ")" +
+                          "([\\s\\S]*)";
+
+        // Determine if the editable content is within the content.  
+        // If there, determine the physical line numbers of content that should
+        // be marked editable and which should be read-only (before and after 
+        // the editable content).                          
+        var contentInfo = getContentInfo(content, codeToMatch);
+        if (contentInfo.codeMatched) {
+            // editableContent was found within content
+            // Save the new content to the editor.
+            editor.updateSavedContent(content, contentInfo.markText, contentInfo.markTextWritable);
+        }
+    };
+
+    /**
+     * Determines if the editor content matches the Regular Expression defining
+     * an editable code segment (one) within the editor.  Returns a contentInfo
+     * object indicating if the content matches the layout specified by
+     * codeToMatch (boolean), the physical line numbers of the editable block of
+     * code within content, and the physical line numbers before and after the
+     * editable content (read-only lines).
+     * 
+     * LIMITATION: This only marks one set of editable content.
+     * 
+     * @param String content - contents of the editor
+     * @param String codeToMatch - Regular Expression defining an editable block
+     *                     of code within content.  The regex should use capture
+     *                     groups to define the content before the editable 
+     *                     code segment, the editable code segment, and the 
+     *                     content following the editable code segment.
+     * 
+     * @return {*} contentInfo - object containing:
+     *      codeMatched - boolean indicating if the content matches the regExp
+     *               defined by codeToMatch.
+     *      The following only exists in contentInfo if codeMatched == true.
+     *               [{*}] markText - array with 1 object indicating 'from' and
+     *                     'to' physical line numbers of the editable code segment 
+     *                     within content.
+     *               [{*}] markTextWritable - array of 2 objects indicating 
+     *                     'from' and 'to' physical line numbers of the readonly 
+     *                     code within content, occurring before and after the 
+     *                     editable code segment.
+     */
+    var getContentInfo = function(content, codeToMatch){
+        var contentInfo = {codeMatched: false};
         try {
-            // Save the new content for this editor.  Determine which lines
-            // should be marked editable and which should be read-only.
-            //
-            // Use capture groups to get content before the editable content,
-            // the editable content, and content after the editable part. 
-            // Then we can count the lines of code in each group in order 
-            // to correctly update the saved writable and read-only lines.
+            // Use capture groups to get content before the editable lines,
+            // the editable content, and content after the editable lines. 
+            // Then, count the lines of code in each group and determine the 
+            // physical line numbers of each group within content.
             //
             // Result:
             //   groups[0] - same as content
-            //   groups[1] - content before the writable lines
-            //   groups[2] - the editable (writable) lines
-            //   groups[3] - content after the writable lines
-            var codeToMatch = "([\\s\\S]*)" +
-                            "(" + editableContent + ")" +
-                            "([\\s\\S]*)";
+            //   groups[1] - content before the editable part
+            //   groups[2] - the editable lines within content
+            //   groups[3] - content after the editable part
             var regExpToMatch = new RegExp(codeToMatch, "g");
             var groups = regExpToMatch.exec(content);
 
-            var start = groups[1];
-            var startLines = utils.countLinesOfContent(start);
-            var editable = groups[2];   // Group containing just the editable content
-            var editableLines = utils.countLinesOfContent(editable) + 1;
-            var end = groups[3];
-            var endLines = utils.countLinesOfContent(end);
+            if (groups !== null) {
+                contentInfo.codeMatched = true;
 
-            var markText = [{from: 1, to: startLines}, 
-                            {from: startLines + editableLines + 1, to: startLines + editableLines + endLines}];
-            var markTextWritable = [{from: startLines + 1, to: startLines + editableLines}];
-            editor.updateSavedContent(content, markText, markTextWritable);
+                // Determine the line numbers of the code before and after the 
+                // editable content and the line numbers of the editable content.
+                var start = groups[1];      // Lines before editable content
+                var startLines = utils.countLinesOfContent(start);
+                var editable = groups[2];   // Group containing editable content
+                var editableLines = utils.countLinesOfContent(editable) + 1;
+                var end = groups[3];        // Lines following codeToMatch
+                var endLines = utils.countLinesOfContent(end);
+
+                contentInfo.markText = [{from: 1, to: startLines}, 
+                                               {from: startLines + editableLines + 1, to: startLines + editableLines + endLines}];
+                contentInfo.markTextWritable  = [{from: startLines + 1, to: startLines + editableLines}];
+            }    
         } catch (e) {
 
         }
+        return contentInfo;
     };
 
 
@@ -320,7 +367,8 @@ var utils = (function() {
         validateContentAndSave: validateContentAndSave,
         countLinesOfContent: countLinesOfContent,
         saveFeatureInContent: saveFeatureInContent,
-        saveContentInEditor: saveContentInEditor
+        saveContentInEditor: saveContentInEditor,
+        getContentInfo: getContentInfo
     };
 
 })();
