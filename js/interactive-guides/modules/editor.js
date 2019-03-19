@@ -40,6 +40,15 @@ var editor = (function() {
         resetEditorContent: function() {
             __handleResetClick(this);
         },
+        // Update the content that is saved off for this editor.  Save the 
+        // content, read-only and writable lines.  Reset will process from
+        // what content is last saved.
+        updateSavedContent: function(value, readonlyLinesArray, writableLinesArray) {
+            this.editor.contentValue = value;
+
+            this.markText = __adjustReadOnlyLines(readonlyLinesArray);
+            this.markTextWritable = __adjustWritableLines(writableLinesArray);
+        },
         // insert content before the specified line number
         insertContent: function(lineNumber, content, numberOfLines) {
             var markTextToLineNumber = lineNumber - 1;
@@ -611,6 +620,7 @@ var editor = (function() {
             thisEditor.editor.setValue(thisEditor.editor.contentValue);
             __markTextForReadOnly(thisEditor, thisEditor.markText);
             __markTextForWritable(thisEditor, thisEditor.markTextWritable);
+            thisEditor.closeEditorErrorBox();
         }
     };
 
