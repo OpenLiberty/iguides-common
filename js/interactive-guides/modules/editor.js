@@ -40,6 +40,15 @@ var editor = (function() {
         resetEditorContent: function() {
             __handleResetClick(this);
         },
+        // Update the content that is saved off for this editor.  Save the 
+        // content, read-only and writable lines.  Reset will process from
+        // what content is last saved.
+        updateSavedContent: function(value, readonlyLinesArray, writableLinesArray) {
+            this.editor.contentValue = value;
+
+            this.markText = __adjustReadOnlyLines(readonlyLinesArray);
+            this.markTextWritable = __adjustWritableLines(writableLinesArray);
+        },
         // insert content before the specified line number
         insertContent: function(lineNumber, content, numberOfLines) {
             var markTextToLineNumber = lineNumber - 1;
@@ -142,11 +151,15 @@ var editor = (function() {
         markEditorReadOnly: function() {
             __markEditorReadOnly(this);
         },
-        closeEditorErrorBox: function() {
+        closeEditorErrorBox: function(isClearErrorInTabbedEditor) {
             if (this.alertFrame.length) {
                 this.alertFrame.addClass("hidden");
                 // reset the height when alert pane is closed
                 this.codeEditor.find('.CodeMirror').css("height", '100%');
+            }
+            // By default reset the tab with no error when closing the error box in the editor
+            if ((isClearErrorInTabbedEditor === undefined || isClearErrorInTabbedEditor) && this.tabbedEditor) {
+                this.tabbedEditor.resetEditorTabWithNoErrorByFileName(this.fileName);
             }
         },
         createErrorLinkForCallBack: function(isSave, correctErrorCallback) {
@@ -161,7 +174,7 @@ var editor = (function() {
             var errorMsg = messages.editorReadonlyAlert;
             __createErrorAlertPane(this, 'alert-warning', false, false, errorMsg);
         },
-        createCustomErrorMessage: function(errorMsg){
+        createCustomErrorMessage: function(errorMsg) {
             __createErrorAlertPane(this, 'alert-danger', false, true, errorMsg);
         },
         createCustomAlertMessage: function(alertMsg) {
@@ -177,6 +190,9 @@ var editor = (function() {
             // parameter.
             var codeUpdatedElement = this.editorButtonFrame.find(".codeUpdated");
             if (codeUpdatedElement.length > 0) {
+                // reset the tab to no error when code updated is called
+                this.tabbedEditor.resetEditorTabWithNoErrorByFileName(this.fileName);
+
                 codeUpdatedElement.removeClass('codeUpdatedHidden');
                 var animationClass = 'codeUpdatedToFadeOut';
                 if (isFadeInFadeOut) {
@@ -220,6 +236,10 @@ var editor = (function() {
 
         resizeContent: function() {
             __resizeAlertFrame(this);
+        },
+
+        setTabbedEditor: function(tabbedEditor) {
+            this.tabbedEditor = tabbedEditor;
         }
     };
 
@@ -477,7 +497,7 @@ var editor = (function() {
             var handleOnClickClose = function (event) {
                 event.preventDefault();
                 event.stopPropagation();
-                thisEditor.closeEditorErrorBox();
+                thisEditor.closeEditorErrorBox(false);
                 editorError.attr('tabindex', '-1');
             };
             var bkgcolor = "";
@@ -489,6 +509,10 @@ var editor = (function() {
         }
         editorError.append('</span>');
         __resizeAlertFrame(thisEditor);
+
+        if (alertClass === "alert-danger" && this.tabbedEditor) {
+            thisEditor.tabbedEditor.markEditorTabWithErrorByFileName(thisEditor.fileName);
+        }
     };
 
     var __correctEditorError = function(thisEditor, isSave, correctErrorCallback) {
@@ -596,6 +620,7 @@ var editor = (function() {
             thisEditor.editor.setValue(thisEditor.editor.contentValue);
             __markTextForReadOnly(thisEditor, thisEditor.markText);
             __markTextForWritable(thisEditor, thisEditor.markTextWritable);
+            thisEditor.closeEditorErrorBox();
         }
     };
 

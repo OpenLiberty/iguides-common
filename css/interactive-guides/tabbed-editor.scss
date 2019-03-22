@@ -28,12 +28,17 @@
     }
 
     &.active {
-        background-color: #c7ccd9;
+        background-color: #c7ccd9 !important;
         color: #3f465a !important;
     }
 
     &:hover {
         background-color: #D6DAE6;
+    }
+
+    &.errorInTab {
+        background-color: #f2dede;
+        color: #a94442 !important;
     }
 }
 
