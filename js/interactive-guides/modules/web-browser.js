@@ -145,7 +145,7 @@ var webBrowser = (function(){
     },
 
     setURLFocus: function() {
-      this.contentRootElement.find('.wbNavURL').focus();
+      this.contentRootElement.find('.wbNavURL').trigger('focus');
     },
 
     enableRefreshButton: function(enable) {
@@ -198,7 +198,7 @@ var webBrowser = (function(){
           }
 
           // Select URL text when in focus
-          $wbNavURL.focus(function() {
+          $wbNavURL.on('focus', function() {
               $(this).select();
           });
 

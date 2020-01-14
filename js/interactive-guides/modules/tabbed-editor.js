@@ -255,7 +255,7 @@ var tabbedEditor = (function() {
         focusTabByFileName: function(fileName) {
             var tab = this.findEditorTabByFileName(fileName);
             if (tab) {
-                tab.click();
+                tab.trigger('click');
             }
             return tab;
         },
@@ -387,11 +387,11 @@ var tabbedEditor = (function() {
                     var tab = thisTabbedEditor.focusTabByFileName(content.activeTab);
                     if (!tab) {     // fileName specified was not found in tabbed editor
                         // Set the first tab initially active
-                        thisTabbedEditor.$teTabList.find('a').first().click();
+                        thisTabbedEditor.$teTabList.find('a').first().trigger('click');
                     }
                 } else {
                     // Set the first tab initially active
-                    thisTabbedEditor.$teTabList.find('a').first().click();
+                    thisTabbedEditor.$teTabList.find('a').first().trigger('click');
                 }
 
             }       
