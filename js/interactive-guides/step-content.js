@@ -889,7 +889,7 @@ var stepContent = (function() {
     // listen to onclick on webBrowser content since it's an iframe
     if (displayType === "webBrowser") {        
       var webBrowserContent = subContainer.find('iframe[name="iframeResult"]');
-      webBrowserContent.load(function() {
+      webBrowserContent.on('load', function() {
         $(this).contents().on("click", function() {
           resizeWidgets(widgetsObjInfo, displayType);
         });
@@ -907,7 +907,7 @@ var stepContent = (function() {
           widgetOnHover = subContainer.find(".teContainer");
       }
       if (widgetOnHover) {
-        widgetOnHover.hover(function(e) {
+        widgetOnHover.on('hover', function(e) {
           if (e.type === "mouseenter") {
             $(this).addClass('stepWidgetOnHover');
           } else {
