@@ -140,7 +140,7 @@ var blueprint = (function(){
   var setupClipboardCopy = function() {
     // offset, target, target_position, target_width, and target_height are global variables in guide.js
     var target_topMargin;
-    $('#guide_column codeblock').hover(function (event) {
+    $('#guide_column codeblock').on('mouseenter', function(event) {
         offset = $('#guide_column').position();	
         target = event.currentTarget;	
         var current_target_object = $(event.currentTarget);
@@ -155,7 +155,7 @@ var blueprint = (function(){
           left: target_position.left + target_width - 39
         });
         $('#copy_to_clipboard').stop().fadeIn();
-    }, function(event) {
+    }).on("mouseleave", function(event) {
         if (offset) {
           var x = event.clientX - offset.left;
           var y = event.clientY - offset.top + $(window).scrollTop();
@@ -169,7 +169,7 @@ var blueprint = (function(){
         }
     });
 
-    $('#copy_to_clipboard').click(function (event) {
+    $('#copy_to_clipboard').on('click',function(event) {
       event.preventDefault();
       copy_element_to_clipboard(target, function() {
         var current_target_object = $(event.currentTarget);
