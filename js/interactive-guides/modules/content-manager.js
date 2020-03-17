@@ -789,6 +789,7 @@ var contentManager = (function() {
             if(instruction.complete === false){
                 instruction.complete = true;
                 $("#"+instructionID).addClass("completed");
+                $("#"+instructionID).attr("aria-disabled", true);
                 if(stepInstruction.currentInstructionIndex < stepInstruction.instructions.length-1){
                     stepInstruction.currentInstructionIndex++;
                     enableNextInstruction(stepName);
@@ -818,6 +819,7 @@ var contentManager = (function() {
 
         if(instruction.complete === false) {
           $("#"+instructionID).removeClass("unavailable");
+          $("#"+instructionID).removeAttr("aria-disabled");
           $("#"+instructionID).attr('tabindex', '0');
           var actions = $("#"+instructionID).find('action');
           actions.prop('tabindex', '0');
