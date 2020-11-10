@@ -187,6 +187,7 @@ var stepContent = (function() {
       instructionTag.attr("data-step", stepName); // Set a data tag to identify the instruction block with this step
       if (index > 0) {
         instructionTag.addClass("unavailable");
+        instructionTag.attr('aria-disabled', true);
         instructionTag.attr('tabindex', '-1');
         // Mark the instruction's actions disabled
         instruction = instruction.replace("tabindex='0'", "tabindex='-1'");
@@ -720,6 +721,7 @@ var stepContent = (function() {
         var subContainer = $(subContainerDivId);
         if (isEnable === false) {
             subContainer.addClass('disableContainer');
+            subContainer.attr('aria-disabled', true);
         }
         if (isHidden === true) {
             subContainer.addClass('hiddenContainer');
@@ -792,6 +794,7 @@ var stepContent = (function() {
                 // always disable the widget if specified
                 if (content.enable === false) {
                   subContainer.addClass('disableContainer');
+                  subContainer.attr('aria-disabled', true);
                 }
                 if (!inSingleColumnView() || content.displayType === "tabbedEditor") {
                   // dynamically setup height for each widget based on each step content    

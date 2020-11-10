@@ -43,7 +43,7 @@ var tableofcontents = (function() {
         __steps = steps;   // Save a local pointer to the steps array, managed by step-content.js
 
         var container = $("#toc_container .sectlevel1");
-        container.attr("role", "application");
+        container.attr("role", "presentation");
         container.attr("aria-label", "Table of contents");
 
         // Loop through the steps and append each one to the table of contents.

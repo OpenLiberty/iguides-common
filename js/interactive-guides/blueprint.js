@@ -171,7 +171,7 @@ var blueprint = (function(){
 
     $('#copy_to_clipboard').on('click',function(event) {
       event.preventDefault();
-      copy_element_to_clipboard(target, function() {
+      openliberty.copy_element_to_clipboard(target, function() {
         var current_target_object = $(event.currentTarget);
         var position = current_target_object.position();
         $('#guide_section_copied_confirmation').css({
