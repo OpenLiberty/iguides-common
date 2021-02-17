@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <!--
-  Copyright (c) 2018 IBM Corporation and others.
+  Copyright (c) 2018, 2021 IBM Corporation and others.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
- 
+
   Contributors:
       IBM Corporation - initial API and implementation
 -->
-<html style="height: 100%;">
+<html style="height: 100%;" lang="en">
 
 <head>
+    <title>Welcome to Global eBank</title>
     <link href="https://fonts.googleapis.com/css?family=Asap" rel="stylesheet">
     <link rel="stylesheet" href="/guides/iguides-common/css/interactive-guides/bankApp.css">
     <script type="text/javascript">
         var script = document.createElement('script');
- 
+
         script.onload = function() {
             var guideRootDir = "/guides/iguides-common/js/interactive-guides/nls/"
             retrieveExternalizedStrings(guideRootDir);
@@ -27,6 +28,7 @@
 </head>
 
 <body style="height: 100%;">
+  <main aria-labelledby="welcome">
     <div class="bankHeadingBlockFlexContainer">
         <div class="bankHeading">Global eBank</div>
         <span>
@@ -36,10 +38,10 @@
     </div>
     <div id="welcome">
         <div class="flexWelcomeContainer">
-            <figure>
+            <figure aria-labelledby="bankName">
                 <img src="/guides/iguides-common/img/interactive-guides/bank-logo.svg" data-externalizedAlt="BANK_LOGO">
             </figure>
-            <div class="welcomeTextWrapper">
+            <div id="bankName" class="welcomeTextWrapper">
                 <div class="welcomeBorderWrapper">
                     <p data-externalizedString="WELCOME"></p>
                     <div class="welcomeLine"></div>
@@ -50,5 +52,6 @@
             </div>
         </div>
     </div>
+  </main>
 </body>
 </html>
