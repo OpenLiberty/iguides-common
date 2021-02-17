@@ -47,7 +47,7 @@ body {
 .bankHeading {
     font-weight: 500;
     font-size: 16px;
-    color: #5E6B8D;
+    color: #5b6888;  /*#5E6B8D;*/
     letter-spacing: 0;
     text-align: left;
     padding: 9px 0px 9px 18px;
@@ -89,11 +89,11 @@ body {
     flex-wrap: nowrap;
     flex-direction: column;
     justify-content: center;
-    margin: 24px 24px 0; 
+    margin: 24px 24px 0;
     flex-grow: 1;
     overflow: hidden;
 }
-  
+
 .flexWarningContainer > div {
     text-align: center;
     line-height: 24px;
@@ -187,7 +187,7 @@ body {
 
 @media (max-width: 620px) {
     .welcomeTextWrapper {
-        justify-content: center;  /* need to adjust the alignment to the center because the image 
+        justify-content: center;  /* need to adjust the alignment to the center because the image
                                      shrinks causing mis-alignment */
     }
 }
