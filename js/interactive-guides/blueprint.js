@@ -139,19 +139,19 @@ var blueprint = (function(){
 
   var setupClipboardCopy = function() {
 
-    $('#guide_column codeblock').each(function (){
-      $(this).wrap('<div class="code_block_wrapper" title="Code block"></div>');  
-    })
-    $('.code_block_wrapper').each(function (){
-        $(this).prepend('<div id="copied_confirmation">Copied to clipboard</div><input type="image" id="copy_to_clipboard" src="/img/guides_copy_button.svg" alt="Copy code block" title="Copy code block"/>');
-    });
+    // $('#guide_column codeblock').each(function (){
+    //   $(this).wrap('<div class="code_block_wrapper" title="Code block"></div>');  
+    // })
+    // $('.code_block_wrapper').each(function (){
+    //     $(this).prepend('<div id="copied_confirmation">Copied to clipboard</div><input type="image" id="copy_to_clipboard" src="/img/guides_copy_button.svg" alt="Copy code block" title="Copy code block"/>');
+    // });
 
-    $(document).on('click', '#copy_to_clipboard', function (event) {
-        event.stopPropagation();
-        target = $(this).siblings('#guide_column codeblock');
-        openliberty.copy_element_to_clipboard(target, function () {});
-        $(this).prev().fadeIn().delay(500).fadeOut()
-    });
+    // $(document).on('click', '#copy_to_clipboard', function (event) {
+    //     event.stopPropagation();
+    //     target = $(this).siblings('#guide_column codeblock');
+    //     openliberty.copy_element_to_clipboard(target, function () {});
+    //     $(this).prev().fadeIn().delay(500).fadeOut()
+    // });
   }
 
   return {
