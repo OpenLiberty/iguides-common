@@ -30,7 +30,7 @@
 
 .disableContainer {
   opacity: 0.3;
-
+  pointer-events: none;
   @media (max-width: 1170px) {
       display: none;
   }
