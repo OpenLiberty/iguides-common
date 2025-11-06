@@ -142,7 +142,7 @@ var stepContent = (function() {
         });
         description = description.join("");
     }
-    var newDescription = $("<div class='description' tabindex='0'></div>");
+    var newDescription = $("<div class='description'></div>");
     newDescription.attr('data-step', step.name);
     newDescription.html(description);
     $stepContent.append(newDescription);
